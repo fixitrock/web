@@ -6,6 +6,8 @@ import { useState } from 'react'
 import { useSearch } from '®/hooks/useSearch'
 import AnimatedSearch, { useOpen } from '®/ui/farmer/search'
 
+import { Profile } from '../user/profile'
+
 import { DriveItem } from './drive-item'
 import ShortcutKey from './shortcutkey'
 import { Suggestion } from './suggestion'
@@ -42,14 +44,7 @@ const SearchBar = () => {
                                 <X size={18} />
                             </Button>
                         ) : (
-                            <Button isIconOnly radius='full' size='sm' variant='flat'>
-                                <Image
-                                    alt='Fix iT Rock'
-                                    height={30}
-                                    src='/icons/rdrive.png'
-                                    width={30}
-                                />
-                            </Button>
+                            <Profile />
                         )
                     }
                     placeholder='What do you need?'

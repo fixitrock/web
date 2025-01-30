@@ -2,7 +2,6 @@
 
 import { HeroUIProvider } from '@heroui/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { ThemeProvider } from 'next-themes'
 import NextTopLoader from 'nextjs-toploader'
 import { useRouter } from 'nextjs-toploader/app'
@@ -35,7 +34,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                             <div className='absolute bottom-0' color='secondary'>
                                 {screenSize}
                             </div>
-                            <ReactQueryDevtools />
+                            {/* <ReactQueryDevtools /> */}
                         </>
                     )}
                 </HeroUIProvider>

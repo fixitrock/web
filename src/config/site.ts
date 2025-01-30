@@ -1,4 +1,4 @@
-import { Moon, SunIcon } from 'lucide-react'
+import { Moon, Settings, SunIcon, User } from 'lucide-react'
 import { BsUsbSymbol, BsApple } from 'react-icons/bs'
 import { MdPhonelinkSetup } from 'react-icons/md'
 import { RiComputerLine } from 'react-icons/ri'
@@ -74,6 +74,57 @@ export const siteConfig = {
     ],
 }
 
+export type PageConfig = typeof pageConfig
+
+export const pageConfig = {
+    user: [
+        {
+            title: 'Profile',
+            description: 'View and edit your profile',
+            icon: '👤',
+            link: '',
+        },
+        {
+            title: 'Orders',
+            description: 'View and manage your orders',
+            icon: '🧾',
+            link: '/orders',
+        },
+
+        {
+            title: 'Settings',
+            description: 'Manage your account settings',
+            icon: '⚙️',
+            link: '/settings',
+        },
+        {
+            title: 'Help & Support',
+            description: 'Get help and support',
+            icon: '❓',
+            link: '',
+        },
+        {
+            title: 'Logout',
+            description: 'Logout from your account',
+            icon: '👋🏻',
+            link: '',
+        },
+    ],
+    admin: [
+        {
+            title: 'Dashboard',
+            description: 'View and manage your dashboard',
+            icon: User,
+            link: '',
+        },
+        {
+            title: 'Settings',
+            description: 'Manage your account settings',
+            icon: Settings,
+            link: '/settings',
+        },
+    ],
+}
 export const META_THEME_COLORS = {
     light: '#ffffff',
     dark: '#00000',
