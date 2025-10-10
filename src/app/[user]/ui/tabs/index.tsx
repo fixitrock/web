@@ -28,7 +28,7 @@ export default function Tabs({ user, tabs, products }: TabsProps) {
         if (match && match[1]) selectedKey = match[1]
     }
 
-    const validTabKeys = tabs.map((t) => t.title.toLowerCase())
+    const validTabKeys = tabs.map((t) => t.title?.toLowerCase())
 
     if (selectedKey && !validTabKeys.includes(selectedKey)) {
         redirect(`/@${user.username}`)

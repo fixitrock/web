@@ -1,7 +1,7 @@
-import Members from './members'
-
 import { User } from '@/app/login/types'
 import { userSession } from '@/actions/user'
+
+import Members from './members'
 
 export async function Teams() {
     const { user } = await userSession()

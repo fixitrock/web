@@ -6,7 +6,7 @@ import { Download } from 'lucide-react'
 import jsPDF from 'jspdf'
 import autoTable, { RowInput } from 'jspdf-autotable'
 
-import { Product } from '@/types/products'
+import { Product } from '@/types/product'
 import { formatNumber } from '@/lib/utils'
 import { useCurrentUser } from '@/hooks/tanstack/query'
 import { siteConfig } from '@/config/site'

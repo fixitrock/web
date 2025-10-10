@@ -241,11 +241,11 @@
 }
 
 @layer utilities {
-    .no-scrollbar::-webkit-scrollbar {
+    .hide-scrollbar::-webkit-scrollbar {
         display: none;
     }
 
-    .no-scrollbar {
+    .hide-scrollbar {
         -ms-overflow-style: none;
         /* IE and Edge */
         scrollbar-width: none;

@@ -1,16 +1,38 @@
 {
-    "editor.formatOnPaste": true,
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "always"
-    },
-    "prettier.semi": false,
-    "prettier.useTabs": false,
-    "prettier.tabWidth": 4,
-    "prettier.printWidth": 100,
-    "prettier.singleQuote": true,
-    "prettier.bracketSpacing": true,
-    "prettier.endOfLine": "auto",
-    "prettier.arrowParens": "always",
-    "prettier.trailingComma": "all"
+  "[typescript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  },
+  "deno.enablePaths": [
+    "supabase/functions"
+  ],
+  "deno.lint": true,
+  "deno.unstable": [
+    "bare-node-builtins",
+    "byonm",
+    "sloppy-imports",
+    "unsafe-proto",
+    "webgpu",
+    "broadcast-channel",
+    "worker-options",
+    "cron",
+    "kv",
+    "ffi",
+    "fs",
+    "http",
+    "net"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "prettier.arrowParens": "always",
+  "prettier.bracketSpacing": true,
+  "prettier.endOfLine": "auto",
+  "prettier.printWidth": 100,
+  "prettier.semi": false,
+  "prettier.singleQuote": true,
+  "prettier.tabWidth": 4,
+  "prettier.trailingComma": "all",
+  "prettier.useTabs": false
 }

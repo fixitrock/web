@@ -8,9 +8,18 @@ import Products from './ui/products'
 import { Brands } from './ui/brands'
 import { Settings } from './ui/settings'
 import { Teams } from './ui/teams'
+import { Pos } from './ui/pos'
 
-const components: Record<string, React.ComponentType<{ params: { user: string } }>> = {
+const components: Record<
+    string,
+    React.ComponentType<{
+        params: { user: string }
+        searchParams?: Promise<{ category?: string; s?: string }>
+    }>
+> = {
+    Pos: Pos,
     Products: Products,
+
     Brands: Brands,
     Settings: Settings,
     Teams: Teams,
@@ -18,9 +27,10 @@ const components: Record<string, React.ComponentType<{ params: { user: string } 
 
 type Props = {
     params: Promise<{ user: string; slug: string }>
+    searchParams?: Promise<{ category?: string; s?: string }>
 }
 
-export default async function SlugPage({ params }: Props) {
+export default async function SlugPage({ params, searchParams }: Props) {
     const { user, slug } = await params
     const cleanUsername = decodeURIComponent(user).replace(/^@/, '')
     const userObj = await getUser(cleanUsername)
@@ -47,7 +57,7 @@ export default async function SlugPage({ params }: Props) {
 
     return (
         <>
-            <SectionComponent params={{ user: cleanUsername }} />
+            <SectionComponent params={{ user: cleanUsername }} searchParams={searchParams} />
         </>
     )
 }

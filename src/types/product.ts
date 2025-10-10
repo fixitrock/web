@@ -1,62 +1,54 @@
-export interface Brand {
-    id: number
-    name: string
-    description?: string
-}
+import { z } from 'zod'
 
-export interface SubCategory {
-    id: number
-    name: string
-    description?: string
-}
+export const ColorInfoSchema = z.object({
+    name: z.string(),
+    code: z.string().nullable().optional(),
+})
 
-export interface Category {
-    id: number
-    name: string
-    description?: string
-    subCategories: SubCategory[]
-}
+export const ProductVariantSchema = z.object({
+    id: z.number(),
+    product_id: z.number(),
+    color: ColorInfoSchema.nullable().optional(),
+    storage: z.string().nullable().optional(),
+    brand: z.string().nullable().optional(),
+    purchase: z.number(),
+    staff_price: z.number(),
+    price: z.number(),
+    mrp: z.number(),
+    qty: z.number(),
+    img: z.array(z.string()),
+    created_at: z.string(),
+    updated_at: z.string(),
+    deleted_at: z.string().nullable(),
+})
 
-export interface AttributeValue {
-    id: string
-    name: string
-    hexColor?: string // For color attributes
-}
+export const ProductSchema = z.object({
+    id: z.number(),
+    user_id: z.string().uuid(),
+    slug: z.string(),
+    name: z.string(),
+    description: z.string().nullable().optional(),
+    compatible: z.string().nullable().optional(),
+    category: z.string().nullable().optional(),
+    brand: z.string().nullable().optional(),
+    color: ColorInfoSchema.nullable().optional(),
+    storage: z.string().nullable().optional(),
+    img: z.array(z.string()),
+    purchase: z.number(),
+    staff_price: z.number(),
+    price: z.number(),
+    mrp: z.number(),
+    qty: z.number(),
+    variants_cache: z
+        .array(ProductVariantSchema.omit({ product_id: true }))
+        .nullable()
+        .optional(),
+    created_at: z.string(),
+    updated_at: z.string(),
+    deleted_at: z.string().nullable(),
+})
 
-export interface FilteringAttribute {
-    id: number
-    name: string
-    type: 'select' | 'color' | 'size'
-    values: AttributeValue[]
-}
-
-export interface PriceVariation {
-    id: number
-    attributes: { [attributeId: number]: string }
-    purchasePrice: number
-    staffPrice: number
-    sellingPrice: number
-    stock: number
-}
-
-export interface Product {
-    id: number
-    userId: string
-    title: string
-    slug: string
-    description: string
-    compatible: string
-    image: JSON
-    brandId: number
-    categoryId: number
-    subCategoryId: number
-    purchasePrice: number
-    staffPrice: number
-    sellingPrice: number
-    qty: number
-    selectedAttributes?: { [attributeId: number]: string }
-    priceVariations?: PriceVariation[]
-    createdAt: string
-    updatedAt: string
-    deletedAt?: string
-}
+export type ColorInfo = z.infer<typeof ColorInfoSchema>
+export type ProductVariant = z.infer<typeof ProductVariantSchema>
+export type Product = z.infer<typeof ProductSchema>
+export type Products = Product[]

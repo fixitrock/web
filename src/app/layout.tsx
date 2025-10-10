@@ -25,12 +25,12 @@ export default async function RootLayout({
             <head>
                 <meta content={META_THEME_COLORS.light} name='theme-color' />
             </head>
-            <body className={cn('bg-background min-h-svh font-sans antialiased', fontVariables)}>
+            <body className={cn('font-sans antialiased', fontVariables)}>
                 <AuthProvider>
                     <ErrorBoundary>
                         <Providers>
-                            <div className='bg-background relative flex min-h-screen flex-col'>
-                                <div className='flex-1 overflow-clip'>{children}</div>
+                            <div className='bg-background relative z-10 flex min-h-screen flex-col'>
+                                <main className='flex flex-1 flex-col'>{children}</main>
                                 {modal}
                                 <SearchBar command={command} user={user}>
                                     <UserDrawer navigation={navigation} user={user} />

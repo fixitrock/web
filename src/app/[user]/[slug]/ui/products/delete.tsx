@@ -17,7 +17,7 @@ import { addToast } from '@heroui/react'
 import { MdProductionQuantityLimits } from 'react-icons/md'
 
 import { softDeleteProduct } from '@/actions/user/products'
-import { Product } from '@/types/products'
+import { Product } from '@/types/product'
 import { formatPrice, getProductImage, getStockStatus } from '@/lib/utils'
 
 interface DeleteProductProps {

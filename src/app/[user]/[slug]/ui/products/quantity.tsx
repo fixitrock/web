@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import { Button, Input, addToast } from '@heroui/react'
 import { Minus, Plus } from 'lucide-react'
 
-import { Product } from '@/types/products'
+import { Product } from '@/types/product'
 import { setProductQty } from '@/actions/user/products'
 import { useEvent } from '@/zustand/store'
 

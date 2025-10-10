@@ -6,7 +6,7 @@ import React from 'react'
 import { FilterIcon } from '@/ui/icons'
 import { Input } from '@/app/(space)/ui'
 import { useDragScroll } from '@/hooks'
-import { Product } from '@/types/products'
+import { Product } from '@/types/product'
 
 import { Filter } from './filter'
 import ExportButton from './export'

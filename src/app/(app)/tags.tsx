@@ -25,14 +25,15 @@ export function Tags({ navigation = [] }: { navigation?: Navigation[] }) {
             icon: iconComp,
         }
     })
-    const allTags = [...navigationWithIcons, ...suggestion]
+
+    const tagsToShow = navigationWithIcons.length > 0 ? navigationWithIcons : suggestion
 
     return (
-        <div>
+        <>
             <Eva placeholder='Work in progress . . .' />
 
             <div className='mt-4 flex w-full flex-row flex-wrap items-center justify-center gap-x-3 gap-y-2'>
-                {allTags.map((s) => {
+                {tagsToShow.map((s) => {
                     const Icon = s.icon as React.ElementType<SVGProps<SVGSVGElement>> | undefined
 
                     return (
@@ -56,6 +57,6 @@ export function Tags({ navigation = [] }: { navigation?: Navigation[] }) {
                     )
                 })}
             </div>
-        </div>
+        </>
     )
 }

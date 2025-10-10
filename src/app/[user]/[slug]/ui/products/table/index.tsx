@@ -5,7 +5,7 @@ import { Button, Tooltip, useDisclosure, Navbar } from '@heroui/react'
 import React from 'react'
 import { Edit, Filter, PackageOpen, Plus, SearchX } from 'lucide-react'
 
-import { Product, Products } from '@/types/products'
+import { Product } from '@/types/product'
 import { Brand } from '@/types/brands'
 import { formatDateTime, formatPrice, getStockStatus } from '@/lib/utils'
 import { Delete } from '@/ui/icons'
@@ -14,7 +14,7 @@ import { useProductFilterStore } from '@/zustand/filter'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table'
 import { Checkbox } from '@/ui/checkbox'
 
-import AddEdit from '../add'
+import AddEdit from '../beta/add'
 import Quantity from '../quantity'
 import DeleteProduct from '../delete'
 
@@ -23,7 +23,7 @@ import { TopContent } from './top'
 import { BottomContent } from './bottom'
 
 interface ProductsTableProps {
-    products: Products
+    products: Product[]
     canManage: boolean
     brand: Brand[]
 }
@@ -56,7 +56,7 @@ export default function ProductsTable({ products, canManage, brand }: ProductsTa
 
     const categories = useMemo<string[]>(() => {
         const uniqueCategories = [
-            ...new Set(products.map((p) => p.category).filter((v): v is string => !!v)),
+            ...new Set(products.map((p: Product) => p.category).filter((v): v is string => !!v)),
         ]
 
         return ['all', ...uniqueCategories]
@@ -79,10 +79,13 @@ export default function ProductsTable({ products, canManage, brand }: ProductsTa
     const columns = [
         { key: 'select', label: '' },
         { key: 'product', label: 'Product' },
-        { key: 'compatibility', label: 'Compatibility' },
+        { key: 'category', label: 'Category' },
+        { key: 'brand', label: 'Brand' },
+        { key: 'compatible', label: 'Compatible' },
         { key: 'purchase', label: 'Purchase' },
         { key: 'staff', label: 'Staff' },
         { key: 'price', label: 'Price' },
+        { key: 'mrp', label: 'MRP' },
         { key: 'quantity', label: 'Quantity' },
         { key: 'status', label: 'Status' },
         { key: 'total', label: 'Total' },
@@ -108,7 +111,9 @@ export default function ProductsTable({ products, canManage, brand }: ProductsTa
             const matchesSearch =
                 searchTerm === '' ||
                 product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.compatible.toLowerCase().includes(searchTerm.toLowerCase())
+                (product.compatible &&
+                    product.compatible.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (product.brand && product.brand.toLowerCase().includes(searchTerm.toLowerCase()))
 
             const matchesCategory =
                 filterValues.categories.length === 0 ||
@@ -265,7 +270,11 @@ export default function ProductsTable({ products, canManage, brand }: ProductsTa
                         </p>
                     </>
                 )
-            case 'compatibility':
+            case 'category':
+                return product.category
+            case 'brand':
+                return product.brand
+            case 'compatible':
                 return product.compatible
             case 'purchase':
                 return formatPrice(product.purchase ?? 0)
@@ -273,6 +282,8 @@ export default function ProductsTable({ products, canManage, brand }: ProductsTa
                 return formatPrice(product.staff_price ?? 0)
             case 'price':
                 return formatPrice(product.price ?? 0)
+            case 'mrp':
+                return formatPrice(product.mrp ?? 0)
             case 'quantity':
                 return <Quantity canManage={canManage} product={product} />
             case 'status':
@@ -475,7 +486,7 @@ export default function ProductsTable({ products, canManage, brand }: ProductsTa
                 />
             </div>
             <AddEdit
-                brands={brand}
+                // brands={brand}
                 isOpen={isAddOpen}
                 mode='add'
                 product={addProduct}
@@ -483,7 +494,6 @@ export default function ProductsTable({ products, canManage, brand }: ProductsTa
             />
 
             <AddEdit
-                brands={brand}
                 isOpen={isEditOpen}
                 mode='edit'
                 product={editingProduct}

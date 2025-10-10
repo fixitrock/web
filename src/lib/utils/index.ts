@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge'
 import { User } from '@/app/login/types'
 import { siteConfig } from '@/config/site'
 import { DriveItem } from '@/types/drive'
-import { Product } from '@/types/products'
+import { Product } from '@/types/product'
 import { bucketUrl } from '@/supabase/bucket'
 
 export function cn(...inputs: ClassValue[]) {
@@ -332,5 +332,18 @@ export function formatNumber(num: number): string {
         return (num / 1_000_000).toFixed(num % 1_000_000 === 0 ? 0 : 1) + 'M'
     } else {
         return (num / 1_000_000_000).toFixed(num % 1_000_000_000 === 0 ? 0 : 1) + 'B'
+    }
+}
+
+export function formatDiscount(price: number, mrp: number) {
+    if (!price || !mrp || mrp <= 0 || price >= mrp) {
+        return { off: '', discount: 0 }
+    }
+
+    const discount = Math.round(((mrp - price) / mrp) * 100)
+
+    return {
+        off: `${discount}% off`,
+        discount: formatPrice(discount),
     }
 }
