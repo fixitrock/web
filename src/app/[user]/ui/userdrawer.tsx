@@ -65,6 +65,7 @@ export default function UserDrawer({
 
             <Drawer direction={isDesktop ? 'right' : 'bottom'} open={open} onOpenChange={setOpen}>
                 <DrawerContent
+                    className='data-[vaul-drawer-direction=right]:sm:max-w-[280px]'
                     hideCloseButton={isDesktop ? true : false}
                     showbar={isDesktop ? false : true}
                 >

@@ -5,7 +5,7 @@ import { AtSign, Loader, UserRound } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { checkUsername, createUser } from '@/actions/user'
-import { useDebounce } from '@/app/login/hooks/useDebounce'
+import { useDebounce } from '@/hooks/useDebounce'
 import { User } from '@/app/login/types'
 import { Dob } from '@/ui/dob'
 import { DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from '@/ui/drawer'

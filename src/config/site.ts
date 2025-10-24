@@ -18,6 +18,7 @@ export const siteConfig = {
     directoryUrl: '/space',
     redirectUri: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://fixitrock.com'}/oauth`,
     cacheControlHeader: 'max-age=0, s-maxage=60, stale-while-revalidate',
+    isDev: process.env.NODE_ENV === 'development',
     suggestion: [
         {
             href: '/',

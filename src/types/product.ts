@@ -1,62 +1,33 @@
-export interface Brand {
-    id: number
-    name: string
-    description?: string
-}
-
-export interface SubCategory {
-    id: number
-    name: string
-    description?: string
-}
-
-export interface Category {
-    id: number
-    name: string
-    description?: string
-    subCategories: SubCategory[]
-}
-
-export interface AttributeValue {
+export type Product = {
     id: string
+    seller_id: string // Foreign key to auth.users.id ✅
     name: string
-    hexColor?: string // For color attributes
-}
-
-export interface FilteringAttribute {
-    id: number
-    name: string
-    type: 'select' | 'color' | 'size'
-    values: AttributeValue[]
-}
-
-export interface PriceVariation {
-    id: number
-    attributes: { [attributeId: number]: string }
-    purchasePrice: number
-    staffPrice: number
-    sellingPrice: number
-    stock: number
-}
-
-export interface Product {
-    id: number
-    userId: string
-    title: string
     slug: string
-    description: string
-    compatible: string
-    image: JSON
-    brandId: number
-    categoryId: number
-    subCategoryId: number
-    purchasePrice: number
-    staffPrice: number
-    sellingPrice: number
-    qty: number
-    selectedAttributes?: { [attributeId: number]: string }
-    priceVariations?: PriceVariation[]
-    createdAt: string
-    updatedAt: string
-    deletedAt?: string
+    description: string | null // SQL allows null
+    compatibility: string | null // SQL allows null
+    category: string
+    created_at: string
+    updated_at: string
+    deleted_at: string | null
+    product_variants: ProductVariant[]
+    // query?: string                   // optional: you can store the tsvector as string if needed
 }
+
+export type ProductVariant = {
+    id: string
+    product_id: string
+    brand: string
+    image: string[] | null
+    color: { name: string; code: string }
+    storage: string
+    purchase_price: number
+    wholesale_price: number
+    price: number
+    mrp: number
+    quantity: number
+    created_at: string
+    updated_at: string
+    deleted_at: string | null
+}
+
+export type Products = Product[]

@@ -6,9 +6,11 @@ import { ThemeProvider } from 'next-themes'
 import NextTopLoader from 'nextjs-toploader'
 import { useRouter } from 'nextjs-toploader/app'
 import { useState } from 'react'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import { siteConfig } from '@/config/site'
 import { useOpen } from '@/zustand/store'
+import { Toaster } from '@/ui/sonner'
 
 export function Providers({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient())
@@ -33,7 +35,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     />
                     {children}
                     <NextTopLoader color='red' height={2} showSpinner={false} />
+                    <Toaster />
                 </HeroUIProvider>
+                {siteConfig.isDev && <ReactQueryDevtools />}
             </QueryClientProvider>
         </ThemeProvider>
     )

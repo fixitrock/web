@@ -245,21 +245,21 @@ export { getDownloadBackground } from './downloadProgress'
  * Wraps server actions with consistent error handling
  * This ensures all errors are properly caught and don't crash the UI
  */
-export function withErrorHandling<T extends readonly unknown[], R>(
-    action: (...args: T) => Promise<R>
-): (...args: T) => Promise<R> {
-    return async (...args: T): Promise<R> => {
+export function withErrorHandling<Args extends unknown[], Return>(
+    fn: (...args: Args) => Promise<Return>
+) {
+    return async (...args: Args): Promise<Return> => {
         try {
-            return await action(...args)
-        } catch (error) {
-            // Log the error for debugging
-            logWarning('Server action error:', error)
-
-            // Re-throw the error so it can be caught by ErrorBoundary
+            return await fn(...args)
+        } catch (error: unknown) {
             if (error instanceof Error) {
-                throw error
+                throw new Error(error.message)
+            } else if (typeof error === 'string') {
+                throw new Error(error)
+            } else if (error && typeof error === 'object' && 'message' in error) {
+                throw new Error((error as { message: string }).message)
             } else {
-                throw new Error(typeof error === 'string' ? error : 'An unexpected error occurred')
+                throw new Error('An unexpected error occurred')
             }
         }
     }

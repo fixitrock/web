@@ -1,8 +1,9 @@
 'use client'
 
-import { XIcon } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import * as React from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
+import { Button } from '@heroui/react'
 
 import { cn } from '@/lib/utils'
 
@@ -59,7 +60,7 @@ function DrawerContent({
                     // Bottom Drawer
                     'min-h-min data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80dvh] data-[vaul-drawer-direction=bottom]:rounded-t-lg data-[vaul-drawer-direction=bottom]:border-t md:min-h-auto',
                     // Right Drawer
-                    'data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-2xl data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-[280px]',
+                    'data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-l-2xl data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-xs',
                     // Left Drawer
                     'data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:sm:max-w-sm',
                     className
@@ -70,11 +71,18 @@ function DrawerContent({
                 {showbar && <div className='bg-default mx-auto my-2 h-1 w-[80px] rounded-full' />}
                 {hideCloseButton && (
                     <DrawerPrimitive.Close
-                        className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+                        asChild
+                        className='absolute top-4 right-0.5'
                         data-slot='drawer-close'
                     >
-                        <XIcon />
-                        <span className='sr-only'>Close</span>
+                        <Button
+                            isIconOnly
+                            aria-label='Close drawer'
+                            radius='full'
+                            size='sm'
+                            startContent={<ChevronRight />}
+                            variant='light'
+                        />
                     </DrawerPrimitive.Close>
                 )}
 

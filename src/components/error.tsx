@@ -1,7 +1,7 @@
 'use client'
 import { Component, ReactNode } from 'react'
 import { Button } from '@heroui/react'
-import { Copy } from 'lucide-react'
+import { AlertCircle, Copy, Key, Shield, Wifi } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { logWarning } from '@/lib/utils'
@@ -27,87 +27,75 @@ export class ErrorBoundary extends Component<Props, State> {
     componentDidCatch(error: Error) {
         logWarning('ErrorBoundary caught an error:', error)
 
-        // Determine error type and show appropriate toast
+        const { title, description, toastType, icon } = this.getErrorInfo(error)
+        const action = this.getActionButtons(error)
+
+        toast[toastType](title, {
+            description,
+            icon,
+            action,
+            duration: toastType === 'warning' ? 5000 : 8000,
+        })
+
+        if (toastType === 'warning') {
+            setTimeout(() => {
+                this.setState({ hasError: false, error: undefined })
+            }, 5000)
+        }
+    }
+
+    getErrorInfo(error: Error) {
+        const msg = error.message.toLowerCase()
         let title = 'Error'
         let description = this.getShortErrorDescription(error.message)
         let toastType: 'error' | 'warning' = 'error'
-        let action: React.ReactNode | undefined
+        let icon: ReactNode = <AlertCircle size={20} />
 
-        // Handle specific error types
-        if (
-            error.message.includes('Not authenticated') ||
-            error.message.includes('Authentication failed')
-        ) {
-            title = 'Auth Error'
+        if (msg.includes('not authenticated') || msg.includes('authentication failed')) {
+            title = 'Authentication Error'
             description = 'Please log in again'
             toastType = 'warning'
-            action = (
-                <Button
-                    color='primary'
-                    size='sm'
-                    variant='flat'
-                    onPress={() => this.setState({ hasError: false, error: undefined })}
-                >
-                    Try Again
-                </Button>
-            )
-        } else if (
-            error.message.includes('Access denied') ||
-            error.message.includes('Not authorized')
-        ) {
+            icon = <Key className='text-yellow-500' size={20} />
+        } else if (msg.includes('access denied') || msg.includes('not authorized')) {
             title = 'Access Denied'
             description = "You don't have permission"
             toastType = 'warning'
-            action = (
-                <Button
-                    color='primary'
-                    size='sm'
-                    variant='flat'
-                    onPress={() => this.setState({ hasError: false, error: undefined })}
-                >
-                    Try Again
-                </Button>
-            )
-        } else if (error.message.includes('Network') || error.message.includes('fetch')) {
+            icon = <Shield className='text-yellow-500' size={20} />
+        } else if (msg.includes('network') || msg.includes('fetch')) {
             title = 'Network Error'
-            description = 'Check internet connection'
+            description = 'Check your internet connection'
             toastType = 'warning'
-            action = (
-                <Button
-                    color='primary'
-                    size='sm'
-                    variant='flat'
-                    onPress={() => this.setState({ hasError: false, error: undefined })}
-                >
-                    Try Again
-                </Button>
-            )
-        } else if (error.message.includes('Token') || error.message.includes('OAuth')) {
-            title = 'Auth Error'
-            description = 'Re-authenticate required'
+            icon = <Wifi className='text-blue-500' size={20} />
+        } else if (msg.includes('token') || msg.includes('oauth')) {
+            title = 'Auth Token Error'
+            description = 'Re-authentication required'
             toastType = 'warning'
-            action = (
-                <Button
-                    color='primary'
-                    size='sm'
-                    variant='flat'
-                    onPress={() => this.setState({ hasError: false, error: undefined })}
-                >
-                    Try Again
-                </Button>
-            )
-        } else {
-            // For unknown errors, provide Try Again and Copy buttons
-            action = (
+            icon = <Key className='text-yellow-500' size={20} />
+        }
+
+        return { title, description, toastType, icon }
+    }
+
+    getActionButtons(error: Error) {
+        const tryAgainButton = (
+            <Button
+                color='primary'
+                size='sm'
+                variant='flat'
+                onPress={() => this.setState({ hasError: false, error: undefined })}
+            >
+                Try Again
+            </Button>
+        )
+
+        const isKnownError = error.message.match(
+            /not authenticated|access denied|network|token|oauth/i
+        )
+
+        if (!isKnownError) {
+            return (
                 <div className='flex gap-2'>
-                    <Button
-                        color='primary'
-                        size='sm'
-                        variant='flat'
-                        onPress={() => this.setState({ hasError: false, error: undefined })}
-                    >
-                        Try Again
-                    </Button>
+                    {tryAgainButton}
                     <Button
                         isIconOnly
                         className='min-w-unit-8'
@@ -121,41 +109,21 @@ export class ErrorBoundary extends Component<Props, State> {
             )
         }
 
-        // Show toast based on type
-        if (toastType === 'error') {
-            toast.error(title, {
-                description,
-                action,
-            })
-        } else {
-            toast.warning(title, {
-                description,
-                action,
-            })
-        }
-
-        // Auto-recover from certain errors after a delay
-        if (toastType === 'warning') {
-            setTimeout(() => {
-                this.setState({ hasError: false, error: undefined })
-            }, 5000) // Auto-recover after 5 seconds for warning-level errors
-        }
+        return tryAgainButton
     }
 
-    getShortErrorDescription = (message: string): string => {
-        // Extract the most relevant part of the error message
+    getShortErrorDescription(message: string): string {
         if (message.includes('map is not a function')) return 'Invalid data structure'
-        if (message.includes('Cannot read properties')) return 'Property access failed'
+        if (message.includes('cannot read properties')) return 'Property access failed'
         if (message.includes('is not defined')) return 'Variable not defined'
-        if (message.includes('Unexpected token')) return 'Syntax error'
-        if (message.includes('Failed to fetch')) return 'Request failed'
+        if (message.includes('unexpected token')) return 'Syntax error'
+        if (message.includes('failed to fetch')) return 'Request failed'
         if (message.includes('timeout')) return 'Request timeout'
 
-        // For other errors, take first 50 characters
-        return message.length > 50 ? message.substring(0, 50) + '...' : message
+        return message.length > 80 ? message.substring(0, 80) + '...' : message
     }
 
-    handleCopyError = (error: Error) => {
+    handleCopyError(error: Error) {
         const errorText = `${error.name}: ${error.message}\nStack: ${error.stack}`
 
         navigator.clipboard
@@ -163,23 +131,35 @@ export class ErrorBoundary extends Component<Props, State> {
             .then(() => {
                 toast.success('Copied!', {
                     description: 'Error details copied to clipboard',
+                    icon: <Copy size={16} />,
                 })
             })
             .catch(() => {
                 toast.error('Copy failed', {
                     description: 'Could not copy error details',
+                    icon: <AlertCircle size={16} />,
                 })
             })
     }
 
     render() {
-        if (this.state.hasError) {
-            // Don't render fallback UI, just return children
-            // The error is already handled by the toast
-            // Users can refresh the page or navigate away to recover
-            return this.props.children
-        }
-
         return this.props.children
     }
+}
+
+interface ErrorProps {
+    errors?: Record<string, { message?: string }>
+    className?: string
+}
+
+export const ErrorMessage: React.FC<ErrorProps> = ({ errors, className }) => {
+    if (!errors || Object.keys(errors).length === 0) return null
+
+    return (
+        <ul className={`list-inside list-disc space-y-1 text-sm text-red-600 ${className || ''}`}>
+            {Object.values(errors).map((error, idx) => (
+                <li key={idx}>{error?.message || 'Error'}</li>
+            ))}
+        </ul>
+    )
 }
