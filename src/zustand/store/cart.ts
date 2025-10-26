@@ -6,7 +6,6 @@ import { ProductVariant } from '@/types/product'
 import { CustomerInput } from '@/types'
 import { Order } from '@/types/orders'
 
-export type Customer = CustomerInput
 export type PaymentMethodType = 'cash' | 'upi' | 'card' | 'paylater'
 
 type CartItem = {
@@ -39,8 +38,8 @@ type PosState = {
     setTransactionMode: (type: 'debit' | 'credit', mode: PaymentMethodType) => void
     clearTransaction: (type?: 'debit' | 'credit') => void
 
-    selectedCustomer: Customer | null
-    setSelectedCustomer: (customer: Customer | null) => void
+    selectedCustomer: CustomerInput | null
+    setSelectedCustomer: (customer: CustomerInput | null) => void
     clearCustomer: () => void
 
     paidAmount: number
@@ -164,7 +163,7 @@ export const useCartStore = create<PosState>((set, get) => ({
                     quantity: newItem.quantity,
                     price: newItem.price,
                     selectedOptions: newItem.selectedOptions,
-                    serialNumbers: [],
+                    serialNumbers: [''],
                 }
 
                 return { items: [...state.items, cartItem] }

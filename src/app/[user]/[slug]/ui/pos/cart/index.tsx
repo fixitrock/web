@@ -1,6 +1,15 @@
 'use client'
 import { Minus, Plus, ReceiptIndianRupee, ScanBarcode, Trash } from 'lucide-react'
-import { Button, Card, CardBody, CardFooter, Input, ScrollShadow, addToast } from '@heroui/react'
+import {
+    Button,
+    Card,
+    CardBody,
+    CardFooter,
+    Input,
+    ScrollShadow,
+    addToast,
+    Tooltip,
+} from '@heroui/react'
 import NumberFlow from '@number-flow/react'
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -154,14 +163,22 @@ export function PosCart() {
                                     </div>
 
                                     <div className='flex items-center gap-1.5'>
-                                        <Button
-                                            isIconOnly
-                                            className='bg-background mr-2 size-6 min-w-auto rounded-sm border'
+                                        <Tooltip
+                                            content='Add IMEI/SN'
+                                            color='foreground'
                                             size='sm'
-                                            startContent={<ScanBarcode size={14} />}
-                                            variant='light'
-                                            onPress={() => toggleAccordionItem(item.id)}
-                                        />
+                                            className='border'
+                                            shadow='none'
+                                        >
+                                            <Button
+                                                isIconOnly
+                                                className='bg-background mr-2 size-6 min-w-auto rounded-sm border'
+                                                size='sm'
+                                                startContent={<ScanBarcode size={14} />}
+                                                variant='light'
+                                                onPress={() => toggleAccordionItem(item.id)}
+                                            />
+                                        </Tooltip>
 
                                         <Button
                                             isIconOnly
@@ -314,7 +331,7 @@ export function PosCart() {
                         <span className='font-medium'>{getTotalItems()}</span>
                     </p>
                 </div>
-                <div className='via-default/30 my-1 h-px bg-gradient-to-r from-transparent to-transparent' />
+                <div className='via-default/30 my-1 h-px bg-linear-to-r from-transparent to-transparent' />
                 <div className='flex items-center justify-between font-semibold'>
                     <p>Total Payment</p>
                     <NumberFlow

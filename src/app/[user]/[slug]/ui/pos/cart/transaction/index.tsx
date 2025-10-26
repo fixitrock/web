@@ -17,6 +17,7 @@ import { useTransactions } from '@/hooks/tanstack/query/order'
 
 import { NoTransactionMessage, TransactionCard, TransactionSkeleton } from './card'
 import { AddTransaction } from './add'
+import { bucketUrl } from '@/supabase/bucket'
 
 export function UserTransaction() {
     const { isOpen, onOpenChange, onOpen } = useDisclosure()
@@ -56,7 +57,9 @@ export function UserTransaction() {
                     <DrawerHeader className='border-b p-2'>
                         <User
                             avatarProps={{
-                                // src: userAvatar(user),
+                                src:
+                                    bucketUrl(selectedCustomer?.avatar || '') ||
+                                    '/fallback/boy.png',
                                 fallback: selectedCustomer?.name?.charAt(0) || '',
                                 className: 'size-10',
                             }}
@@ -64,7 +67,7 @@ export function UserTransaction() {
                                 base: 'flex justify-start px-2 sm:px-0',
                                 name: 'text-md flex items-center gap-1',
                             }}
-                            description={selectedCustomer?.phone.slice(2)}
+                            description={selectedCustomer?.phone?.slice(2)}
                             name={selectedCustomer?.name}
                         />
                         <DrawerTitle aria-hidden />

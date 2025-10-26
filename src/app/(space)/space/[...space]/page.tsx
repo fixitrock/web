@@ -109,7 +109,7 @@ async function Space({ space, ...props }: Props) {
                     userRole={user?.role}
                     {...props}
                 />
-                <Readme className='rounded-lg border p-2 2xl:px-[2rem]' raw={raw || ''} />
+                <Readme className='rounded-lg border p-2 2xl:px-8' raw={raw || ''} />
             </>
         )
     } catch (error) {

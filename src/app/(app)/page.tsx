@@ -13,7 +13,7 @@ export default async function Page() {
                     {user ? (
                         <>
                             {getGreeting()}&nbsp;
-                            <span className='bg-gradient-to-r from-fuchsia-500 via-amber-400 to-cyan-400 bg-clip-text font-extrabold text-transparent drop-shadow-md'>
+                            <span className='bg-linear-to-r from-fuchsia-500 via-amber-400 to-cyan-400 bg-clip-text font-extrabold text-transparent drop-shadow-md'>
                                 {user.name}
                             </span>
                         </>

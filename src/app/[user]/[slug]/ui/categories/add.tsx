@@ -15,7 +15,7 @@ import {
 } from '@heroui/react'
 import { CirclePlus, Eye, Plus, Settings2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useCreateBrand, useUpdateBrand } from '@/hooks/tanstack/mutation'
+import { useCreateCategory, useUpdateCategory } from '@/hooks/tanstack/mutation'
 import { useCategoryStore } from '@/zustand/store'
 import { AnimatePresence, motion } from 'framer-motion'
 import { bucketUrl } from '@/supabase/bucket'
@@ -27,8 +27,8 @@ interface AddEditProps {
 }
 export default function AddEdit({ isOpen, onClose, type }: AddEditProps) {
     const { form, updateForm, resetForm, editingCategory } = useCategoryStore()
-    const { mutateAsync: createMutate, isPending: isCreating } = useCreateBrand()
-    const { mutateAsync: updateMutate, isPending: isUpdating } = useUpdateBrand()
+    const { mutateAsync: createMutate, isPending: isCreating } = useCreateCategory()
+    const { mutateAsync: updateMutate, isPending: isUpdating } = useUpdateCategory()
 
     const [keywordInput, setKeywordInput] = useState('')
     const [previewUrl, setPreviewUrl] = useState('')
@@ -69,10 +69,9 @@ export default function AddEdit({ isOpen, onClose, type }: AddEditProps) {
             console.error(err)
         }
     }
-    const Title = type === 'add' ? 'Add Brand' : 'Edit Brand'
-    const Submit = type === 'add' ? 'Add Brand' : 'Update Brand'
+    const Title = type === 'add' ? 'Add Category' : 'Edit Category'
+    const Submit = type === 'add' ? 'Add Category' : 'Update Category'
     const Icon = type === 'add' ? <CirclePlus size={20} /> : <Settings2 size={20} />
-
     return (
         <Modal
             hideCloseButton
@@ -115,11 +114,12 @@ export default function AddEdit({ isOpen, onClose, type }: AddEditProps) {
                             }}
                             label='Name'
                             labelPlacement='outside'
-                            placeholder='e.g., Apple'
+                            placeholder='e.g., Display'
                             value={form.name || ''}
                             onChange={(e) => updateForm({ name: e.target.value })}
                             isRequired
                         />
+
                         <div className='space-y-2'>
                             <Input
                                 classNames={{
@@ -213,11 +213,10 @@ export default function AddEdit({ isOpen, onClose, type }: AddEditProps) {
                             }}
                             label='Description'
                             labelPlacement='outside'
-                            placeholder='Describe this brand . . .'
+                            placeholder='Describe this category...'
                             value={form.description || ''}
                             onChange={(e) => updateForm({ description: e.target.value })}
                         />
-
                         <div className='space-y-2'>
                             <Input
                                 classNames={{

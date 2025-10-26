@@ -20,7 +20,7 @@ async function userTable(phone: string) {
 
     const { data, error } = await supabase
         .from('users')
-        .select('id, phone, name, address')
+        .select('id, phone, name, address, avatar, gender')
         .eq('phone', phone)
         .limit(1)
         .single()

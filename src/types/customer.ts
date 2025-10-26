@@ -13,6 +13,8 @@ export const CustomerSchema = z.object({
     phone: z.string().min(1, 'Phone is required'),
     name: z.string().min(1, 'Name is required'),
     address: z.object(Address).optional().nullable(),
+    avatar: z.string().optional(),
+    gender: z.string().optional(),
 })
 
 export type CustomerInput = z.infer<typeof CustomerSchema>

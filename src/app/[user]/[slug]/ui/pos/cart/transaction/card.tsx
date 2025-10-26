@@ -103,7 +103,7 @@ export function TransactionCard({ transactions }: { transactions?: Transaction[]
                                 <div className='flex items-center justify-between gap-2'>
                                     <div className='flex min-w-0 flex-1 items-center gap-1.5'>
                                         <div
-                                            className={`bg-default/20 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded text-sm`}
+                                            className={`bg-default/20 flex h-7 w-7 shrink-0 items-center justify-center rounded text-sm`}
                                         >
                                             <Icon
                                                 className={
@@ -126,7 +126,7 @@ export function TransactionCard({ transactions }: { transactions?: Transaction[]
                                             </p>
                                         </div>
                                     </div>
-                                    <div className='flex flex-shrink-0'>
+                                    <div className='flex shrink-0'>
                                         <p
                                             className={`text-base font-bold ${
                                                 t.type === 'debit'
@@ -243,7 +243,7 @@ export function TransactionSkeleton() {
                     <div className='overflow-hidden rounded-lg border p-2'>
                         <div className='flex items-center justify-between gap-2'>
                             <div className='flex min-w-0 flex-1 items-center gap-1.5'>
-                                <div className='bg-default/20 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded'>
+                                <div className='bg-default/20 flex h-7 w-7 shrink-0 items-center justify-center rounded'>
                                     <Skeleton className='h-4 w-4 rounded' />
                                 </div>
                                 <div className='min-w-0 flex-1 space-y-1'>
@@ -251,7 +251,7 @@ export function TransactionSkeleton() {
                                     <Skeleton className='h-2 w-32 rounded' />
                                 </div>
                             </div>
-                            <div className='flex flex-shrink-0'>
+                            <div className='flex shrink-0'>
                                 <Skeleton className='h-4 w-16 rounded' />
                             </div>
                         </div>

@@ -12,6 +12,7 @@ import {
     ModalHeader,
     Skeleton,
     useDisclosure,
+    User,
 } from '@heroui/react'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -19,7 +20,7 @@ import { Loader, UserRound, XIcon } from 'lucide-react'
 
 import { useCustomerSearch, useAddCustomer } from '@/hooks/tanstack/query'
 import { useDebounce } from '@/hooks'
-import { logWarning } from '@/lib/utils'
+import { logWarning, userAvatar } from '@/lib/utils'
 import { usePinCodeStore } from '@/zustand/store/pincode'
 import { CustomerInput, CustomerSchema } from '@/types'
 import { ErrorMessage } from '@/components/error'
@@ -333,25 +334,22 @@ export function Customer() {
                                 </div>
                             </div>
                         ) : data?.length ? (
-                            data.map((item) => (
-                                <Button
-                                    key={item.id}
-                                    fullWidth
-                                    className='group-data-[focus=true]:bg-default/25 data-[hover=true]:bg-default/25 justify-start rounded-sm'
-                                    data-slot='item'
-                                    startContent={
-                                        <UserRound className='text-muted-foreground size-7' />
-                                    }
-                                    variant='light'
-                                    onPress={() => handleCustomerSelect(item)}
-                                >
-                                    <div>
-                                        <h3 className='font-medium'>{item.name}</h3>
-                                        <p className='text-muted-foreground text-xs'>
-                                            {item.phone.slice(2)}
-                                        </p>
-                                    </div>
-                                </Button>
+                            data.map((user) => (
+                                <User
+                                    key={user.id}
+                                    avatarProps={{
+                                        src: userAvatar(user),
+                                        fallback: user.name?.charAt(0) || '',
+                                        className: 'size-10',
+                                    }}
+                                    classNames={{
+                                        base: 'focus:bg-default/25 hover:bg-default/25 flex justify-start px-2',
+                                        name: 'text-md flex items-center gap-1',
+                                    }}
+                                    description={user.phone.slice(2)}
+                                    name={user.name}
+                                    onClick={() => handleCustomerSelect(user)}
+                                />
                             ))
                         ) : (
                             <div className='bg-muted/20 flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed p-6 text-center'>

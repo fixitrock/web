@@ -356,7 +356,7 @@ export default function ProductsTable({ products, canManage, brand }: ProductsTa
                 )}
             </Navbar>
 
-            <div className='border-border from-sidebar/60 to-sidebar grid grid-cols-2 rounded-xl border bg-gradient-to-br min-[1200px]:grid-cols-4'>
+            <div className='border-border from-sidebar/60 to-sidebar grid grid-cols-2 rounded-xl border bg-linear-to-br min-[1200px]:grid-cols-4'>
                 {stats.map((stat) => (
                     <StatsCard key={stat.title} {...stat} />
                 ))}

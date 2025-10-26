@@ -56,7 +56,7 @@ export default function DeleteBrand({ isOpen, onClose, brand }: DeleteBrandProps
         >
             <Form ref={formRef} action={formAction} id='delete-brand' validationErrors={errors}>
                 <ModalContent>
-                    <ModalHeader className='flex-1 items-center justify-between rounded-t-2xl border-b bg-gradient-to-l from-red-50/80 to-transparent select-none dark:from-red-900/30 dark:to-transparent'>
+                    <ModalHeader className='flex-1 items-center justify-between rounded-t-2xl border-b bg-linear-to-l from-red-50/80 to-transparent select-none dark:from-red-900/30 dark:to-transparent'>
                         <div className='flex items-center gap-2'>
                             <Trash2 className='animate-bounce text-red-600' />
                             <span className='text-lg font-bold'>Delete Brand</span>
@@ -82,7 +82,7 @@ export default function DeleteBrand({ isOpen, onClose, brand }: DeleteBrandProps
                                 width={100}
                             />
                         ) : (
-                            <div className='text-muted-foreground flex size-28 items-center justify-center rounded-xl border bg-gradient-to-br from-gray-50 to-gray-200 text-5xl shadow-inner dark:from-neutral-900 dark:to-neutral-800'>
+                            <div className='text-muted-foreground flex size-28 items-center justify-center rounded-xl border bg-linear-to-br from-gray-50 to-gray-200 text-5xl shadow-inner dark:from-neutral-900 dark:to-neutral-800'>
                                 <Building2 />
                             </div>
                         )}
@@ -105,7 +105,7 @@ export default function DeleteBrand({ isOpen, onClose, brand }: DeleteBrandProps
                             </div>
                         </div>
                     </ModalBody>
-                    <ModalFooter className='flex-row-reverse gap-2 border-t bg-gradient-to-r from-red-50/60 to-transparent dark:from-red-900/20 dark:to-transparent'>
+                    <ModalFooter className='flex-row-reverse gap-2 border-t bg-linear-to-r from-red-50/60 to-transparent dark:from-red-900/20 dark:to-transparent'>
                         <Button
                             fullWidth
                             className='font-semibold'

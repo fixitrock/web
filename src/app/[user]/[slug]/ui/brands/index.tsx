@@ -1,14 +1,7 @@
-import { getAllBrands } from '@/actions/brands'
-import { Brand } from '@/types/brands'
-
-import { BrandCard } from './card'
+import { checkAuth } from '@/actions/auth'
+import { Brand } from './brand'
 
 export async function Brands() {
-    const { data: brands } = await getAllBrands()
-
-    return (
-        <div className='flex w-full flex-col gap-4 p-2 md:px-4 2xl:px-[10%]'>
-            <BrandCard brands={brands as Brand[]} />
-        </div>
-    )
+    const { can } = await checkAuth(['create:brand', 'update:brand'])
+    return <Brand can={can} />
 }

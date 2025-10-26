@@ -69,8 +69,8 @@ function CommandInput({
                     data-slot='command-input'
                     {...props}
                 />
+                {endContent && <div className='flex items-center gap-2.5'>{endContent}</div>}
             </div>
-            {endContent && <div className='flex items-center gap-2.5'>{endContent}</div>}
         </div>
     )
 }
