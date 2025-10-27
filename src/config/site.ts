@@ -116,3 +116,40 @@ export const fallback = {
 }
 
 export type Fallback = typeof fallback
+
+export const storage = [
+    { name: '128MB + 256MB' },
+    { name: '256MB + 512MB' },
+    { name: '512MB + 1GB' },
+    { name: '512MB + 4GB' },
+    { name: '1GB + 4GB' },
+    { name: '1GB + 8GB' },
+    { name: '1GB + 16GB' },
+    { name: '2GB + 8GB' },
+    { name: '2GB + 16GB' },
+    { name: '2GB + 32GB' },
+    { name: '3GB + 16GB' },
+    { name: '3GB + 32GB' },
+    { name: '4GB + 32GB' },
+    { name: '4GB + 64GB' },
+    { name: '4GB + 128GB' },
+    { name: '6GB + 64GB' },
+    { name: '6GB + 128GB' },
+    { name: '8GB + 128GB' },
+    { name: '8GB + 256GB' },
+    { name: '8GB + 512GB' },
+    { name: '12GB + 256GB' },
+    { name: '12GB + 512GB' },
+    { name: '16GB + 512GB' },
+    { name: '16GB + 1TB' },
+    { name: '24GB + 512GB' },
+    { name: '24GB + 1TB' },
+    { name: '32GB + 1TB' },
+    { name: '32GB + 2TB' },
+    { name: '64GB + 2TB' },
+    { name: '64GB + 4TB' },
+    { name: '128GB + 4TB' },
+    { name: '128GB + 8TB' },
+]
+
+export type Storage = typeof storage

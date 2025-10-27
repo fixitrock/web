@@ -6,6 +6,7 @@ import { Button, Tab, Tabs } from '@heroui/react'
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
 
 import { usePosTypeStore } from '@/zustand/store'
+import { AddProduct } from '../products/addproduct'
 
 export function PosHeader() {
     const { type, setType } = usePosTypeStore()
@@ -53,6 +54,7 @@ export function PosHeader() {
                 >
                     <span className='hidden sm:inline'>Refresh</span>
                 </Button>
+                <AddProduct mode='add' />
                 <Button
                     isIconOnly
                     aria-label='Enter fullscreen'

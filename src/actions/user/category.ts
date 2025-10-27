@@ -45,7 +45,7 @@ export async function updateCategory(input: Category & { imageUrl?: string }) {
     const supabase = await createClient()
     let imagePath = input.image
 
-    if (input.imageUrl) {
+    if (input.imageUrl && input.imageUrl.startsWith('http')) {
         if (input.image) {
             const oldPath = input.image.replace('/assets/', '')
             await supabase.storage.from('assets').remove([oldPath])
@@ -65,6 +65,7 @@ export async function updateCategory(input: Category & { imageUrl?: string }) {
     if (error) throw error
     return data as Category
 }
+
 
 export async function deleteCategory(categoryId: string, imagePath?: string) {
     const supabase = await createClient()

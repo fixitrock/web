@@ -49,7 +49,7 @@ export async function updateBrand(input: Brand & { imageUrl?: string }) {
     const supabase = await createClient()
     let imagePath = input.image
 
-    if (input.imageUrl) {
+    if (input.imageUrl && input.imageUrl.startsWith('http')) {
         if (input.image) {
             const oldPath = input.image.replace('/assets/', '')
             await supabase.storage.from('assets').remove([oldPath])

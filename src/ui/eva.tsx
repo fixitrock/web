@@ -56,7 +56,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
             ref={ref}
             className={cn(
-                'scrollbar-thin scrollbar-thumb-[#444444] scrollbar-track-transparent hover:scrollbar-thumb-[#555555] text-muted-foreground flex min-h-[44px] w-full resize-none rounded-md border-none bg-transparent px-3 py-2.5 text-base placeholder:text-gray-400 focus-visible:ring-0 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+                'scrollbar-thin scrollbar-thumb-[#444444] scrollbar-track-transparent hover:scrollbar-thumb-[#555555] text-muted-foreground flex min-h-11 w-full resize-none rounded-md border-none bg-transparent px-3 py-2.5 text-base placeholder:text-gray-400 focus-visible:ring-0 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
                 className
             )}
             rows={1}
@@ -457,7 +457,7 @@ const PromptInputAction: React.FC<PromptInputActionProps> = ({
 const CustomDivider: React.FC = () => (
     <div className='relative mx-1 h-6 w-[1.5px]'>
         <div
-            className='absolute inset-0 rounded-full bg-gradient-to-t from-transparent via-[#9b87f5]/70 to-transparent'
+            className='absolute inset-0 rounded-full bg-linear-to-t from-transparent via-[#9b87f5]/70 to-transparent'
             style={{
                 clipPath:
                     'polygon(0% 0%, 100% 0%, 100% 40%, 140% 50%, 100% 60%, 100% 100%, 0% 100%, 0% 60%, -40% 50%, 0% 40%)',
@@ -724,7 +724,7 @@ export const Eva = React.forwardRef((props: EvaProps, ref: React.Ref<HTMLDivElem
                                 type='button'
                                 onClick={() => handleToggleChange('search')}
                             >
-                                <div className='flex h-5 w-5 flex-shrink-0 items-center justify-center'>
+                                <div className='flex h-5 w-5 shrink-0 items-center justify-center'>
                                     <motion.div
                                         animate={{
                                             rotate: showSearch ? 360 : 0,
@@ -757,7 +757,7 @@ export const Eva = React.forwardRef((props: EvaProps, ref: React.Ref<HTMLDivElem
                                     {showSearch && (
                                         <motion.span
                                             animate={{ width: 'auto', opacity: 1 }}
-                                            className='flex-shrink-0 overflow-hidden text-xs whitespace-nowrap text-[#1EAEDB]'
+                                            className='shrink-0 overflow-hidden text-xs whitespace-nowrap text-[#1EAEDB]'
                                             exit={{ width: 0, opacity: 0 }}
                                             initial={{ width: 0, opacity: 0 }}
                                             transition={{ duration: 0.2 }}
@@ -780,7 +780,7 @@ export const Eva = React.forwardRef((props: EvaProps, ref: React.Ref<HTMLDivElem
                                 type='button'
                                 onClick={() => handleToggleChange('think')}
                             >
-                                <div className='flex h-5 w-5 flex-shrink-0 items-center justify-center'>
+                                <div className='flex h-5 w-5 shrink-0 items-center justify-center'>
                                     <motion.div
                                         animate={{
                                             rotate: showThink ? 360 : 0,
@@ -813,7 +813,7 @@ export const Eva = React.forwardRef((props: EvaProps, ref: React.Ref<HTMLDivElem
                                     {showThink && (
                                         <motion.span
                                             animate={{ width: 'auto', opacity: 1 }}
-                                            className='flex-shrink-0 overflow-hidden text-xs whitespace-nowrap text-[#8B5CF6]'
+                                            className='shrink-0 overflow-hidden text-xs whitespace-nowrap text-[#8B5CF6]'
                                             exit={{ width: 0, opacity: 0 }}
                                             initial={{ width: 0, opacity: 0 }}
                                             transition={{ duration: 0.2 }}
@@ -836,7 +836,7 @@ export const Eva = React.forwardRef((props: EvaProps, ref: React.Ref<HTMLDivElem
                                 type='button'
                                 onClick={handleCanvasToggle}
                             >
-                                <div className='flex h-5 w-5 flex-shrink-0 items-center justify-center'>
+                                <div className='flex h-5 w-5 shrink-0 items-center justify-center'>
                                     <motion.div
                                         animate={{
                                             rotate: showCanvas ? 360 : 0,
@@ -869,7 +869,7 @@ export const Eva = React.forwardRef((props: EvaProps, ref: React.Ref<HTMLDivElem
                                     {showCanvas && (
                                         <motion.span
                                             animate={{ width: 'auto', opacity: 1 }}
-                                            className='flex-shrink-0 overflow-hidden text-xs whitespace-nowrap text-[#F97316]'
+                                            className='shrink-0 overflow-hidden text-xs whitespace-nowrap text-[#F97316]'
                                             exit={{ width: 0, opacity: 0 }}
                                             initial={{ width: 0, opacity: 0 }}
                                             transition={{ duration: 0.2 }}
