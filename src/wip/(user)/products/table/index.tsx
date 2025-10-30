@@ -14,7 +14,6 @@ import { useProductFilterStore } from '@/zustand/filter'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/ui/table'
 import { Checkbox } from '@/ui/checkbox'
 
-import AddEdit from '../add'
 import Quantity from '../quantity'
 import DeleteProduct from '../delete'
 
@@ -474,7 +473,7 @@ export default function ProductsTable({ products, canManage, brand }: ProductsTa
                     totalPages={totalPages}
                 />
             </div>
-            <AddEdit
+            {/* <AddEdit
                 brands={brand}
                 isOpen={isAddOpen}
                 mode='add'
@@ -488,7 +487,7 @@ export default function ProductsTable({ products, canManage, brand }: ProductsTa
                 mode='edit'
                 product={editingProduct}
                 onClose={onEditClose}
-            />
+            /> */}
 
             <DeleteProduct
                 isOpen={isDeleteOpen}

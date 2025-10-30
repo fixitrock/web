@@ -13,6 +13,5 @@ export const getTabs = cache(async (id: number): Promise<TabsConfig[]> => {
         throw new Error(error.message)
     }
 
-    // If tabs is null, return empty array
     return (data?.tabs as TabsConfig[]) || []
 })

@@ -66,10 +66,10 @@ type PosState = {
     getTotalItems: () => number
     getTotalPrice: () => number
     canAddItem: (
-        product: { id: string; name: string; product_variants: ProductVariant[] },
+        product: { id: string; name: string; category: string; variants: ProductVariant[] },
         selectedOptions: CartItem['selectedOptions'],
         qtyToAdd?: number
-    ) => boolean
+      ) => boolean
 
     clearAll: () => void
     order: () => Order | null
@@ -121,7 +121,7 @@ export const useCartStore = create<PosState>((set, get) => ({
     paidAmount: 0,
     setPaidAmount: (amount) => set({ paidAmount: amount }),
 
-    note: { cash: '', upi: '', card: '', paylater: '' }, // <-- init notes per method
+    note: { cash: '', upi: '', card: '', paylater: '' },
     setNote: (method, value) => set((state) => ({ note: { ...state.note, [method]: value } })),
 
     selectedPaymentMethod: '',
@@ -153,7 +153,7 @@ export const useCartStore = create<PosState>((set, get) => ({
 
             if (newItem.quantity <= newItem.variant.quantity) {
                 const cartItem: CartItem = {
-                    id: newItem.variant.id,
+                    id: newItem.variant.id || '',
                     product: {
                         id: newItem.product.id,
                         name: newItem.product.name,
@@ -225,17 +225,21 @@ export const useCartStore = create<PosState>((set, get) => ({
 
     getTotalItems: () => get().items.reduce((total, item) => total + item.quantity, 0),
     getTotalPrice: () => get().items.reduce((total, item) => total + item.price * item.quantity, 0),
-
     canAddItem: (product, selectedOptions, qtyToAdd = 1) => {
         const { items } = get()
-        const variant = product.product_variants.find(
-            (v) =>
-                v.brand === selectedOptions.brand &&
-                v.color.name === selectedOptions.color &&
-                v.storage === selectedOptions.storage
-        )
+        const variant = product.variants.find((v) => {
+            const brandMatch = v.brand === selectedOptions.brand
+            const colorMatch =
+                !v.color?.name || !selectedOptions.color || v.color.name === selectedOptions.color
+
+            const storageMatch =
+                !v.storage || !selectedOptions.storage || v.storage === selectedOptions.storage
+
+            return brandMatch && colorMatch && storageMatch
+        })
 
         if (!variant) return false
+
         const existingItem = items.find((i) => i.variant.id === variant.id)
 
         return existingItem
@@ -248,7 +252,7 @@ export const useCartStore = create<PosState>((set, get) => ({
             items: [],
             selectedCustomer: null,
             paidAmount: 0,
-            note: { cash: '', upi: '', card: '', paylater: '' }, // reset notes per method
+            note: { cash: '', upi: '', card: '', paylater: '' },
             selectedPaymentMethod: '',
         }),
 
@@ -271,8 +275,8 @@ export const useCartStore = create<PosState>((set, get) => ({
                 category: item.product.category,
                 brand: item.selectedOptions.brand || item.variant.brand,
                 color: item.selectedOptions.color
-                    ? { name: item.selectedOptions.color, code: item.variant.color.code }
-                    : item.variant.color,
+                    ? { name: item.selectedOptions.color, hex: item.variant.color?.hex || '' }
+                    : item.variant.color || null,
                 storage: item.selectedOptions.storage || item.variant.storage,
                 serial: item.serialNumbers,
                 price: item.price,

@@ -33,7 +33,7 @@ export type OrderProduct = {
     name: string
     category?: string
     brand?: string
-    color?: { name: string; code: string }
+    color?: { name: string; hex: string }
     storage?: string
     serial?: string[]
     price: number

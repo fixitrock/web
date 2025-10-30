@@ -1,5 +1,6 @@
 'use server'
 import { createClient } from '@/supabase/server'
+import sharp from 'sharp'
 import { Categories, Category, CategoryInput } from '@/types/category'
 
 async function uploadImageFromUrl(url: string, name: string) {
@@ -8,15 +9,17 @@ async function uploadImageFromUrl(url: string, name: string) {
     const response = await fetch(url)
     if (!response.ok) throw new Error('Failed to fetch image from URL')
 
-    const blob = await response.blob()
-    const extension = blob.type.split('/')[1] || 'png'
-    const safeName = name.trim().toLowerCase().replace(/\s+/g, '-')
-    const storagePath = `categories/${safeName}.${extension}`
+    const arrayBuffer = await response.arrayBuffer()
+    const inputBuffer = Buffer.from(arrayBuffer)
+    const pngBuffer = await sharp(inputBuffer).png().toBuffer()
 
-    const file = new File([blob], storagePath, { type: blob.type })
-    const { error } = await supabase.storage
-        .from('assets')
-        .upload(storagePath, file, { upsert: true })
+    const safeName = name.trim().toLowerCase().replace(/\s+/g, '-')
+    const storagePath = `categories/${safeName}.png`
+
+    const { error } = await supabase.storage.from('assets').upload(storagePath, pngBuffer, {
+        contentType: 'image/png',
+        upsert: true,
+    })
     if (error) throw error
 
     return `/assets/${storagePath}`
@@ -65,7 +68,6 @@ export async function updateCategory(input: Category & { imageUrl?: string }) {
     if (error) throw error
     return data as Category
 }
-
 
 export async function deleteCategory(categoryId: string, imagePath?: string) {
     const supabase = await createClient()

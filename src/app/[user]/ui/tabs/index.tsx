@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation'
 import { TabsConfig, User } from '@/app/login/types'
 import { useTabs } from '@/hooks/useTabs'
 import { Product } from '@/types/products'
-import ProductsCard from '@/app/[user]/[slug]/ui/products/card'
+import { ProductsCard } from '@/app/[user]/[slug]/ui/products/card'
 
 import { Quotes } from './quotes'
 
@@ -54,7 +54,7 @@ export default function Tabs({ user, tabs, products }: TabsProps) {
                 return (
                     <Tab key={tabKey} as={Link} href={href} title={tab.title}>
                         {tab.component === 'ProductCard' ? (
-                            <ProductsCard products={products} />
+                            <ProductsCard />
                         ) : tab.component === 'Quotes' ? (
                             <Quotes user={user} />
                         ) : (

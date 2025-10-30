@@ -1,14 +1,12 @@
 'use client'
 
-import { ScrollShadow } from '@heroui/react'
+import { Autocomplete, AutocompleteItem, ScrollShadow } from '@heroui/react'
 import { useState } from 'react'
 
 import { useDebounce } from '@/hooks'
-import { usePosCategories, usePosProducts } from '@/hooks/tanstack/query'
+import { usePosCategories, useSellerProducts } from '@/hooks/tanstack/query'
 import { PosEmptyState } from '@/ui/empty'
 import { Input } from '@/app/(space)/ui'
-
-import { Category } from '../category'
 
 import { ProductCard, ProductSkeleton } from './card'
 
@@ -17,7 +15,7 @@ export function PosProduct() {
     const debouncedQuery = useDebounce(query)
     const [category, setCategory] = useState<string | null>(null)
     const { data: cat } = usePosCategories()
-    const { data, isLoading } = usePosProducts(debouncedQuery, category || undefined)
+    const { data, isLoading } = useSellerProducts(debouncedQuery, category || '')
 
     const isProductsEmpty = !isLoading && data?.products.length === 0
 
@@ -26,11 +24,10 @@ export function PosProduct() {
     const showSearchEmpty = isProductsEmpty && !!query
 
     const showCategoryEmpty = isProductsEmpty && !!category && !query
-
     return (
         <section
             aria-label='Products'
-            className='flex w-[75%] flex-col gap-2 rounded-lg border p-2'
+            className='flex w-[70%] flex-col gap-2 rounded-lg border p-2'
             data-slot='products'
         >
             <div className='flex items-center gap-2'>
@@ -40,7 +37,28 @@ export function PosProduct() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                 />
-                <Category categories={cat?.categories} value={category} onChange={setCategory} />
+                <Autocomplete
+                    placeholder='Select category'
+                    size='sm'
+                    className='max-w-[200px]'
+                    popoverProps={{
+                        classNames: {
+                            content: 'bg-background/80 backdrop-blur border shadow-none',
+                        },
+                    }}
+                    allowsCustomValue
+                    inputProps={{
+                        classNames: {
+                            inputWrapper:
+                                'bg-transparent group-data-[focus=true]:bg-transparent data-[hover=true]:bg-transparent border',
+                        },
+                    }}
+                    defaultItems={(cat?.categories || []).map((c) => ({ name: c }))}
+                    selectedKey={category ?? undefined}
+                    onSelectionChange={(key) => setCategory(key?.toString() ?? null)}
+                >
+                    {(c: any) => <AutocompleteItem key={c.name}>{c.name}</AutocompleteItem>}
+                </Autocomplete>
             </div>
 
             {showEmptyState && <PosEmptyState type='product' />}
@@ -61,7 +79,6 @@ export function PosProduct() {
                         <ProductCard key={product.id} product={product} />
                     ))}
                 </div>
-                {/* <pre>{JSON.stringify(order(), null, 2)}</pre> */}
             </ScrollShadow>
         </section>
     )

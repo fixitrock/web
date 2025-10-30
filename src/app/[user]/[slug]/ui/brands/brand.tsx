@@ -105,14 +105,16 @@ export function Brand({ can }: { can: CanType }) {
                             className='group data relative flex aspect-square flex-col gap-2 rounded-xl border p-1.5'
                             tabIndex={0}
                         >
-                            <Image
-                                removeWrapper
-                                alt={c.name}
-                                className='bg-default/10 aspect-square size-full object-cover select-none'
-                                loading='lazy'
-                                radius='sm'
-                                src={bucketUrl(c.image) || fallback.brand}
-                            />
+                            <div className='relative m-auto w-full shrink-0'>
+                                <Image
+                                    removeWrapper
+                                    alt={c.name}
+                                    className='bg-default/10 aspect-square size-full object-contain select-none'
+                                    loading='lazy'
+                                    radius='sm'
+                                    src={bucketUrl(c.image) || fallback.brand}
+                                />
+                            </div>
                             <h3 className='font-mono'>{c.name}</h3>
                             {can.update && (
                                 <div

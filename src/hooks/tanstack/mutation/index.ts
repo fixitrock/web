@@ -5,3 +5,4 @@ export { useInvoice, useInvoiceProduct }
 export * from './order'
 export * from './brand'
 export * from './categories'
+export * from './product'

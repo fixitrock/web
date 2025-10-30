@@ -1,16 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { RefreshCcw, CalendarClock, Minimize2, Maximize2 } from 'lucide-react'
-import { Button, Tab, Tabs } from '@heroui/react'
+import { RefreshCcw, CalendarClock, Minimize2, Maximize2, Plus } from 'lucide-react'
+import { Button, Tab, Tabs, useDisclosure } from '@heroui/react'
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
 
 import { usePosTypeStore } from '@/zustand/store'
-import { AddProduct } from '../products/addproduct'
+import { AddProduct } from '../products/add'
 
 export function PosHeader() {
     const { type, setType } = usePosTypeStore()
     const [isFs, setIsFs] = useState(false)
+    const {isOpen, onOpen, onClose} = useDisclosure()
 
     useEffect(() => {
         const onChange = () => setIsFs(Boolean(document.fullscreenElement))
@@ -54,7 +55,15 @@ export function PosHeader() {
                 >
                     <span className='hidden sm:inline'>Refresh</span>
                 </Button>
-                <AddProduct mode='add' />
+                <Button
+                                onPress={onOpen}
+                                className='bg-background border'
+                                size='sm'
+                                startContent={<Plus className='size-4' />}
+                            >
+                                Add Product
+                            </Button>
+                <AddProduct mode='add' isOpen={isOpen} onClose={onClose} />
                 <Button
                     isIconOnly
                     aria-label='Enter fullscreen'

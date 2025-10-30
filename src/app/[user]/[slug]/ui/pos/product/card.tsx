@@ -17,18 +17,26 @@ import {
     addToast,
 } from '@heroui/react'
 import React, { useState } from 'react'
-import { Eye, EyeOff, XIcon } from 'lucide-react'
+import { Edit, Eye, EyeOff, XIcon } from 'lucide-react'
 
 import { formatPrice } from '@/lib/utils'
 import { Product } from '@/types/product'
 import { usePosStore, usePosTypeStore } from '@/zustand/store'
 import { useCartStore } from '@/zustand/store/cart'
+import { AddProduct } from '../../products/add'
+import { useProductStore } from '@/zustand/store/product'
+import { bucketUrl } from '@/supabase/bucket'
 
 export function ProductCard({ product }: { product: Product }) {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
-
+    const { setMode } = useProductStore()
+    const updateModal = useDisclosure({ defaultOpen: false })
+    const openUpdateModal = (product: Product) => {
+        setMode('update', product)
+        updateModal.onOpen()
+    }
     return (
-        <>
+        <div className='group relative'>
             <Card
                 isPressable
                 className='bg-background gap-2 rounded-xl border p-1.5'
@@ -39,9 +47,23 @@ export function ProductCard({ product }: { product: Product }) {
                     <Image
                         removeWrapper
                         alt={product.name}
-                        className='bg-default/10 aspect-square w-full rounded-lg object-contain select-none'
+                        className='bg-default/10 aspect-square size-full rounded-lg object-contain select-none'
                         loading='lazy'
-                        src='https://picsum.photos/512/512' // src={product.variants[0]?.image?.[0] || 'https://images-eu.ssl-images-amazon.com/images/I/41sxNjq6ByL._SX300_SY300_QL70_FMwebp_.jpg'}
+                        src={
+                            Array.isArray(product.variants?.[0]?.image)
+                                ? (product.variants?.[0]?.image[0] ??
+                                  bucketUrl(
+                                      '/assets/categories/' +
+                                          product.category.toLowerCase() +
+                                          '.png'
+                                  ))
+                                : (product.variants?.[0]?.image ??
+                                  bucketUrl(
+                                      '/assets/categories/' +
+                                          product.category.toLowerCase() +
+                                          '.png'
+                                  ))
+                        }
                     />
                 </div>
 
@@ -51,12 +73,24 @@ export function ProductCard({ product }: { product: Product }) {
                     </h3>
                     <div className='text-muted-foreground flex w-full justify-between text-xs'>
                         <span>{product.category ?? '—'}</span>
-                        <span>{formatPrice(product.product_variants[0]?.price || 0)}</span>
+                        <span>{formatPrice(product.variants?.[0]?.price || 0)}</span>
                     </div>
                 </div>
             </Card>
+            <div className='absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100'>
+                <Button
+                    isIconOnly
+                    className='bg-background border'
+                    radius='full'
+                    size='sm'
+                    startContent={<Edit size={18} />}
+                    variant='light'
+                    onPress={() => openUpdateModal(product)}
+                />
+            </div>
+            <AddProduct mode='update' isOpen={updateModal.isOpen} onClose={updateModal.onClose} />
             <ProductModal isOpen={isOpen} product={product} onOpenChange={onOpenChange} />
-        </>
+        </div>
     )
 }
 
@@ -80,7 +114,7 @@ function ProductModal({ product, isOpen, onOpenChange }: ProductModalProps) {
             const price = type === 'retail' ? active.price : active.wholesale_price
 
             const cartItem = {
-                product: { id: product.id, name: product.name, category: product.category },
+                product: { id: product.id!, name: product.name, category: product.category },
                 variant: active,
                 quantity: 1,
                 price,
@@ -91,7 +125,17 @@ function ProductModal({ product, isOpen, onOpenChange }: ProductModalProps) {
                 },
             }
 
-            if (useCartStore.getState().canAddItem(product, cartItem.selectedOptions)) {
+            if (
+                useCartStore.getState().canAddItem(
+                    {
+                        id: product.id,
+                        name: product.name,
+                        category: product.category,
+                        variants: product.variants,
+                    },
+                    cartItem.selectedOptions
+                )
+            ) {
                 addItem(cartItem)
                 onOpenChange?.(false)
             } else {
@@ -120,6 +164,9 @@ function ProductModal({ product, isOpen, onOpenChange }: ProductModalProps) {
                     <div className='flex flex-col'>
                         <h2 className='line-clamp-1'>{product.name}</h2>
                         <p className='text-muted-foreground text-xs'>{product.category}</p>
+                        {product.compatibility && (
+                            <p className='text-muted-foreground text-xs'>{product.compatibility}</p>
+                        )}
                     </div>
                     <div className='ml-auto flex items-center gap-1.5'>
                         {type === 'wholesale' && (
@@ -139,6 +186,7 @@ function ProductModal({ product, isOpen, onOpenChange }: ProductModalProps) {
                                 />
                             </>
                         )}
+
                         <Button
                             isIconOnly
                             className='border'
