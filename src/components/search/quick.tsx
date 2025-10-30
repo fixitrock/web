@@ -22,7 +22,12 @@ export function QuickAction({ command }: { command: Record<string, Navigations> 
     const { setDynamicNavigations, getNavigationGroups, onSelect } = useSearchStore()
 
     useEffect(() => {
-        setDynamicNavigations({ ...command, ...actions })
+        if (command) {
+            const { ['📦\u00A0\u00A0space']: _space, ...restActions } = actions
+            setDynamicNavigations({ ...command, ...restActions })
+        } else {
+            setDynamicNavigations({ ...actions })
+        }
     }, [command, setDynamicNavigations])
 
     const groups = getNavigationGroups()

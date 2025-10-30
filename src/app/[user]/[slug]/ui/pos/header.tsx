@@ -4,14 +4,14 @@ import { useEffect, useState } from 'react'
 import { RefreshCcw, CalendarClock, Minimize2, Maximize2, Plus } from 'lucide-react'
 import { Button, Tab, Tabs, useDisclosure } from '@heroui/react'
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
-
+import { isMobile } from 'react-device-detect'
 import { usePosTypeStore } from '@/zustand/store'
 import { AddProduct } from '../products/add'
 
 export function PosHeader() {
     const { type, setType } = usePosTypeStore()
     const [isFs, setIsFs] = useState(false)
-    const {isOpen, onOpen, onClose} = useDisclosure()
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
     useEffect(() => {
         const onChange = () => setIsFs(Boolean(document.fullscreenElement))
@@ -30,7 +30,7 @@ export function PosHeader() {
     }
 
     return (
-        <header className='flex items-center justify-between rounded-lg border px-4 py-1'>
+        <header className='flex flex-col items-center justify-between rounded-lg border px-4 py-1 md:flex-row'>
             <div className='flex items-center gap-2'>
                 <CalendarClock aria-hidden='true' className='text-muted-foreground size-5' />
                 <DateTimeDisplay />
@@ -48,6 +48,7 @@ export function PosHeader() {
                     <Tab key='wholesale' title='Wholesale' />
                 </Tabs>
                 <Button
+                    isIconOnly={isMobile}
                     aria-label='Refresh products'
                     className='bg-background border'
                     size='sm'
@@ -56,13 +57,15 @@ export function PosHeader() {
                     <span className='hidden sm:inline'>Refresh</span>
                 </Button>
                 <Button
-                                onPress={onOpen}
-                                className='bg-background border'
-                                size='sm'
-                                startContent={<Plus className='size-4' />}
-                            >
-                                Add Product
-                            </Button>
+                    isIconOnly={isMobile}
+                    aria-label='Add Product'
+                    onPress={onOpen}
+                    className='bg-background border'
+                    size='sm'
+                    startContent={<Plus className='size-4' />}
+                >
+                    <span className='hidden sm:inline'>Add Product</span>
+                </Button>
                 <AddProduct mode='add' isOpen={isOpen} onClose={onClose} />
                 <Button
                     isIconOnly

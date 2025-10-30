@@ -39,33 +39,31 @@ export function ProductCard({ product }: { product: Product }) {
         <div className='group relative'>
             <Card
                 isPressable
-                className='bg-background gap-2 rounded-xl border p-1.5'
+                className='bg-background size-full gap-2 rounded-xl border p-1.5'
                 shadow='none'
                 onPress={onOpen}
             >
-                <div className='relative m-auto w-full shrink-0'>
-                    <Image
-                        removeWrapper
-                        alt={product.name}
-                        className='bg-default/10 aspect-square size-full rounded-lg object-contain select-none'
-                        loading='lazy'
-                        src={
-                            Array.isArray(product.variants?.[0]?.image)
-                                ? (product.variants?.[0]?.image[0] ??
-                                  bucketUrl(
-                                      '/assets/categories/' +
-                                          product.category.toLowerCase() +
-                                          '.png'
-                                  ))
-                                : (product.variants?.[0]?.image ??
-                                  bucketUrl(
-                                      '/assets/categories/' +
-                                          product.category.toLowerCase() +
-                                          '.png'
-                                  ))
-                        }
-                    />
-                </div>
+                <Image
+                    removeWrapper
+                    alt={product.name}
+                    className='bg-default/10 aspect-square size-full rounded-lg object-contain select-none'
+                    loading='lazy'
+                    src={
+                        Array.isArray(product.variants?.[0]?.image)
+                            ? (product.variants?.[0]?.image[0] ??
+                              bucketUrl(
+                                  '/assets/categories/' +
+                                      product.category.toLowerCase().replace(/\s+/g, '-') +
+                                      '.png'
+                              ))
+                            : (product.variants?.[0]?.image ??
+                              bucketUrl(
+                                  '/assets/categories/' +
+                                      product.category.toLowerCase().replace(/\s+/g, '-') +
+                                      '.png'
+                              ))
+                    }
+                />
 
                 <div className='flex flex-1 flex-col'>
                     <h3 className='line-clamp-1 text-start text-sm font-semibold'>
