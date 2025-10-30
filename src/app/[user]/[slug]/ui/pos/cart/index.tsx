@@ -119,14 +119,14 @@ export function PosCart() {
                                             {item.product.name}
                                         </h3>
                                         <div className='mt-1 flex items-center gap-2'>
-                                            {item.product.category && (
-                                                <span className='rounded-sm border p-0.5 text-[10px]'>
-                                                    {item.product.category}
-                                                </span>
-                                            )}
                                             {item.selectedOptions.brand && (
                                                 <span className='rounded-sm border px-1 py-0.5 text-[10px]'>
                                                     {item.selectedOptions.brand}
+                                                </span>
+                                            )}
+                                            {item.product.category && (
+                                                <span className='rounded-sm border p-0.5 text-[10px]'>
+                                                    {item.product.category}
                                                 </span>
                                             )}
                                             {item.selectedOptions.color && (

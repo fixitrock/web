@@ -17,9 +17,10 @@ import {
     Textarea,
     Image,
     addToast,
+    Tooltip,
 } from '@heroui/react'
 import { Accordion as AccordionPrimitive } from 'radix-ui'
-import { CirclePlus, GalleryHorizontalEnd, Plus, PlusIcon, Settings2, X } from 'lucide-react'
+import { CirclePlus, GalleryHorizontalEnd, Plus, PlusIcon, Settings2, X, Copy } from 'lucide-react'
 import { LuBadgeIndianRupee } from 'react-icons/lu'
 import { BiImageAdd } from 'react-icons/bi'
 import { Delete } from '@/ui/icons'
@@ -43,6 +44,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
         errors,
         setForm,
         addVariant,
+        duplicateVariant,
         updateVariant,
         removeVariant,
         resetForm,
@@ -90,7 +92,8 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
             hideCloseButton
             scrollBehavior='inside'
             size='xl'
-            className='bg-background max-h-[80vh] border shadow-none'
+            placement='center'
+            className='bg-background max-h-[50vh] border shadow-none md:max-h-[80vh]'
             isOpen={isOpen}
             onClose={onClose}
         >
@@ -246,19 +249,46 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                             >
                                 {form.variants?.map((v, idx) => (
                                     <AccordionItem
+                                        key={`variant-${idx}`}
                                         value={`variant-${idx}`}
                                         className='bg-background rounded-md border px-4 py-1 outline-none last:border-b'
                                     >
                                         <AccordionPrimitive.Header className='flex items-center'>
-                                            <AccordionPrimitive.Trigger className='[&[data-state=open]>svg>path:last-child]:opacity-0" flex flex-1 items-center gap-4 rounded-md py-2 text-left text-sm text-[15px] leading-6 font-semibold transition-all outline-none focus-visible:ring-0 [&>svg]:-order-1 [&>svg>path:last-child]:origin-center [&>svg>path:last-child]:transition-all [&>svg>path:last-child]:duration-200 [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg>path:last-child]:rotate-90'>
-                                                Variant {idx + 1}
+                                            <AccordionPrimitive.Trigger className='flex flex-1 items-center gap-4 rounded-md py-2 text-left text-sm text-[15px] leading-6 font-semibold transition-all outline-none focus-visible:ring-0 [&>svg]:-order-1 [&>svg>path:last-child]:origin-center [&>svg>path:last-child]:transition-all [&>svg>path:last-child]:duration-200 [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg>path:last-child]:rotate-90 [&[data-state=open]>svg>path:last-child]:opacity-0'>
+                                                {v?.brand ? v.brand : null}
+                                                {v?.color ? (
+                                                    <span className='flex items-center gap-2'>
+                                                        <span
+                                                            className='inline-block size-4 rounded-full'
+                                                            style={{ backgroundColor: v.color.hex }}
+                                                        />
+                                                        {v.color.name}
+                                                    </span>
+                                                ) : null}
+                                                {v?.storage ? v.storage : null}
+                                                {!(v?.color || v?.storage || v?.brand) && (
+                                                    <>Variant {idx + 1}</>
+                                                )}
                                                 <PlusIcon
                                                     size={16}
                                                     className='pointer-events-none shrink-0 opacity-60 transition-transform duration-200'
                                                     aria-hidden='true'
                                                 />
                                             </AccordionPrimitive.Trigger>
-
+                                            <Tooltip
+                                                content='Duplicate'
+                                                radius='full'
+                                                color='foreground'
+                                            >
+                                                <Button
+                                                    className='mr-2'
+                                                    variant='light'
+                                                    startContent={<Copy size={16} />}
+                                                    size='sm'
+                                                    isIconOnly
+                                                    onPress={() => duplicateVariant(idx)}
+                                                />
+                                            </Tooltip>
                                             {idx === 0 ? (
                                                 <Button
                                                     variant='light'

@@ -13,6 +13,7 @@ interface ProductState {
     setForm: (form: Partial<Product>) => void
     resetForm: () => void
     addVariant: (variant: ProductVariant) => void
+    duplicateVariant: (index: number) => void
     updateVariant: (index: number, variant: Partial<ProductVariant>) => void
     removeVariant: (index: number) => void
     validate: () => boolean
@@ -127,6 +128,23 @@ export const useProductStore = create<ProductState>((set, get) => ({
                 ...get().form,
                 variants: [...(get().form.variants ?? []), variant],
             },
+        }),
+
+    duplicateVariant: (index) =>
+        set((state) => {
+            const variants = [...(state.form.variants ?? [])]
+            const item = variants[index]
+            if (!item) return { form: { ...state.form } }
+
+            // shallow clone the variant, clone image array if present
+            const cloned = {
+                ...item,
+                image: item.image ? [...item.image] : [],
+            }
+
+            variants.splice(index + 1, 0, cloned)
+
+            return { form: { ...state.form, variants } }
         }),
 
     updateVariant: (index, variant) =>
