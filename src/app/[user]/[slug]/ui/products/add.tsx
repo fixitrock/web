@@ -22,7 +22,6 @@ import {
 import { Accordion as AccordionPrimitive } from 'radix-ui'
 import { CirclePlus, GalleryHorizontalEnd, Plus, PlusIcon, Settings2, X, Copy } from 'lucide-react'
 import { LuBadgeIndianRupee } from 'react-icons/lu'
-import { BiImageAdd } from 'react-icons/bi'
 import { Delete } from '@/ui/icons'
 import type { Product, ProductVariant } from '@/types/product'
 import { HiColorSwatch } from 'react-icons/hi'
@@ -30,6 +29,7 @@ import { storage } from '@/config/site'
 import { useEffect } from 'react'
 import { inputWrapperStyle } from '@/config/style'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/ui/accordion'
+import { Icon } from '@iconify/react'
 
 interface AddModalProps {
     mode: 'add' | 'update'
@@ -384,7 +384,7 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                         <span>Pricing & Stock</span>
                     </span>
                 </AccordionTrigger>
-                <AccordionContent>
+                <AccordionContent className='px-2'>
                     <div className='grid gap-4 md:grid-cols-2'>
                         <Autocomplete
                             description='Select a brand'
@@ -497,8 +497,8 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                     </span>
                 </AccordionTrigger>
 
-                <AccordionContent>
-                    <div className='grid gap-4 md:grid-cols-2'>
+                <AccordionContent className='px-2'>
+                    <div className='grid gap-4 px-2 md:grid-cols-2'>
                         <Autocomplete
                             description='Select product color'
                             size='sm'
@@ -577,7 +577,7 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                     </span>
                 </AccordionTrigger>
 
-                <AccordionContent>
+                <AccordionContent className='px-2'>
                     <div className='flex flex-wrap items-center gap-1.5'>
                         {variant?.image?.map((file, i) => (
                             <ImagePreview
@@ -598,7 +598,7 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                                 className='aspect-square size-20 cursor-pointer border-2 border-dashed'
                                 variant='light'
                             >
-                                <BiImageAdd className='text-muted-foreground' size={30} />
+                                <Icon icon='flat-color-icons:plus' width='48' height='48' />
                                 <input
                                     type='file'
                                     accept='image/*'
