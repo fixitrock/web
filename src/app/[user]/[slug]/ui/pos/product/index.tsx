@@ -27,10 +27,10 @@ export function PosProduct() {
     return (
         <section
             aria-label='Products'
-            className='flex w-[70%] flex-col gap-2 rounded-lg border p-2'
+            className='flex flex-1 flex-col gap-2 rounded-lg border p-2'
             data-slot='products'
         >
-            <div className='flex items-center gap-2'>
+            <div className='flex flex-col items-center gap-2 sm:flex-row'>
                 <Input
                     hotKey='P'
                     placeholder='Search products . . .'
@@ -40,7 +40,7 @@ export function PosProduct() {
                 <Autocomplete
                     placeholder='Select category'
                     size='sm'
-                    className='max-w-[200px]'
+                    className='sm:max-w-[200px]'
                     popoverProps={{
                         classNames: {
                             content: 'bg-background/80 backdrop-blur border shadow-none',
@@ -66,7 +66,7 @@ export function PosProduct() {
             {showCategoryEmpty && <PosEmptyState type='category' value={category} />}
 
             <ScrollShadow hideScrollBar size={60}>
-                <div className='grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-2'>
+                <div className='grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-2 md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'>
                     {isLoading && (
                         <>
                             {Array.from({ length: 15 }).map((_, i) => (

@@ -4,14 +4,15 @@ import { useEffect, useState } from 'react'
 import { RefreshCcw, CalendarClock, Minimize2, Maximize2, Plus } from 'lucide-react'
 import { Button, Tab, Tabs, useDisclosure } from '@heroui/react'
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
-import { isMobile } from 'react-device-detect'
 import { usePosTypeStore } from '@/zustand/store'
 import { AddProduct } from '../products/add'
+import { useMediaQuery } from '@/hooks'
 
 export function PosHeader() {
     const { type, setType } = usePosTypeStore()
     const [isFs, setIsFs] = useState(false)
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const isDesktop = useMediaQuery('(min-width: 786px)')
 
     useEffect(() => {
         const onChange = () => setIsFs(Boolean(document.fullscreenElement))
@@ -31,7 +32,7 @@ export function PosHeader() {
 
     return (
         <header className='flex flex-col items-center justify-between rounded-lg border px-4 py-1 md:flex-row'>
-            <div className='flex items-center gap-2'>
+            <div className='hidden items-center gap-2 sm:flex'>
                 <CalendarClock aria-hidden='true' className='text-muted-foreground size-5' />
                 <DateTimeDisplay />
             </div>
@@ -48,16 +49,17 @@ export function PosHeader() {
                     <Tab key='wholesale' title='Wholesale' />
                 </Tabs>
                 <Button
-                    isIconOnly={isMobile}
+                    isIconOnly={!isDesktop}
                     aria-label='Refresh products'
                     className='bg-background border'
                     size='sm'
+                    onPress={() => window.location.reload()}
                     startContent={<RefreshCcw aria-hidden='true' className='size-4' />}
                 >
                     <span className='hidden sm:inline'>Refresh</span>
                 </Button>
                 <Button
-                    isIconOnly={isMobile}
+                    isIconOnly={!isDesktop}
                     aria-label='Add Product'
                     onPress={onOpen}
                     className='bg-background border'
@@ -95,8 +97,8 @@ function DateTimeDisplay() {
         return () => clearInterval(interval)
     }, [])
 
-    const dayName = now.toLocaleDateString('en-US', { weekday: 'short' }) // Wed
-    const monthName = now.toLocaleDateString('en-US', { month: 'short' }) // Oct
+    const dayName = now.toLocaleDateString('en-US', { weekday: 'short' })
+    const monthName = now.toLocaleDateString('en-US', { month: 'short' })
     const dateNum = now.getDate()
 
     let hours = now.getHours()

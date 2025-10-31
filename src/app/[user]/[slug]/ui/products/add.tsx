@@ -259,7 +259,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                                                 {v?.color ? (
                                                     <span className='flex items-center gap-2'>
                                                         <span
-                                                            className='inline-block size-4 rounded-full'
+                                                            className='inline-block size-4 rounded-full border'
                                                             style={{ backgroundColor: v.color.hex }}
                                                         />
                                                         {v.color.name}
@@ -602,6 +602,7 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                                 <input
                                     type='file'
                                     accept='image/*'
+                                    // capture='environment'
                                     multiple
                                     hidden
                                     onChange={handleImageChange}

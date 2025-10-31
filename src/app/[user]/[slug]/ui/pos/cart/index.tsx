@@ -71,7 +71,7 @@ export function PosCart() {
     return (
         <section
             aria-label='Cart'
-            className='flex w-[30%] flex-col rounded-lg border'
+            className='hidden rounded-lg border sm:flex sm:w-96 sm:flex-col'
             data-slot='cart'
         >
             <div className='flex items-center justify-between p-2'>

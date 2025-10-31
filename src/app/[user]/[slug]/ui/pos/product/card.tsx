@@ -26,6 +26,7 @@ import { useCartStore } from '@/zustand/store/cart'
 import { AddProduct } from '../../products/add'
 import { useProductStore } from '@/zustand/store/product'
 import { bucketUrl } from '@/supabase/bucket'
+import { Icon } from '@iconify/react'
 
 export function ProductCard({ product }: { product: Product }) {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -75,13 +76,20 @@ export function ProductCard({ product }: { product: Product }) {
                     </div>
                 </div>
             </Card>
-            <div className='absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100'>
+            <div className='absolute top-2 right-2 z-10 flex gap-2'>
                 <Button
                     isIconOnly
-                    className='bg-background border'
+                    className='bg-background/80 border backdrop-blur'
                     radius='full'
                     size='sm'
-                    startContent={<Edit size={18} />}
+                    startContent={
+                        <Icon
+                            icon='hugeicons:quill-write-02'
+                            width='18'
+                            height='18'
+                            className='text-muted-foreground'
+                        />
+                    }
                     variant='light'
                     onPress={() => openUpdateModal(product)}
                 />
