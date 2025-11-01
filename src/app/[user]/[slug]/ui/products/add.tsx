@@ -602,7 +602,7 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                                 <input
                                     type='file'
                                     accept='image/*'
-                                    // capture='environment'
+                                    capture='environment'
                                     multiple
                                     hidden
                                     onChange={handleImageChange}
