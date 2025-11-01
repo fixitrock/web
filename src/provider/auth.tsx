@@ -25,10 +25,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             window.location.reload()
         }
 
-        // ✅ Directly assign logout
         setLogout(logout)
 
-        // Handle cross-tab logout sync
         if ('BroadcastChannel' in window) {
             const channel = new BroadcastChannel('auth')
 
@@ -44,16 +42,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         const supabase = createClient()
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, _session) => {
+            if (event === 'SIGNED_OUT') {
+                window.location.reload()
+            }
+
+            if (event === 'TOKEN_REFRESHED' && !_session) {
+                window.location.reload()
+            }
+        })
 
         const channel = supabase
             .channel('realtime:all')
-
             .on('postgres_changes', { event: '*', schema: 'public', table: '*' }, (_payload) => {
                 trigger()
             })
             .subscribe()
 
         return () => {
+            try {
+                ;(authListener as any)?.subscription?.unsubscribe?.()
+                ;(authListener as any)?.unsubscribe?.()
+            } catch {}
+
             supabase.removeChannel(channel)
         }
     }, [trigger])
