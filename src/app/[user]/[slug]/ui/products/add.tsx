@@ -16,9 +16,9 @@ import {
     ScrollShadow,
     Textarea,
     Image,
-    addToast,
     Tooltip,
 } from '@heroui/react'
+import { toast } from 'sonner'
 import { Accordion as AccordionPrimitive } from 'radix-ui'
 import { CirclePlus, GalleryHorizontalEnd, Plus, PlusIcon, Settings2, X, Copy } from 'lucide-react'
 import { LuBadgeIndianRupee } from 'react-icons/lu'
@@ -56,10 +56,8 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
     const { mutateAsync: updateMutate, isPending: isUpdating } = useUpdateProduct()
     const handleSubmit = async () => {
         if (!validate()) {
-            addToast({
-                title: 'Missing Required Fields',
+            toast.warning('Missing Required Fields', {
                 description: 'Please fill in all required fields before submitting.',
-                color: 'danger',
             })
             return
         }
@@ -67,14 +65,28 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
         try {
             if (mode === 'add') {
                 await createMutate(form as Product)
+                toast.success(form.name ? `${form.name} added` : 'Product added', {
+                    description: 'Product was added successfully.',
+                })
             } else if (mode === 'update' && editingProduct) {
                 await updateMutate({ ...editingProduct, ...form })
+                toast.success(
+                    form.name || editingProduct?.name
+                        ? `${form.name || editingProduct?.name} updated`
+                        : 'Product updated',
+                    {
+                        description: 'Product was updated successfully.',
+                    }
+                )
             }
 
             resetForm()
             onClose()
         } catch (err) {
             console.error(err)
+            toast.error('Submission failed', {
+                description: (err as any)?.message || 'Somthing went wrong.',
+            })
         }
     }
 
@@ -182,7 +194,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
 
                         <Input
                             label='Compatibility'
-                            placeholder='e.g., K20, K20 Pro, 9T, 9T Pro'
+                            placeholder='e.g., K20 - K20 Pro - 9T - 9T Pro'
                             labelPlacement='outside-top'
                             value={form.compatibility!}
                             onChange={(e) => setForm({ compatibility: e.target.value })}
