@@ -4,13 +4,66 @@ import { withErrorHandling } from '@/lib/utils'
 import { createClient } from '@/supabase/server'
 import type { Product, Products } from '@/types/product'
 
-export const addProduct = withErrorHandling(async (data: Product) => {
+async function createSignedUrlForPath(path: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase.storage
+    .from('user')
+    .createSignedUploadUrl(path)
+
+  if (error || !data?.signedUrl)
+    throw error || new Error('Failed to create signed upload URL')
+
+  return data.signedUrl
+}
+
+export const uploadVariantImagesSigned = withErrorHandling(
+  async (slug: string, files: File[]) => {
+    const supabase = await createClient()
+
+    const { data: userDetails, error: userError } = await supabase.rpc(
+      'get_current_user_details'
+    )
+    if (userError || !userDetails)
+      throw new Error('Failed to fetch user details')
+
+    const username = userDetails.username
+    const uploaded: string[] = []
+
+    for (const file of files.slice(0, 3)) {
+      const ext = file.name.split('.').pop() || 'png'
+      const filename = `${Date.now()}.${ext}`
+      const path = `@${username}/products/${slug}/${filename}`
+
+      const signedUrl = await createSignedUrlForPath(path)
+
+      const res = await fetch(signedUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file,
+      })
+
+      if (!res.ok) throw new Error(`Failed to upload ${file.name}`)
+
+      uploaded.push(`/user/${path}`)
+    }
+
+    return uploaded
+  }
+)
+
+async function deleteImagesFromStorage(paths: string[]) {
+  if (!paths?.length) return
+
   const supabase = await createClient()
 
-  const { data: userDetails, error: userError } = await supabase.rpc('get_current_user_details')
-  if (userError || !userDetails) throw new Error('Failed to fetch user details')
+  const cleanedPaths = paths.map((url) => url.replace(/^\/?user\//, ''))
 
-  const username = userDetails.username
+  const { error } = await supabase.storage.from('user').remove(cleanedPaths)
+  if (error) console.error('Failed to delete images:', error)
+}
+
+export const addProduct = withErrorHandling(async (data: Product) => {
+  const supabase = await createClient()
   const slug = `${data.name.toLowerCase().replace(/\s+/g, '-')}-${data.category
     .toLowerCase()
     .replace(/\s+/g, '-')}`
@@ -19,25 +72,19 @@ export const addProduct = withErrorHandling(async (data: Product) => {
     data.variants.map(async (variant) => {
       const uploadedPaths: string[] = []
 
+      const existingImageUrls =
+        variant.image?.filter((item): item is string => typeof item === 'string') ?? []
+      const newFiles =
+        variant.image?.filter((item): item is File => item instanceof File) ?? []
 
-      if (variant.files?.length) {
-        for (const file of variant.files.slice(0, 3)) {
-          const ext = file.name.split('.').pop() || 'png'
-          const filename = `${Date.now()}.${ext}`
-          const path = `@${username}/products/${slug}/${filename}`
-
-          const { error: uploadError } = await supabase.storage
-            .from('user')
-            .upload(path, file, { upsert: false })
-
-          if (uploadError) throw uploadError
-          uploadedPaths.push(`/user/${path}`)
-        }
+      if (newFiles.length > 0) {
+        const uploaded = await uploadVariantImagesSigned(slug, newFiles)
+        uploadedPaths.push(...uploaded)
       }
 
       return {
         ...variant,
-        image: [...(variant.image ?? []), ...uploadedPaths],
+        image: [...existingImageUrls, ...uploadedPaths],
       }
     })
   )
@@ -65,36 +112,46 @@ export const addProduct = withErrorHandling(async (data: Product) => {
 
 export const updateProduct = withErrorHandling(async (data: Product) => {
   const supabase = await createClient()
-  const { data: userDetails, error: userError } = await supabase.rpc('get_current_user_details')
-  if (userError || !userDetails) throw new Error('Failed to fetch user details')
-
-  const username = userDetails.username
   const slug = `${data.name.toLowerCase().replace(/\s+/g, '-')}-${data.category
     .toLowerCase()
     .replace(/\s+/g, '-')}`
 
+  const { data: oldProducts } = await supabase.rpc('posproduct', {
+    search: data.name,
+    category: data.category,
+  })
+
+  const oldProduct = oldProducts?.products?.find(
+    (p: any) => p.id === data.id
+  )
+  const oldVariants = oldProduct?.variants ?? []
+
   const variantsWithUploads = await Promise.all(
     data.variants.map(async (variant) => {
       const uploadedPaths: string[] = []
+      const existingUrls =
+        variant.image?.filter((item): item is string => typeof item === 'string') ?? []
+      const newFiles =
+        variant.image?.filter((item): item is File => item instanceof File) ?? []
 
-      if (variant.files?.length) {
-        for (const file of variant.files.slice(0, 3)) {
-          const ext = file.name.split('.').pop() || 'png'
-          const filename = `${Date.now()}.${ext}`
-          const path = `@${username}/products/${slug}/${filename}`
+      if (newFiles.length > 0) {
+        const uploaded = await uploadVariantImagesSigned(slug, newFiles)
+        uploadedPaths.push(...uploaded)
+      }
 
-          const { error: uploadError } = await supabase.storage
-            .from('user')
-            .upload(path, file, { upsert: false })
+      const finalImages = [...existingUrls, ...uploadedPaths]
 
-          if (uploadError) throw uploadError
-          uploadedPaths.push(`/user/${path}`)
-        }
+      const oldVariant = oldVariants.find((v: any) => v.id === variant.id)
+      if (oldVariant?.image?.length) {
+        const removed = oldVariant.image.filter(
+          (img: string) => !finalImages.includes(img)
+        )
+        if (removed.length) await deleteImagesFromStorage(removed)
       }
 
       return {
         ...variant,
-        image: [...(variant.image ?? []), ...uploadedPaths],
+        image: finalImages,
       }
     })
   )
@@ -121,17 +178,13 @@ export const updateProduct = withErrorHandling(async (data: Product) => {
   return product_id
 })
 
+export async function sellerProducts(search: string, category?: string) {
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc('posproduct', { search, category })
 
-export async function sellerProducts  (search: string, category?: string) {
-    const supabase = await createClient()
-    const { data, error } = await supabase.rpc('posproduct', { search, category })
-
-
-    return {
-      products: (data?.products ?? []) as Products,
-      error,
-      empty: data?.empty ?? true,
-    }
-  } 
-
-
+  return {
+    products: (data?.products ?? []) as Products,
+    error,
+    empty: data?.empty ?? true,
+  }
+}

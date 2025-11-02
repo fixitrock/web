@@ -17,9 +17,9 @@ import {
     addToast,
 } from '@heroui/react'
 import React, { useState } from 'react'
-import { Edit, Eye, EyeOff, XIcon } from 'lucide-react'
+import { Eye, EyeOff, XIcon } from 'lucide-react'
 
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, getProductImage } from '@/lib/utils'
 import { Product } from '@/types/product'
 import { usePosStore, usePosTypeStore } from '@/zustand/store'
 import { useCartStore } from '@/zustand/store/cart'
@@ -36,6 +36,7 @@ export function ProductCard({ product }: { product: Product }) {
         setMode('update', product)
         updateModal.onOpen()
     }
+    
     return (
         <div className='group relative'>
             <Card
@@ -49,21 +50,7 @@ export function ProductCard({ product }: { product: Product }) {
                     alt={product.name}
                     className='bg-default/10 aspect-square size-full rounded-lg object-contain select-none'
                     loading='lazy'
-                    src={
-                        Array.isArray(product.variants?.[0]?.image)
-                            ? (product.variants?.[0]?.image[0] ??
-                              bucketUrl(
-                                  '/assets/categories/' +
-                                      product.category.toLowerCase().replace(/\s+/g, '-') +
-                                      '.png'
-                              ))
-                            : (product.variants?.[0]?.image ??
-                              bucketUrl(
-                                  '/assets/categories/' +
-                                      product.category.toLowerCase().replace(/\s+/g, '-') +
-                                      '.png'
-                              ))
-                    }
+                    src={getProductImage(product)}
                 />
 
                 <div className='flex flex-1 flex-col'>

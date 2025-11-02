@@ -30,6 +30,7 @@ import { useEffect } from 'react'
 import { inputWrapperStyle } from '@/config/style'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/ui/accordion'
 import { Icon } from '@iconify/react'
+import { bucketUrl } from '@/supabase/bucket'
 
 interface AddModalProps {
     mode: 'add' | 'update'
@@ -382,10 +383,14 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
     const { errors } = useProductStore()
     const { data, isLoading } = useBrands()
     const { filteredColors, colorsLoading, onInputChange } = useColors()
+    
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files ?? []).slice(0, 3)
-        updateVariant(index, { image: files })
-    }
+        const files = Array.from(e.target.files ?? [])
+        const existing = variant.image ?? []
+        const newImgs = [...existing, ...files].slice(0, 3)
+        updateVariant(index, { image: newImgs })
+        e.target.value = ''
+      }
 
     return (
         <Accordion type='single' collapsible defaultValue={`pricing-${index}`}>
@@ -590,38 +595,46 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                 </AccordionTrigger>
 
                 <AccordionContent className='px-2'>
-                    <div className='flex flex-wrap items-center gap-1.5'>
-                        {variant?.image?.map((file, i) => (
-                            <ImagePreview
-                                key={i}
-                                src={typeof file === 'string' ? file : URL.createObjectURL(file)}
-                                alt={`Image ${i + 1}`}
-                                onRemove={() => {
-                                    const newImgs = [...(variant?.image ?? [])]
-                                    newImgs.splice(i, 1)
-                                    updateVariant(index, { image: newImgs })
-                                }}
-                            />
-                        ))}
+                <div className="flex flex-wrap items-center gap-1.5">
+  {variant?.image?.map((file, i) => {
+    const src =
+      typeof file === "string"
+        ? bucketUrl(file) 
+        : URL.createObjectURL(file)
 
-                        {(variant?.image?.length ?? 0) < 3 && (
-                            <Button
-                                as='label'
-                                className='aspect-square size-20 cursor-pointer border-2 border-dashed'
-                                variant='light'
-                            >
-                                <Icon icon='flat-color-icons:plus' width='48' height='48' />
-                                <input
-                                    type='file'
-                                    accept='image/*'
-                                    capture='environment'
-                                    multiple
-                                    hidden
-                                    onChange={handleImageChange}
-                                />
-                            </Button>
-                        )}
-                    </div>
+    return (
+      <ImagePreview
+        key={i}
+        src={src}
+        alt={`Image ${i + 1}`}
+        onRemove={() => {
+          const newImgs = [...(variant?.image ?? [])]
+          newImgs.splice(i, 1)
+          updateVariant(index, { image: newImgs })
+        }}
+      />
+    )
+  })}
+
+  {(variant?.image?.length ?? 0) < 3 && (
+    <Button
+      as="label"
+      className="aspect-square size-20 cursor-pointer border-2 border-dashed"
+      variant="light"
+    >
+      <Icon icon="flat-color-icons:plus" width="48" height="48" />
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        multiple
+        hidden
+        onChange={handleImageChange}
+      />
+    </Button>
+  )}
+</div>
+
                 </AccordionContent>
             </AccordionItem>
         </Accordion>

@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge'
 import { User } from '@/app/login/types'
 import { siteConfig } from '@/config/site'
 import { DriveItem } from '@/types/drive'
-import { Product } from '@/types/products'
+import { Product } from '@/types/product'
 import { bucketUrl } from '@/supabase/bucket'
 
 export function cn(...inputs: ClassValue[]) {
@@ -121,10 +121,23 @@ export const getStockStatus = (qty: number) => {
     return { color: 'bg-emerald-400' as const, text: 'In Stock' }
 }
 
-export const getProductImage = (product: Product): string | null => {
-    if (!product.img || product.img.length === 0) return null
+export const getProductImage = (product: Product): string | undefined => {
+    if (!product.variants?.[0]?.image || product.variants[0].image.length === 0) {
+        if (product.category) {
+            return bucketUrl(
+                '/assets/categories/' +
+                    product.category.toLowerCase().replace(/\s+/g, '-') +
+                    '.png'
+            ) ?? undefined
+        }
+        return undefined;
+    }
 
-    return bucketUrl(product.img[0]) ?? null
+    const firstImage = product.variants[0].image[0]
+    if (typeof firstImage === 'string') {
+        return bucketUrl(firstImage) ?? undefined
+    }
+    return undefined
 }
 
 export function formatDateTime(dateTimeString?: string | null | undefined): string {
