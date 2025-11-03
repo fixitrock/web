@@ -15,7 +15,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Checkbox } from '@/ui/checkbox'
 
 import Quantity from '../quantity'
-import DeleteProduct from '../delete'
 
 import { StatsCard } from './stats'
 import { TopContent } from './top'
@@ -489,11 +488,11 @@ export default function ProductsTable({ products, canManage, brand }: ProductsTa
                 onClose={onEditClose}
             /> */}
 
-            <DeleteProduct
+            {/* <DeleteProduct
                 isOpen={isDeleteOpen}
                 product={deletingProduct}
                 onClose={onDeleteClose}
-            />
+            /> */}
         </main>
     )
 }
