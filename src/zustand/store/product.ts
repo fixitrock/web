@@ -17,6 +17,8 @@ interface ProductState {
     updateVariant: (index: number, variant: Partial<ProductVariant>) => void
     removeVariant: (index: number) => void
     validate: () => boolean
+    isUploading: boolean
+    setUploading: (uploading: boolean) => void
 }
 
 export const useProductStore = create<ProductState>((set, get) => ({
@@ -43,7 +45,8 @@ export const useProductStore = create<ProductState>((set, get) => ({
             },
         ],
     },
-
+    isUploading: false,
+    setUploading: (uploading) => set({ isUploading: uploading }),
     setMode: (mode, product = null) => {
         if (mode === 'update' && product) {
             set({

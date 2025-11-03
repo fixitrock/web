@@ -31,8 +31,7 @@ import { inputWrapperStyle } from '@/config/style'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/ui/accordion'
 import { Icon } from '@iconify/react'
 import { bucketUrl } from '@/supabase/bucket'
-import { createClient } from '@/supabase/client'
-import { uploadVariantImagesSigned } from '@/lib/utils/upload'
+import { prepareProduct } from '@/actions/user'
 
 interface AddModalProps {
     mode: 'add' | 'update'
@@ -54,84 +53,44 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
         setMode,
         editingProduct,
         validate,
+        setUploading,
+        isUploading
     } = useProductStore()
     const { mutateAsync: createMutate, isPending: isCreating } = useAddProduct()
     const { mutateAsync: updateMutate, isPending: isUpdating } = useUpdateProduct()
     const handleSubmit = async () => {
         if (!validate()) {
-            toast.warning('Missing Required Fields', {
-                description: 'Please fill in all required fields before submitting.',
-            })
-            return
+          toast.warning('Missing Required Fields', {
+            description: 'Please fill in all required fields before submitting.',
+          })
+          return
         }
-
+      
         try {
-            // Get user details for upload path
-            const supabase = await createClient()
-            const { data: userDetails } = await supabase.auth.getUser()
-            const username = userDetails?.user?.user_metadata?.username || 'unknown'
-            
-            const slug = `${(form.name || '').toLowerCase().replace(/\s+/g, '-')}-${(form.category || '')
-                .toLowerCase()
-                .replace(/\s+/g, '-')}`
-
-            // Create a copy of the form data to modify
-            const formData = { ...form } as Product
-            
-            // Handle image uploads for all variants
-            if (formData.variants) {
-                formData.variants = await Promise.all(
-                    formData.variants.map(async (variant) => {
-                        const newFiles = variant.image?.filter((item): item is File => item instanceof File) ?? []
-                        const existingUrls = variant.image?.filter((item): item is string => typeof item === 'string') ?? []
-                        
-                        let uploadedPaths: string[] = []
-                        if (newFiles.length > 0) {
-                            try {
-                                uploadedPaths = await uploadVariantImagesSigned(slug, username, newFiles)
-                            } catch (uploadError) {
-                                console.error('Upload failed:', uploadError)
-                                toast.error('Upload failed', {
-                                    description: (uploadError as Error)?.message || 'Failed to upload images',
-                                })
-                                throw uploadError
-                            }
-                        }
-                        
-                        return {
-                            ...variant,
-                            image: [...existingUrls, ...uploadedPaths],
-                        }
-                    })
-                )
-            }
-
-            if (mode === 'add') {
-                await createMutate(formData)
-                toast.success(form.name ? `${form.name} added` : 'Product added', {
-                    description: 'Product was added successfully.',
-                })
-            } else if (mode === 'update' && editingProduct) {
-                await updateMutate({ ...editingProduct, ...formData })
-                toast.success(
-                    form.name || editingProduct?.name
-                        ? `${form.name || editingProduct?.name} updated`
-                        : 'Product updated',
-                    {
-                        description: 'Product was updated successfully.',
-                    }
-                )
-            }
-
-            resetForm()
-            onClose()
+          setUploading(true)
+          const preparedProduct = await prepareProduct(form as Product)
+          setUploading(false)
+      
+          if (mode === 'add') {
+            await createMutate(preparedProduct)
+            toast.success(`${preparedProduct.name} added`, { description: 'Product added successfully.' })
+          } else if (mode === 'update' && editingProduct) {
+            await updateMutate({ ...editingProduct, ...preparedProduct })
+            toast.success(`${preparedProduct.name} updated`, { description: 'Product updated successfully.' })
+          }
+      
+          resetForm()
+          onClose()
         } catch (err) {
-            console.error(err)
-            toast.error('Submission failed', {
-                description: (err as any)?.message || 'Something went wrong.',
-            })
+          setUploading(false)
+          console.error(err)
+          toast.error('Submission failed', {
+            description: (err as any)?.message || 'Something went wrong.',
+          })
         }
-    }
+      }
+      
+      
 
     useEffect(() => {
         if (isOpen && mode === 'add') {
@@ -395,7 +354,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                         color='primary'
                         radius='full'
                         size='sm'
-                        isLoading={isCreating || isUpdating}
+                        isLoading={isCreating || isUpdating || isUploading}
                         onPress={handleSubmit}
                     >
                         {Submit}
