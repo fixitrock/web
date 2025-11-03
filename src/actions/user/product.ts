@@ -64,35 +64,12 @@ async function deleteImagesFromStorage(paths: string[]) {
 
 export const addProduct = withErrorHandling(async (data: Product) => {
   const supabase = await createClient()
-  const slug = `${data.name.toLowerCase().replace(/\s+/g, '-')}-${data.category
-    .toLowerCase()
-    .replace(/\s+/g, '-')}`
-
-  const variantsWithUploads = await Promise.all(
-    data.variants.map(async (variant) => {
-      const uploadedPaths: string[] = []
-
-      const existingImageUrls =
-        variant.image?.filter((item): item is string => typeof item === 'string') ?? []
-      const newFiles =
-        variant.image?.filter((item): item is File => item instanceof File) ?? []
-
-      if (newFiles.length > 0) {
-        const uploaded = await uploadVariantImagesSigned(slug, newFiles)
-        uploadedPaths.push(...uploaded)
-      }
-
-      return {
-        ...variant,
-        image: [...existingImageUrls, ...uploadedPaths],
-      }
-    })
-  )
-
+  
+  // Images are already uploaded in the client, so we just pass the data through
   const { data: product_id, error } = await supabase.rpc('addproduct', {
     payload: {
       ...data,
-      variants: variantsWithUploads.map((v) => ({
+      variants: data.variants.map((v) => ({
         brand: v.brand,
         color: v.color,
         storage: v.storage,
@@ -112,10 +89,8 @@ export const addProduct = withErrorHandling(async (data: Product) => {
 
 export const updateProduct = withErrorHandling(async (data: Product) => {
   const supabase = await createClient()
-  const slug = `${data.name.toLowerCase().replace(/\s+/g, '-')}-${data.category
-    .toLowerCase()
-    .replace(/\s+/g, '-')}`
-
+  
+  // Images are already uploaded in the client, so we just pass the data through
   const { data: oldProducts } = await supabase.rpc('posproduct', {
     search: data.name,
     category: data.category,
@@ -126,40 +101,27 @@ export const updateProduct = withErrorHandling(async (data: Product) => {
   )
   const oldVariants = oldProduct?.variants ?? []
 
-  const variantsWithUploads = await Promise.all(
-    data.variants.map(async (variant) => {
-      const uploadedPaths: string[] = []
-      const existingUrls =
-        variant.image?.filter((item): item is string => typeof item === 'string') ?? []
-      const newFiles =
-        variant.image?.filter((item): item is File => item instanceof File) ?? []
-
-      if (newFiles.length > 0) {
-        const uploaded = await uploadVariantImagesSigned(slug, newFiles)
-        uploadedPaths.push(...uploaded)
+  // Handle image cleanup for updated variants
+  const variantsWithCleanup = data.variants.map((variant) => {
+    const oldVariant = oldVariants.find((v: any) => v.id === variant.id)
+    if (oldVariant?.image?.length) {
+      const existingUrls = variant.image?.filter((item): item is string => typeof item === 'string') ?? []
+      const removed = oldVariant.image.filter(
+        (img: string) => !existingUrls.includes(img)
+      )
+      if (removed.length) {
+        // Clean up removed images in background
+        deleteImagesFromStorage(removed).catch(console.error)
       }
-
-      const finalImages = [...existingUrls, ...uploadedPaths]
-
-      const oldVariant = oldVariants.find((v: any) => v.id === variant.id)
-      if (oldVariant?.image?.length) {
-        const removed = oldVariant.image.filter(
-          (img: string) => !finalImages.includes(img)
-        )
-        if (removed.length) await deleteImagesFromStorage(removed)
-      }
-
-      return {
-        ...variant,
-        image: finalImages,
-      }
-    })
-  )
+    }
+    
+    return variant
+  })
 
   const { data: product_id, error } = await supabase.rpc('updateproduct', {
     payload: {
       ...data,
-      variants: variantsWithUploads.map((v) => ({
+      variants: variantsWithCleanup.map((v) => ({
         id: v.id,
         brand: v.brand,
         color: v.color,

@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
     transpilePackages: ['next-mdx-remote'],
     experimental: {
         serverActions: {
-            bodySizeLimit: '3mb',
+            bodySizeLimit: '10mb',
         },
     },
     async redirects() {
