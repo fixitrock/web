@@ -232,10 +232,10 @@ export function AddCustomer({
                             variant='light'
                             onPress={() => onOpenChange(false)}
                         >
-                            Cancel / रद्द करें
+                            Cancel
                         </Button>
                         <Button fullWidth color='primary' isLoading={isPendingSubmit} type='submit'>
-                            Add Customer / ग्राहक जोड़ें
+                            Add Customer
                         </Button>
                     </ModalFooter>
                 </ModalContent>

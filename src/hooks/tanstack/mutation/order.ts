@@ -14,7 +14,7 @@ export function useOrder() {
             return result
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['posProducts'] })
+            queryClient.invalidateQueries({ queryKey: ['SellerProducts'] })
             queryClient.invalidateQueries({ queryKey: ['userTransactions'] })
         },
     })
