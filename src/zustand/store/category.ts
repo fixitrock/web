@@ -24,8 +24,9 @@ export const useCategoryStore = create<CategoryState>((set) => ({
                       description: category.description,
                       keywords: category.keywords,
                       imageUrl: category.image || '',
+                      updated_at: category.updated_at || '',
                   }
-                : { name: '', description: '', keywords: [], imageUrl: '' },
+                : { name: '', description: '', keywords: [], imageUrl: '', updated_at: '' },
         }),
     updateForm: (fields) => set((state) => ({ form: { ...state.form, ...fields } })),
     resetForm: () =>

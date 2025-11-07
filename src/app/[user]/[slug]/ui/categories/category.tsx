@@ -113,7 +113,7 @@ export function Category({ can }: { can: CanType }) {
                                 className='bg-default/10 aspect-square size-full object-cover select-none'
                                 loading='lazy'
                                 radius='sm'
-                                src={bucketUrl(c.image) || fallback.category}
+                                src={`${bucketUrl(c.image)}?v=${c.updated_at}` || fallback.category}
                             />
                             <h3 className='font-mono'>{c.name}</h3>
                             {can.update && (

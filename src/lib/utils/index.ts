@@ -347,3 +347,18 @@ export function formatNumber(num: number): string {
         return (num / 1_000_000_000).toFixed(num % 1_000_000_000 === 0 ? 0 : 1) + 'B'
     }
 }
+
+
+export async function uploadFilesDirectly(
+    uploads: { signedUrl: string; file: File }[]
+  ) {
+    await Promise.all(
+      uploads.map(({ signedUrl, file }) =>
+        fetch(signedUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': file.type },
+          body: file,
+        })
+      )
+    )
+  }

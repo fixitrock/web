@@ -387,9 +387,13 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
     
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files ?? [])
-        const existing = variant.image ?? []
-        const newImgs = [...existing, ...files].slice(0, 3)
-        updateVariant(index, { image: newImgs })
+        if (!files.length) return
+        const existing = variant.image?.filter((i) => i instanceof File || typeof i === 'string') ?? []
+        const remainingSlots = 3 - existing.length
+        const newFiles = files.slice(0, remainingSlots)
+      
+        updateVariant(index, { image: [...existing, ...newFiles] })
+        
         e.target.value = ''
       }
 
@@ -597,27 +601,32 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
 
                 <AccordionContent className='px-2'>
                 <div className="flex flex-wrap items-center gap-1.5">
-  {variant?.image?.map((file, i) => {
-    const src =
-      typeof file === "string"
-        ? bucketUrl(file) 
-        : URL.createObjectURL(file)
-
+  {(variant.image ?? []).map((fileOrUrl, i) => {
+    const src = typeof fileOrUrl === "string" ? bucketUrl(fileOrUrl) : URL.createObjectURL(fileOrUrl)
     return (
-      <ImagePreview
-        key={i}
-        src={src}
-        alt={`Image ${i + 1}`}
-        onRemove={() => {
-          const newImgs = [...(variant?.image ?? [])]
-          newImgs.splice(i, 1)
-          updateVariant(index, { image: newImgs })
-        }}
-      />
+      <div key={i} className="group relative shrink-0">
+        <Image
+          src={src}
+          alt={`Image ${i + 1}`}
+          className="size-20 border object-cover"
+          classNames={{ wrapper: 'size-20 object-cover' }}
+        />
+        <Button
+          isIconOnly
+          className="absolute -top-0.5 -right-0.5 z-30 h-5 w-5 min-w-0 rounded-full p-0"
+          onPress={() => {
+            const updatedImages = [...(variant.image ?? [])]
+            updatedImages.splice(i, 1)
+            updateVariant(index, { image: updatedImages })
+          }}
+        >
+          <X className="size-4" />
+        </Button>
+      </div>
     )
   })}
 
-  {(variant?.image?.length ?? 0) < 3 && (
+  {(variant.image?.length ?? 0) < 3 && (
     <Button
       as="label"
       className="aspect-square size-20 cursor-pointer border-2 border-dashed"
@@ -635,6 +644,7 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
     </Button>
   )}
 </div>
+
 
                 </AccordionContent>
             </AccordionItem>

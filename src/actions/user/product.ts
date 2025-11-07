@@ -1,84 +1,99 @@
 'use server'
 
-import { withErrorHandling } from '@/lib/utils'
+import { uploadFilesDirectly, withErrorHandling } from '@/lib/utils'
 import { createClient } from '@/supabase/server'
+import { DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { PutObjectCommand } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import type { Product, Products } from '@/types/product'
+import { R2 } from '@/supabase/r2'
 
-export const createSignedUploadUrls = withErrorHandling(
-  async (slug: string, files: { name: string; type: string }[]) => {
-    const supabase = await createClient()
-    const { data: userDetails, error: userError } = await supabase.rpc('get_current_user_details')
-    if (userError || !userDetails) throw new Error('Failed to fetch user details')
 
-    const username = userDetails.username
-    const uploads = []
+async function generateSignedUrlsForAll(
+  username: string,
+  productSlug: string,
+  files: { variantIdx: number; file: File }[]
+) {
+  const baseTs = Date.now()
 
-    for (const file of files) {
-      const timestamp = Date.now()
-      const path = `@${username}/products/${slug}/${timestamp}`
+  const uploads = await Promise.all(
+    files.map(async ({ variantIdx, file }, idx) => {
+      const timestamp = baseTs + idx
+      const key = `@${username}/products/${productSlug}/${timestamp}.png`
 
-      const { data, error } = await supabase.storage
-        .from('user')
-        .createSignedUploadUrl(path)
-
-      if (error || !data?.signedUrl)
-        throw error || new Error('Failed to create signed upload URL')
-
-      uploads.push({
-        signedUrl: data.signedUrl,
-        path: `/user/${path}`,
-        type: file.type,
+      const command = new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME!,
+        Key: key,
+        ContentType: file.type,
       })
-    }
 
-    return uploads
-  }
-)
-async function deleteImagesFromStorage(paths: string[]) {
+      const signedUrl = await getSignedUrl(R2, command, { expiresIn: 3600 })
+
+      return {
+        signedUrl,
+        path: `/${key}`,
+        variantIdx,
+        file,
+      }
+    })
+  )
+
+  return uploads
+}
+
+export const deleteImagesFromR2 = async (paths: string[]): Promise<void> => {
   if (!Array.isArray(paths) || paths.length === 0) return
 
-  const supabase = await createClient()
-
   const cleanedPaths = paths
-    .map((url) => url.replace(/^\/?user\//, '').trim())
+    .map((p) => p.replace(/^\/?/, '').trim())
     .filter(Boolean)
 
   if (cleanedPaths.length === 0) return
 
-  const { error } = await supabase.storage.from('user').remove(cleanedPaths)
-  if (error) {
-    console.error('❌ Failed to delete some images:', error.message)
-  } else {
-    console.info('🧹 Deleted images from storage:', cleanedPaths)
-  }
-}
-
-export async function prepareProduct(product: Product) {
-  const slug = `${product.name.toLowerCase().replace(/\s+/g, '-')}-${product.category.toLowerCase().replace(/\s+/g, '-')}`
-
-  const updatedVariants = await Promise.all(
-    product.variants.map(async (variant) => {
-      const existingUrls = variant.image?.filter((i): i is string => typeof i === 'string') ?? []
-      const newFiles = variant.image?.filter((i): i is File => i instanceof File) ?? []
-
-      if (newFiles.length === 0) return { ...variant, image: existingUrls }
-
-      const signed = await createSignedUploadUrls(slug, newFiles.map(f => ({ name: f.name, type: f.type })))
-      await Promise.all(
-        signed.map(async (u, i) => {
-          const res = await fetch(u.signedUrl, {
-            method: 'PUT',
-            headers: { 'Content-Type': u.type },
-            body: newFiles[i],
-          })
-          if (!res.ok) throw new Error(`Upload failed: ${newFiles[i].name}`)
+  await Promise.all(
+    cleanedPaths.map((path) =>
+      R2.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.R2_BUCKET_NAME!,
+          Key: path,
         })
       )
-
-      const uploadedPaths = signed.map(u => u.path)
-      return { ...variant, image: [...existingUrls, ...uploadedPaths] }
-    })
+    )
   )
+}
+
+
+export const prepareProduct = async (product: Product): Promise<Product> => {
+  const supabase = await createClient()
+  const { data: userDetails, error: userError } =
+    await supabase.rpc('get_current_user_details')
+  if (userError || !userDetails) throw new Error('Failed to fetch user details')
+  const username = userDetails.username
+
+  const slug = `${product.name.toLowerCase().replace(/\s+/g, '-')}-${product.category
+    .toLowerCase()
+    .replace(/\s+/g, '-')}`
+  const allNewFiles: { variantIdx: number; file: File }[] = []
+  product.variants.forEach((variant, idx) => {
+    const newFiles = variant.image?.filter((i): i is File => i instanceof File) ?? []
+    newFiles.forEach((file) => allNewFiles.push({ variantIdx: idx, file }))
+  })
+
+  
+  const uploads = await generateSignedUrlsForAll(username, slug, allNewFiles)
+
+  
+  await uploadFilesDirectly(uploads.map(u => ({ signedUrl: u.signedUrl, file: u.file })))
+
+
+  const updatedVariants = product.variants.map((variant, idx) => {
+    const existingUrls = variant.image?.filter((i): i is string => typeof i === 'string') ?? []
+    const uploadedPaths = uploads
+      .filter(u => u.variantIdx === idx)
+      .map(u => u.path)
+
+    return { ...variant, image: [...existingUrls, ...uploadedPaths] }
+  })
 
   return { ...product, variants: updatedVariants }
 }
@@ -124,14 +139,12 @@ export const updateProduct = withErrorHandling(async (data: Product) => {
   })
   if (updateError) throw updateError
 
-  if (removed.length > 0) {
-    await deleteImagesFromStorage(removed)
-  }
+  if (removed.length > 0) await deleteImagesFromR2(removed)
 
   return product_id
 })
 
-export async function sellerProducts(search: string, category?: string) {
+export const sellerProducts = async (search: string, category?: string) => {
   const supabase = await createClient()
   const { data, error } = await supabase.rpc('posproduct', { search, category })
 
@@ -141,5 +154,3 @@ export async function sellerProducts(search: string, category?: string) {
     empty: data?.empty ?? true,
   }
 }
-
-

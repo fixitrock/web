@@ -86,7 +86,7 @@ export default function Profile({ user, canManage }: ProfileProps) {
                 <Image
                     disableSkeleton
                     alt={`${user.name} cover`}
-                    className='h-30 w-full rounded-none border-b object-cover lg:h-[240px]'
+                    className='h-30 w-full rounded-none border-b object-cover lg:h-60'
                     radius='none'
                     src={
                         (bucketUrl(user.cover as string) || '/fallback/cover.png') +
@@ -132,7 +132,7 @@ export default function Profile({ user, canManage }: ProfileProps) {
             </div>
             <div className='relative z-10 flex w-full flex-col px-[5%] lg:px-[10%]'>
                 <div className='flex w-full justify-between gap-4'>
-                    <div className='bg-background relative -top-20 h-fit w-fit shrink-0 rounded-full border p-1 md:-top-16'>
+                    <div className='bg-background relative -top-20 shrink-0 rounded-full border p-1 md:-top-16'>
                         <Image
                             isBlurred
                             alt={`${user.name} avatar`}

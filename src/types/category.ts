@@ -12,5 +12,6 @@ export type CategoryInput = {
     keywords: string[]
     description: string
     imageUrl?: string
+    updated_at?: string
 }
 export type Categories = Category[]

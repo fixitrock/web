@@ -112,7 +112,7 @@ export function Brand({ can }: { can: CanType }) {
                                     className='bg-default/10 aspect-square size-full object-contain select-none'
                                     loading='lazy'
                                     radius='sm'
-                                    src={bucketUrl(c.image) || fallback.brand}
+                                    src={`${bucketUrl(c.image)}?v=${c.updated_at}` || fallback.brand}
                                 />
                             </div>
                             <h3 className='font-mono'>{c.name}</h3>

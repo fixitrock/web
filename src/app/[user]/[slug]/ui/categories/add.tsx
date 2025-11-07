@@ -38,7 +38,7 @@ export default function AddEdit({ isOpen, onClose, type }: AddEditProps) {
             if (form.imageUrl.startsWith('http://') || form.imageUrl.startsWith('https://')) {
                 setPreviewUrl(form.imageUrl)
             } else {
-                setPreviewUrl(bucketUrl(form.imageUrl))
+                setPreviewUrl(`${bucketUrl(form.imageUrl)}?v=${form.updated_at}`) 
             }
         } else {
             setPreviewUrl('')
