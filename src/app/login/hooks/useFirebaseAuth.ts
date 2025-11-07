@@ -5,7 +5,8 @@ import {
   signInWithPhoneNumber, 
   PhoneAuthProvider, 
   ConfirmationResult,
-  UserCredential
+  UserCredential,
+  signInWithCredential
 } from 'firebase/auth'
 
 import { firebaseAuth } from '@/firebase/client'
@@ -42,7 +43,6 @@ export function useFirebaseAuth(): FirebasePhoneAuthHook {
       
       setConfirmationResult(result)
       setLoading(false)
-      // Return the verification ID which is needed for verification
       return { verificationId: result.verificationId }
     } catch (err: any) {
       setLoading(false)
@@ -60,12 +60,9 @@ export function useFirebaseAuth(): FirebasePhoneAuthHook {
     setError(null)
     
     try {
-      if (!confirmationResult) {
-        throw new Error('No confirmation result available. Please send OTP first.')
-      }
+      const credential = PhoneAuthProvider.credential(verificationId, otp)
       
-      // Use the confirmation result to verify the OTP
-      const userCredential = await confirmationResult.confirm(otp)
+      const userCredential = await signInWithCredential(firebaseAuth, credential)
       
       setLoading(false)
       return { userCredential }
@@ -77,7 +74,6 @@ export function useFirebaseAuth(): FirebasePhoneAuthHook {
     }
   }
 
-  // Clean up recaptcha verifier on unmount
   useEffect(() => {
     return () => {
       if (recaptchaVerifierRef.current) {

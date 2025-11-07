@@ -81,7 +81,7 @@ export function StepPhone({
                     type='submit'
                 >
                     {loading ? 'Sending...' : 'Send OTP'}
-                </Button>{' '}
+                </Button>
                 <div className='mx-auto flex' id='recaptcha-container' />
                 <Link
                     passHref
