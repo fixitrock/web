@@ -42,6 +42,7 @@ function Steps() {
     const [step, setStep] = useState<LoginStep>('phone')
     const [phone, setPhone] = useState('')
     const [otp, setOtp] = useState('')
+    const [verificationId, setVerificationId] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
     const [user, setUserState] = useState<Partial<User>>({})
@@ -74,6 +75,7 @@ function Steps() {
                     setLoading={setLoading}
                     setPhone={setPhone}
                     setStep={setStep}
+                    setVerificationId={setVerificationId}
                 />
             )}
 
@@ -87,6 +89,7 @@ function Steps() {
                     setLoading={setLoading}
                     setOtp={setOtp}
                     setStep={setStep}
+                    verificationId={verificationId}
                 />
             )}
 

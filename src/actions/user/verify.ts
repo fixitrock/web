@@ -1,47 +1,33 @@
 'use server'
 
 import type { User } from '@/app/login/types'
-
-import { headers } from 'next/headers'
-
 import { createClient } from '@/supabase/server'
-
-import { createLoginSession } from './login'
 
 export async function verifyOtp(
     phone: string,
     otp: string
 ): Promise<{ user?: User; error?: string }> {
     const supabase = await createClient()
-    const { data, error } = await supabase.auth.verifyOtp({
-        phone,
-        token: otp,
-        type: 'sms',
-    })
-
-    if (error) return { error: error.message }
-    if (!data.user) return { error: 'No user returned from Supabase.' }
-
-    // Fetch user profile if exists
-    const { data: profile } = await supabase
+    
+    // Instead of verifying with Supabase, we'll check if user exists
+    // The Firebase verification already happened on the client side
+    
+    // Check if user exists in Supabase
+    const { data: existingUser, error: fetchError } = await supabase
         .from('users')
         .select('*')
-        .eq('id', data.user.id)
+        .eq('phone', phone)
         .single()
-
-    if (profile) {
-        // Track login session
-        const headersList = await headers()
-        const userAgent = headersList.get('user-agent') || 'Unknown'
-
-        await createLoginSession(
-            data.user.id,
-            data.session?.access_token || data.user.id,
-            userAgent,
-            'phone_otp',
-            'success'
-        )
+    
+    if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 is "no rows" error
+        return { error: 'Failed to check user existence: ' + fetchError.message }
     }
-
-    return { user: profile }
+    
+    // If user exists, return the user
+    if (existingUser) {
+        return { user: existingUser }
+    }
+    
+    // If user doesn't exist, return without user to trigger details step
+    return {}
 }
