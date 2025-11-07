@@ -7,8 +7,7 @@ import { useEffect } from 'react'
 
 import { LoginStep } from '@/app/login/types'
 import { DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from '@/ui/drawer'
-import { useFirebaseAuth } from '@/app/login/hooks/useFirebaseAuth'
-import { verifyOtp as verifySupabaseOtp } from '@/actions/user'
+import { verifyOtp } from '@/actions/user'
 
 interface StepOtpProps {
     otp: string
@@ -19,7 +18,6 @@ interface StepOtpProps {
     setError: (val: string) => void
     resendOtp: () => void
     phone: string
-    verificationId: string
 }
 
 const OTP_LENGTH = 6
@@ -34,10 +32,8 @@ export function StepOtp({
     setError,
     resendOtp,
     phone,
-    verificationId,
 }: StepOtpProps) {
     const [secondsLeft, setSecondsLeft] = useState(RESEND_TIMEOUT)
-    const { verifyOtp } = useFirebaseAuth()
 
     // Timer logic
     useState(() => {
@@ -65,23 +61,12 @@ export function StepOtp({
     const handleVerifyOtp = async () => {
         setError('')
         setLoading(true)
-        
-        // First verify with Firebase
-        const firebaseRes = await verifyOtp(verificationId, otp)
-        
-        if (firebaseRes.error) {
-            setLoading(false)
-            setError(firebaseRes.error)
-            return
-        }
-        
-        // If Firebase verification is successful, proceed with Supabase
-        const supabaseRes = await verifySupabaseOtp('+91' + phone, otp)
-        
+        const res = await verifyOtp('+91' + phone, otp)
+
         setLoading(false)
-        if (supabaseRes.error) setError(supabaseRes.error)
-        else if (supabaseRes.user) {
-            window.location.href = `/@${supabaseRes.user.username}`
+        if (res.error) setError(res.error)
+        else if (res.user) {
+            window.location.href = `/@${res.user.username}`
         } else {
             setStep('details')
         }

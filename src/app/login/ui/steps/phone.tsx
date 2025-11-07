@@ -3,9 +3,9 @@
 import { Button, Form, Input } from '@heroui/react'
 import Link from 'next/link'
 
+import { sendOtp } from '@/actions/user'
 import { LoginStep } from '@/app/login/types'
 import { DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from '@/ui/drawer'
-import { useFirebaseAuth } from '@/app/login/hooks/useFirebaseAuth'
 
 interface StepPhoneProps {
     phone: string
@@ -14,7 +14,6 @@ interface StepPhoneProps {
     setLoading: (val: boolean) => void
     setError: (val: string) => void
     loading: boolean
-    setVerificationId: (val: string) => void
 }
 
 export function StepPhone({
@@ -24,10 +23,8 @@ export function StepPhone({
     setLoading,
     setError,
     loading,
-    setVerificationId,
 }: StepPhoneProps) {
     const isPhoneValid = /^\d{10}$/.test(phone)
-    const { sendOtp } = useFirebaseAuth()
 
     const handleSendOtp = async () => {
         setError('')
@@ -36,14 +33,8 @@ export function StepPhone({
         const res = await sendOtp(formattedPhone)
 
         setLoading(false)
-        if (res.error) {
-            setError(res.error)
-        } else if (res.verificationId) {
-            setVerificationId(res.verificationId)
-            setStep('otp')
-        } else {
-            setError('Failed to get verification ID')
-        }
+        if (res.error) setError(res.error)
+        else setStep('otp')
     }
 
     return (
@@ -81,7 +72,7 @@ export function StepPhone({
                     type='submit'
                 >
                     {loading ? 'Sending...' : 'Send OTP'}
-                </Button>
+                </Button>{' '}
                 <div className='mx-auto flex' id='recaptcha-container' />
                 <Link
                     passHref
