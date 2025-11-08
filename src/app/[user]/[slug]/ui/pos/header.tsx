@@ -6,13 +6,11 @@ import { Button, Tab, Tabs, useDisclosure } from '@heroui/react'
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
 import { usePosTypeStore } from '@/zustand/store'
 import { AddProduct } from '../products/add'
-import { useMediaQuery } from '@/hooks'
 
 export function PosHeader() {
     const { type, setType } = usePosTypeStore()
     const [isFs, setIsFs] = useState(false)
     const { isOpen, onOpen, onClose } = useDisclosure()
-    const isDesktop = useMediaQuery('(min-width: 786px)')
 
     useEffect(() => {
         const onChange = () => setIsFs(Boolean(document.fullscreenElement))
@@ -49,24 +47,38 @@ export function PosHeader() {
                     <Tab key='wholesale' title='Wholesale' />
                 </Tabs>
                 <Button
-                    isIconOnly={!isDesktop}
+                    isIconOnly
                     aria-label='Refresh products'
-                    className='bg-background border'
+                    className='bg-background border md:hidden'
+                    size='sm'
+                    onPress={() => window.location.reload()}
+                    startContent={<RefreshCcw aria-hidden='true' className='size-4' />}
+                />
+                <Button
+                    aria-label='Refresh products'
+                    className='bg-background border hidden md:flex'
                     size='sm'
                     onPress={() => window.location.reload()}
                     startContent={<RefreshCcw aria-hidden='true' className='size-4' />}
                 >
-                    <span className='hidden sm:inline'>Refresh</span>
+                    Refresh
                 </Button>
                 <Button
-                    isIconOnly={!isDesktop}
+                    isIconOnly
                     aria-label='Add Product'
                     onPress={onOpen}
-                    className='bg-background border'
+                     className='bg-background border md:hidden'
+                    size='sm'
+                    startContent={<Plus className='size-4' />}
+                />
+                <Button
+                    aria-label='Add Product'
+                    onPress={onOpen}
+                     className='bg-background border hidden md:flex'
                     size='sm'
                     startContent={<Plus className='size-4' />}
                 >
-                    <span className='hidden sm:inline'>Add Product</span>
+                    Add Product
                 </Button>
                 <AddProduct mode='add' isOpen={isOpen} onClose={onClose} />
                 <Button

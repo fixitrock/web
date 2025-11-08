@@ -25,7 +25,6 @@ import { usePosStore, usePosTypeStore } from '@/zustand/store'
 import { useCartStore } from '@/zustand/store/cart'
 import { AddProduct } from '../../products/add'
 import { useProductStore } from '@/zustand/store/product'
-import { bucketUrl } from '@/supabase/bucket'
 import { Icon } from '@iconify/react'
 
 export function ProductCard({ product }: { product: Product }) {
@@ -48,7 +47,7 @@ export function ProductCard({ product }: { product: Product }) {
                 <Image
                     removeWrapper
                     alt={product.name}
-                    className='bg-default/10 aspect-square size-full rounded-lg object-contain select-none'
+                    className='bg-default/10 aspect-square rounded-lg object-contain select-none'
                     loading='lazy'
                     src={getProductImage(product)}
                 />

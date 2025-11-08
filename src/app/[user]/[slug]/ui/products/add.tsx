@@ -654,29 +654,3 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
         </Accordion>
     )
 }
-
-const ImagePreview = ({
-    src,
-    alt,
-    onRemove,
-}: {
-    src: string
-    alt: string
-    onRemove?: () => void
-}) => (
-    <div className='group relative shrink-0'>
-        <Image
-            alt={alt}
-            className='size-20 border object-cover'
-            classNames={{ wrapper: 'size-20 object-cover' }}
-            src={src}
-        />
-        <Button
-            isIconOnly
-            className='absolute -top-0.5 -right-0.5 z-30 h-5 w-5 min-w-0 rounded-full p-0'
-            onPress={onRemove}
-        >
-            <X className='size-4' />
-        </Button>
-    </div>
-)
