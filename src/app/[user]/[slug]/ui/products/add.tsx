@@ -31,7 +31,7 @@ import { inputWrapperStyle } from '@/config/style'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/ui/accordion'
 import { Icon } from '@iconify/react'
 import { bucketUrl } from '@/supabase/bucket'
-import { prepareProduct } from '@/actions/user'
+import { prepareProduct } from '@/hooks/cloudflare'
 
 interface AddModalProps {
     mode: 'add' | 'update'
@@ -68,6 +68,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
       
         try {
           setUploading(true)
+      
           const preparedProduct = await prepareProduct(form as Product)
           setUploading(false)
       
@@ -89,6 +90,8 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
           })
         }
       }
+      
+    
       
       
 

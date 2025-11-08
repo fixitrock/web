@@ -349,16 +349,3 @@ export function formatNumber(num: number): string {
 }
 
 
-export async function uploadFilesDirectly(
-    uploads: { signedUrl: string; file: File }[]
-  ) {
-    await Promise.all(
-      uploads.map(({ signedUrl, file }) =>
-        fetch(signedUrl, {
-          method: 'PUT',
-          headers: { 'Content-Type': file.type },
-          body: file,
-        })
-      )
-    )
-  }
