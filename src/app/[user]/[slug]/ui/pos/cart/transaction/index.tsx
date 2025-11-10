@@ -73,7 +73,7 @@ export function UserTransaction() {
                         <DrawerTitle aria-hidden />
                         <DrawerDescription aria-hidden />
                     </DrawerHeader>
-                    <DrawerBody className='space-y-2 p-2 hide-scrollbar'>
+                    <DrawerBody className='hide-scrollbar space-y-2 p-2'>
                         <BalanceCard as='seller' balance={data?.balance} isLoading={isLoading} />
                         {isLoading && <TransactionSkeleton />}
                         {data?.empty && <NoTransactionMessage />}

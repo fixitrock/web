@@ -4,20 +4,8 @@ import type { CustomerInput } from '@/types'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { searchCustomer, searchUserProducts, userCategories, addCustomer } from '@/actions/user/pos'
+import { searchCustomer, userCategories, addCustomer } from '@/actions/user/pos'
 import { logWarning } from '@/lib/utils'
-
-export function usePosProducts(search: string = '', category?: string) {
-    const query = useQuery({
-        queryKey: ['posProducts', search, category],
-        queryFn: () => searchUserProducts(search, category),
-        staleTime: 1000 * 60 * 5,
-        retry: 1,
-        refetchOnWindowFocus: false,
-    })
-
-    return { ...query }
-}
 
 export function usePosCategories() {
     const query = useQuery({

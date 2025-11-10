@@ -5,7 +5,6 @@ import { ArrowLeft, SearchIcon, X } from 'lucide-react'
 
 import AnimatedSearch from '@/ui/farmer/search'
 import { Command, CommandInput, CommandList } from '@/ui/command'
-import { Icon } from '@/lib'
 import { useSearchStore } from '@/zustand/store'
 import { User as UserType } from '@/app/login/types'
 import { HeyYou } from '@/lib/utils'
@@ -85,7 +84,7 @@ export function SearchBar({
                                     key={tab.key}
                                     title={
                                         <div className='flex items-center space-x-1'>
-                                            <Icon className='size-4' icon={tab.icon} />
+                                            <tab.icon />
                                             <span>{tab.title}</span>
                                         </div>
                                     }

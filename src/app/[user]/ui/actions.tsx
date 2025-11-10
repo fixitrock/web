@@ -7,21 +7,22 @@ import { FaWhatsapp } from 'react-icons/fa'
 
 import { User } from '@/app/login/types'
 import { useDevice, usePwa } from '@/hooks'
+import { CanType } from '@/actions/auth'
 
 interface ActionsProps {
     onFollow: () => void
     onMessage: () => void
     isFollowing: boolean
-    canManage: boolean
+    can: CanType
     user: User
 }
 
-export function Actions({ onFollow, onMessage, isFollowing, canManage, user }: ActionsProps) {
+export function Actions({ onFollow, onMessage, isFollowing, user, can }: ActionsProps) {
     const { installPWA, isInstallable } = usePwa(user.role)
     const { icon } = useDevice()
 
     return (
-        <div className='flex w-full flex-1 gap-2'>
+        <div className='my-auto flex w-full flex-1 gap-2'>
             {isInstallable && (
                 <Tooltip content='Tap to Install Our App'>
                     <Button
@@ -36,7 +37,7 @@ export function Actions({ onFollow, onMessage, isFollowing, canManage, user }: A
                 </Tooltip>
             )}
 
-            {canManage ? (
+            {can.view.profile ? (
                 <Button
                     passHref
                     as={Link}

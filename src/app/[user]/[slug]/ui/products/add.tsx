@@ -54,46 +54,46 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
         editingProduct,
         validate,
         setUploading,
-        isUploading
+        isUploading,
     } = useProductStore()
     const { mutateAsync: createMutate, isPending: isCreating } = useAddProduct()
     const { mutateAsync: updateMutate, isPending: isUpdating } = useUpdateProduct()
     const handleSubmit = async () => {
         if (!validate()) {
-          toast.warning('Missing Required Fields', {
-            description: 'Please fill in all required fields before submitting.',
-          })
-          return
+            toast.warning('Missing Required Fields', {
+                description: 'Please fill in all required fields before submitting.',
+            })
+            return
         }
-      
+
         try {
-          setUploading(true)
-      
-          const preparedProduct = await prepareProduct(form as Product)
-          setUploading(false)
-      
-          if (mode === 'add') {
-            await createMutate(preparedProduct)
-            toast.success(`${preparedProduct.name} added`, { description: 'Product added successfully.' })
-          } else if (mode === 'update' && editingProduct) {
-            await updateMutate({ ...editingProduct, ...preparedProduct })
-            toast.success(`${preparedProduct.name} updated`, { description: 'Product updated successfully.' })
-          }
-      
-          resetForm()
-          onClose()
+            setUploading(true)
+
+            const preparedProduct = await prepareProduct(form as Product)
+            setUploading(false)
+
+            if (mode === 'add') {
+                await createMutate(preparedProduct)
+                toast.success(`${preparedProduct.name} added`, {
+                    description: 'Product added successfully.',
+                })
+            } else if (mode === 'update' && editingProduct) {
+                await updateMutate({ ...editingProduct, ...preparedProduct })
+                toast.success(`${preparedProduct.name} updated`, {
+                    description: 'Product updated successfully.',
+                })
+            }
+
+            resetForm()
+            onClose()
         } catch (err) {
-          setUploading(false)
-          console.error(err)
-          toast.error('Submission failed', {
-            description: (err as any)?.message || 'Something went wrong.',
-          })
+            setUploading(false)
+            console.error(err)
+            toast.error('Submission failed', {
+                description: (err as any)?.message || 'Something went wrong.',
+            })
         }
-      }
-      
-    
-      
-      
+    }
 
     useEffect(() => {
         if (isOpen && mode === 'add') {
@@ -387,18 +387,19 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
     const { errors } = useProductStore()
     const { data, isLoading } = useBrands()
     const { filteredColors, colorsLoading, onInputChange } = useColors()
-    
+
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files ?? [])
         if (!files.length) return
-        const existing = variant.image?.filter((i) => i instanceof File || typeof i === 'string') ?? []
+        const existing =
+            variant.image?.filter((i) => i instanceof File || typeof i === 'string') ?? []
         const remainingSlots = 3 - existing.length
         const newFiles = files.slice(0, remainingSlots)
-      
+
         updateVariant(index, { image: [...existing, ...newFiles] })
-        
+
         e.target.value = ''
-      }
+    }
 
     return (
         <Accordion type='single' collapsible defaultValue={`pricing-${index}`}>
@@ -603,52 +604,53 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                 </AccordionTrigger>
 
                 <AccordionContent className='px-2'>
-                <div className="flex flex-wrap items-center gap-1.5">
-  {(variant.image ?? []).map((fileOrUrl, i) => {
-    const src = typeof fileOrUrl === "string" ? bucketUrl(fileOrUrl) : URL.createObjectURL(fileOrUrl)
-    return (
-      <div key={i} className="group relative shrink-0">
-        <Image
-          src={src}
-          alt={`Image ${i + 1}`}
-          className="size-20 border object-cover"
-          classNames={{ wrapper: 'size-20 object-cover' }}
-        />
-        <Button
-          isIconOnly
-          className="absolute -top-0.5 -right-0.5 z-30 h-5 w-5 min-w-0 rounded-full p-0"
-          onPress={() => {
-            const updatedImages = [...(variant.image ?? [])]
-            updatedImages.splice(i, 1)
-            updateVariant(index, { image: updatedImages })
-          }}
-        >
-          <X className="size-4" />
-        </Button>
-      </div>
-    )
-  })}
+                    <div className='flex flex-wrap items-center gap-1.5'>
+                        {(variant.image ?? []).map((fileOrUrl, i) => {
+                            const src =
+                                typeof fileOrUrl === 'string'
+                                    ? bucketUrl(fileOrUrl)
+                                    : URL.createObjectURL(fileOrUrl)
+                            return (
+                                <div key={i} className='group relative shrink-0'>
+                                    <Image
+                                        src={src}
+                                        alt={`Image ${i + 1}`}
+                                        className='size-20 border object-cover'
+                                        classNames={{ wrapper: 'size-20 object-cover' }}
+                                    />
+                                    <Button
+                                        isIconOnly
+                                        className='absolute -top-0.5 -right-0.5 z-30 h-5 w-5 min-w-0 rounded-full p-0'
+                                        onPress={() => {
+                                            const updatedImages = [...(variant.image ?? [])]
+                                            updatedImages.splice(i, 1)
+                                            updateVariant(index, { image: updatedImages })
+                                        }}
+                                    >
+                                        <X className='size-4' />
+                                    </Button>
+                                </div>
+                            )
+                        })}
 
-  {(variant.image?.length ?? 0) < 3 && (
-    <Button
-      as="label"
-      className="aspect-square size-20 cursor-pointer border-2 border-dashed"
-      variant="light"
-    >
-      <Icon icon="flat-color-icons:plus" width="48" height="48" />
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        multiple
-        hidden
-        onChange={handleImageChange}
-      />
-    </Button>
-  )}
-</div>
-
-
+                        {(variant.image?.length ?? 0) < 3 && (
+                            <Button
+                                as='label'
+                                className='aspect-square size-20 cursor-pointer border-2 border-dashed'
+                                variant='light'
+                            >
+                                <Icon icon='flat-color-icons:plus' width='48' height='48' />
+                                <input
+                                    type='file'
+                                    accept='image/*'
+                                    capture='environment'
+                                    multiple
+                                    hidden
+                                    onChange={handleImageChange}
+                                />
+                            </Button>
+                        )}
+                    </div>
                 </AccordionContent>
             </AccordionItem>
         </Accordion>

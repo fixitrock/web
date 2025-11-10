@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 /* @import 'fumadocs-ui/css/preset.css';
 @import 'fumadocs-ui/css/neutral.css'; */
-@import "tw-animate-css";
+@import 'tw-animate-css';
 @plugin '../../hero.ts';
 
 @source '../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
@@ -54,7 +54,6 @@
     --color-code-number: var(--code-number);
     --color-selection: var(--selection);
     --color-selection-foreground: var(--selection-foreground);
-
 }
 
 :root {
@@ -192,9 +191,9 @@
     * {
         @apply border-border outline-ring/50;
     }
-  ::selection {
-    @apply bg-selection text-selection-foreground;
-  }
+    ::selection {
+        @apply bg-selection text-selection-foreground;
+    }
     html {
         @apply scroll-smooth;
         scrollbar-gutter: stable;
@@ -204,7 +203,7 @@
     body {
         @apply bg-background text-foreground overscroll-none;
         font-synthesis-weight: none;
-    text-rendering: optimizeLegibility;
+        text-rendering: optimizeLegibility;
     }
 
     html body[data-scroll-locked] {
@@ -231,13 +230,19 @@
 }
 
 @keyframes bounce-pop {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(0.99); }
-  100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.99);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .bounce {
-  animation: bounce-pop 120ms ease;
+    animation: bounce-pop 120ms ease;
 }
 
 @layer utilities {
@@ -253,22 +258,22 @@
     }
 
     /* Hide number input spinner buttons */
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button {
+    input[type='number']::-webkit-outer-spin-button,
+    input[type='number']::-webkit-inner-spin-button {
         -webkit-appearance: none;
         margin: 0;
     }
 
-    input[type="number"] {
+    input[type='number'] {
         -moz-appearance: textfield; /* Firefox */
     }
 
     /* Prevent iOS Safari zoom on input focus */
-    input[type="tel"],
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    input[type="number"],
+    input[type='tel'],
+    input[type='text'],
+    input[type='email'],
+    input[type='password'],
+    input[type='number'],
     textarea,
     select {
         font-size: 16px !important;
@@ -277,19 +282,19 @@
 
     /* Ensure minimum font size on mobile devices */
     @media screen and (max-width: 768px) {
-        input[type="tel"],
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        input[type="number"],
+        input[type='tel'],
+        input[type='text'],
+        input[type='email'],
+        input[type='password'],
+        input[type='number'],
         textarea,
         select {
             font-size: 16px !important;
             transform: scale(1);
         }
-        
+
         /* Specific styling for OTP inputs */
-        [data-slot="input"] {
+        [data-slot='input'] {
             font-size: 16px !important;
         }
     }
@@ -298,7 +303,6 @@
 svg {
     pointer-events: none;
 }
-
 
 .mdx {
     --base-size-4: 0.25rem;

@@ -37,7 +37,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     <NextTopLoader color='red' height={2} showSpinner={false} />
                     <Toaster />
                 </HeroUIProvider>
-                {siteConfig.isDev && <ReactQueryDevtools />}
+                {/* {siteConfig.isDev && <ReactQueryDevtools />} */}
             </QueryClientProvider>
         </ThemeProvider>
     )

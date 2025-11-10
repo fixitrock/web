@@ -1,4 +1,5 @@
-import { ProductsCard } from './card'
+import { checkAuth } from '@/actions/auth'
+import { ProductsPage } from './card'
 
 interface ProductsProps {
     params: {
@@ -7,9 +8,10 @@ interface ProductsProps {
 }
 
 export default async function Products({ params }: ProductsProps) {
+    const { can } = await checkAuth(params.user)
     return (
-        <div className='mb-4 flex h-full w-full flex-col gap-4 px-2 md:px-4 2xl:px-[10%]'>
-             <ProductsCard />
+        <div className='gap-1.5 p-2 2xl:px-[10%]'>
+            <ProductsPage can={can} username={params.user} />
         </div>
     )
 }

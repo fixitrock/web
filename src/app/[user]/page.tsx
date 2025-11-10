@@ -7,6 +7,7 @@ import { getProducts } from '@/actions/user/products'
 import { userAvatar } from '@/lib/utils'
 
 import { Profile, Tabs } from './ui'
+import { checkAuth } from '@/actions/auth'
 
 type Props = {
     params: Promise<{ user: string }>
@@ -28,15 +29,15 @@ export default async function Users({ params }: Props) {
     const user = await getUser(cleanUsername)
 
     if (!user) return notFound()
-
+    const { can } = await checkAuth(cleanUsername)
     // Fetch tabs for the user's role
     const tabs = await getTabs(user.role || 0)
     const { products, canManage } = await getProducts(cleanUsername)
 
     return (
         <div>
-            <Profile canManage={canManage} user={user} />
-            <div className='mx-auto -mt-14 md:mt-0 2xl:px-[10%]'>
+            <Profile can={can} user={user} />
+            <div className='mx-auto 2xl:px-[10%]'>
                 <Tabs canManage={canManage} products={products} tabs={tabs} user={user} />
             </div>
         </div>

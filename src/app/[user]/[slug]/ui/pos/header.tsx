@@ -56,7 +56,7 @@ export function PosHeader() {
                 />
                 <Button
                     aria-label='Refresh products'
-                    className='bg-background border hidden md:flex'
+                    className='bg-background hidden border md:flex'
                     size='sm'
                     onPress={() => window.location.reload()}
                     startContent={<RefreshCcw aria-hidden='true' className='size-4' />}
@@ -67,14 +67,14 @@ export function PosHeader() {
                     isIconOnly
                     aria-label='Add Product'
                     onPress={onOpen}
-                     className='bg-background border md:hidden'
+                    className='bg-background border md:hidden'
                     size='sm'
                     startContent={<Plus className='size-4' />}
                 />
                 <Button
                     aria-label='Add Product'
                     onPress={onOpen}
-                     className='bg-background border hidden md:flex'
+                    className='bg-background hidden border md:flex'
                     size='sm'
                     startContent={<Plus className='size-4' />}
                 >

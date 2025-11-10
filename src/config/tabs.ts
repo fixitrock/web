@@ -1,26 +1,27 @@
 'use client'
 
+import { Download, Setup, Suggestion } from '@/ui/icons'
 import { useDownloadStore } from '@/zustand/store'
 
 export const tabConfigs = [
     {
         key: 'actions',
         title: 'Shortcuts',
-        icon: 'pajamas:suggestion-ai',
+        icon: Suggestion,
         shouldFilter: true,
         visible: () => true,
     },
     {
         key: 'space',
         title: 'Space',
-        icon: 'fluent:phone-link-setup-24-regular',
+        icon: Setup,
         shouldFilter: false,
         visible: () => true,
     },
     {
         key: 'downloads',
         title: 'Downloads',
-        icon: 'fluent:arrow-download-24-regular',
+        icon: Download,
         shouldFilter: true,
         visible: () => useDownloadStore.getState().hasDownloads(),
     },

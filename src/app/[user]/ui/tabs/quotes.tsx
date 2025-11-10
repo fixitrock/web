@@ -99,7 +99,9 @@ function QuoteCard({ quote, user }: QuoteCardProps) {
                                           : 'text-sm md:text-base lg:text-lg'
                                 )}
                             >
-                                <span className={cn('break-words hyphens-auto', 'line-clamp-4')}>
+                                <span
+                                    className={cn('wrap-break-word hyphens-auto', 'line-clamp-4')}
+                                >
                                     {quote.quote}
                                 </span>
                             </p>

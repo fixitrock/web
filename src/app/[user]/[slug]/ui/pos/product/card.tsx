@@ -35,7 +35,7 @@ export function ProductCard({ product }: { product: Product }) {
         setMode('update', product)
         updateModal.onOpen()
     }
-    
+
     return (
         <div className='group relative'>
             <Card
@@ -44,25 +44,27 @@ export function ProductCard({ product }: { product: Product }) {
                 shadow='none'
                 onPress={onOpen}
             >
-                <Image
-                    removeWrapper
-                    alt={product.name}
-                    className='bg-default/10 aspect-square rounded-lg object-contain select-none'
-                    loading='lazy'
-                    src={getProductImage(product)}
-                />
+                <div className='relative m-auto w-full shrink-0'>
+                    <Image
+                        removeWrapper
+                        alt={product.name}
+                        className='bg-default/10 aspect-square size-full object-cover select-none'
+                        loading='lazy'
+                        src={getProductImage(product)}
+                    />
+                </div>
 
                 <div className='flex flex-1 flex-col'>
                     <h3 className='line-clamp-1 text-start text-sm font-semibold'>
                         {product.name}
                     </h3>
                     <div className='text-muted-foreground flex w-full justify-between text-xs'>
-                        <span>{product.category ?? '—'}</span>
+                        <span>{product.category}</span>
                         <span>{formatPrice(product.variants?.[0]?.price || 0)}</span>
                     </div>
                 </div>
             </Card>
-            <div className='absolute top-2 right-2 z-10 flex gap-2'>
+            {/* <div className='absolute top-2 right-2 z-10 flex gap-2'>
                 <Button
                     isIconOnly
                     className='bg-background/80 border backdrop-blur'
@@ -79,7 +81,7 @@ export function ProductCard({ product }: { product: Product }) {
                     variant='light'
                     onPress={() => openUpdateModal(product)}
                 />
-            </div>
+            </div> */}
             <AddProduct mode='update' isOpen={updateModal.isOpen} onClose={updateModal.onClose} />
             <ProductModal isOpen={isOpen} product={product} onOpenChange={onOpenChange} />
         </div>

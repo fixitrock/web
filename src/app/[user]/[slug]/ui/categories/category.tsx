@@ -45,7 +45,7 @@ export function Category({ can }: { can: CanType }) {
                     <h1 className='text-xl font-bold'>Categories</h1>
                 </div>
                 <div
-                    className={`${can.create ? 'lg:w-[30%]' : 'lg:w-[20%]'} flex w-full items-center gap-4 md:w-[50%]`}
+                    className={`${can.create.category ? 'lg:w-[30%]' : 'lg:w-[20%]'} flex w-full items-center gap-4 md:w-[50%]`}
                 >
                     <CommandInput
                         placeholder='Search Categories . . . '
@@ -63,7 +63,7 @@ export function Category({ can }: { can: CanType }) {
                                         onPress={() => setQuery('')}
                                     />
                                 )}
-                                {can.create && (
+                                {can.create.category && (
                                     <Button
                                         isIconOnly
                                         className='border-1.5 bg-default/20 h-6.5 w-6.5 min-w-auto border-dashed p-0 md:hidden'
@@ -80,7 +80,7 @@ export function Category({ can }: { can: CanType }) {
                         value={query}
                         onValueChange={(value) => setQuery(value)}
                     />
-                    {can.create && (
+                    {can.create.category && (
                         <Button
                             className='bg-default/20 hidden min-w-fit rounded-md border border-dashed md:flex'
                             variant='light'
@@ -116,7 +116,7 @@ export function Category({ can }: { can: CanType }) {
                                 src={`${bucketUrl(c.image)}?v=${c.updated_at}` || fallback.category}
                             />
                             <h3 className='font-mono'>{c.name}</h3>
-                            {can.update && (
+                            {can.update.category && (
                                 <div
                                     className={cn(
                                         'absolute top-1.5 right-1.5 z-10 flex gap-2 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 data-[selected=true]:bg-red-500'
@@ -174,7 +174,7 @@ export function Category({ can }: { can: CanType }) {
                         It looks a bit empty here. Start by adding your first category to organize
                         your products.
                     </p>
-                    {can.create && (
+                    {can.create.category && (
                         <Button
                             className='bg-default/20 hidden min-w-fit rounded-md border border-dashed md:flex'
                             variant='light'

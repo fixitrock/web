@@ -83,80 +83,80 @@ export async function addCustomer(customer: CustomerInput) {
     return data?.[0] ?? null
 }
 
-export async function userProducts(
-    category?: string
-): Promise<{ products: Products; error: string | null; empty: boolean }> {
-    const supabase = await createClient()
-    const id = await userID()
+// export async function userProducts(
+//     category?: string
+// ): Promise<{ products: Products; error: string | null; empty: boolean }> {
+//     const supabase = await createClient()
+//     const id = await userID()
 
-    if (!id) {
-        return { products: [], error: 'User not found', empty: true }
-    }
+//     if (!id) {
+//         return { products: [], error: 'User not found', empty: true }
+//     }
 
-    let query = supabase
-        .from('product')
-        .select(`*, product_variants(*)`)
-        .eq('seller_id', id)
-        .order('id', { ascending: false })
-        .limit(40)
+//     let query = supabase
+//         .from('product')
+//         .select(`*, product_variants(*)`)
+//         .eq('seller_id', id)
+//         .order('id', { ascending: false })
+//         .limit(40)
 
-    if (category && category !== 'all') {
-        query = query.eq('category', category)
-    }
+//     if (category && category !== 'all') {
+//         query = query.eq('category', category)
+//     }
 
-    const { data, error } = await query
+//     const { data, error } = await query
 
-    return {
-        products: (data ?? []) as Products,
-        error: error?.message ?? null,
-        empty: !data || data.length === 0,
-    }
-}
+//     return {
+//         products: (data ?? []) as Products,
+//         error: error?.message ?? null,
+//         empty: !data || data.length === 0,
+//     }
+// }
 
-export async function searchUserProducts(
-    search: string,
-    category?: string
-): Promise<{ products: Products; error: string | null; empty: boolean }> {
-    const supabase = await createClient()
-    const id = await userID()
+// export async function searchUserProducts(
+//     search: string,
+//     category?: string
+// ): Promise<{ products: Products; error: string | null; empty: boolean }> {
+//     const supabase = await createClient()
+//     const id = await userID()
 
-    const trimmed = search.trim()
+//     const trimmed = search.trim()
 
-    if (trimmed.length === 0) return userProducts(category)
+//     if (trimmed.length === 0) return userProducts(category)
 
-    if (!id) {
-        return { products: [], error: 'User not found', empty: true }
-    }
+//     if (!id) {
+//         return { products: [], error: 'User not found', empty: true }
+//     }
 
-    let queryBuilder = supabase
-        .from('product')
-        .select(`*, product_variants(*)`)
-        .eq('seller_id', id)
-        .order('id', { ascending: false })
-        .limit(40)
+//     let queryBuilder = supabase
+//         .from('product')
+//         .select(`*, product_variants(*)`)
+//         .eq('seller_id', id)
+//         .order('id', { ascending: false })
+//         .limit(40)
 
-    if (category && category !== 'all') {
-        queryBuilder = queryBuilder.eq('category', category)
-    }
+//     if (category && category !== 'all') {
+//         queryBuilder = queryBuilder.eq('category', category)
+//     }
 
-    const tsQuery = trimmed
-        .split(/\s+/)
-        .map((word) => word.replace(/'/g, "''"))
-        .join(' & ')
+//     const tsQuery = trimmed
+//         .split(/\s+/)
+//         .map((word) => word.replace(/'/g, "''"))
+//         .join(' & ')
 
-    queryBuilder = queryBuilder.textSearch('query', tsQuery, {
-        config: 'simple',
-        type: 'plain',
-    })
+//     queryBuilder = queryBuilder.textSearch('query', tsQuery, {
+//         config: 'simple',
+//         type: 'plain',
+//     })
 
-    const { data, error } = await queryBuilder
+//     const { data, error } = await queryBuilder
 
-    return {
-        products: (data ?? []) as Products,
-        error: error?.message ?? null,
-        empty: !data || data.length === 0,
-    }
-}
+//     return {
+//         products: (data ?? []) as Products,
+//         error: error?.message ?? null,
+//         empty: !data || data.length === 0,
+//     }
+// }
 
 export const userCategories = cache(
     async (): Promise<{ categories: string[]; error: string | null; empty: boolean }> => {

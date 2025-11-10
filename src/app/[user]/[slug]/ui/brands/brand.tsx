@@ -61,7 +61,7 @@ export function Brand({ can }: { can: CanType }) {
                                         onPress={() => setQuery('')}
                                     />
                                 )}
-                                {can.create && (
+                                {can.create.brand && (
                                     <Button
                                         isIconOnly
                                         className='border-1.5 bg-default/20 h-6.5 w-6.5 min-w-auto border-dashed p-0 md:hidden'
@@ -78,7 +78,7 @@ export function Brand({ can }: { can: CanType }) {
                         value={query}
                         onValueChange={(value) => setQuery(value)}
                     />
-                    {can.create && (
+                    {can.create.brand && (
                         <Button
                             className='bg-default/20 hidden min-w-fit rounded-md border border-dashed md:flex'
                             variant='light'
@@ -112,11 +112,13 @@ export function Brand({ can }: { can: CanType }) {
                                     className='bg-default/10 aspect-square size-full object-contain select-none'
                                     loading='lazy'
                                     radius='sm'
-                                    src={`${bucketUrl(c.image)}?v=${c.updated_at}` || fallback.brand}
+                                    src={
+                                        `${bucketUrl(c.image)}?v=${c.updated_at}` || fallback.brand
+                                    }
                                 />
                             </div>
                             <h3 className='font-mono'>{c.name}</h3>
-                            {can.update && (
+                            {can.update.brand && (
                                 <div
                                     className={cn(
                                         'absolute top-1.5 right-1.5 z-10 flex gap-2 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 data-[selected=true]:bg-red-500'
@@ -174,7 +176,7 @@ export function Brand({ can }: { can: CanType }) {
                         It looks a bit empty here. Start by adding your first brand to organize your
                         products.
                     </p>
-                    {can.create && (
+                    {can.create.brand && (
                         <Button
                             className='bg-default/20 hidden min-w-fit rounded-md border border-dashed md:flex'
                             variant='light'

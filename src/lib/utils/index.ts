@@ -124,13 +124,15 @@ export const getStockStatus = (qty: number) => {
 export const getProductImage = (product: Product): string | undefined => {
     if (!product.variants?.[0]?.image || product.variants[0].image.length === 0) {
         if (product.category) {
-            return bucketUrl(
-                '/assets/categories/' +
-                    product.category.toLowerCase().replace(/\s+/g, '-') +
-                    '.png'
-            ) ?? undefined
+            return (
+                bucketUrl(
+                    '/assets/categories/' +
+                        product.category.toLowerCase().replace(/\s+/g, '-') +
+                        '.png'
+                ) ?? undefined
+            )
         }
-        return undefined;
+        return undefined
     }
 
     const firstImage = product.variants[0].image[0]
@@ -348,4 +350,15 @@ export function formatNumber(num: number): string {
     }
 }
 
+export function formatDiscount(price: number, mrp: number) {
+    if (!price || !mrp || mrp <= 0 || price >= mrp) {
+        return { off: '', discount: 0 }
+    }
 
+    const discount = Math.round(((mrp - price) / mrp) * 100)
+
+    return {
+        off: `${discount}% off`,
+        discount: formatPrice(discount),
+    }
+}

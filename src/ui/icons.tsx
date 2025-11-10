@@ -4,6 +4,57 @@ import React from 'react'
 
 import { cn } from '@/lib/utils'
 
+export function Suggestion(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width={16}
+            height={16}
+            viewBox='0 0 16 16'
+            {...props}
+        >
+            <path
+                fill='currentColor'
+                d='M8 0c4.8 0 7.695 5.316 5.09 9.348L11 12.584V14a2 2 0 0 1-1.796 1.99L9 16H7l-.204-.01A2 2 0 0 1 5 14v-1.416L2.91 9.348C.304 5.315 3.2 0 8 0M6.5 14a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-.5h-3zM8 1.5c-3.612 0-5.79 4-3.83 7.033L6.408 12h3.184l2.238-3.467C13.79 5.5 11.612 1.5 8 1.5m-.565 2.4a.6.6 0 0 1 1.13 0l.437 1.233a.6.6 0 0 0 .365.365l1.234.438a.599.599 0 0 1 0 1.128l-1.234.438a.6.6 0 0 0-.365.365l-.437 1.234a.6.6 0 0 1-1.13 0l-.437-1.234a.6.6 0 0 0-.365-.365L5.4 7.064a.599.599 0 0 1 0-1.128l1.233-.438a.6.6 0 0 0 .365-.365z'
+            ></path>
+        </svg>
+    )
+}
+
+export function Setup(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width={20}
+            height={20}
+            viewBox='0 0 20 20'
+            {...props}
+        >
+            <path
+                fill='currentColor'
+                d='M7 2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3.257a5.5 5.5 0 0 1-.657-1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v5.022a5.6 5.6 0 0 1 1 0V4a2 2 0 0 0-2-2zm5.065 9.442a2 2 0 0 1-1.43 2.478l-.461.118a4.7 4.7 0 0 0 .01 1.016l.35.083a2 2 0 0 1 1.455 2.519l-.126.422q.387.307.835.518l.325-.344a2 2 0 0 1 2.909.002l.337.358q.44-.203.822-.498l-.156-.556a2 2 0 0 1 1.43-2.479l.461-.117a4.7 4.7 0 0 0-.01-1.017l-.349-.082a2 2 0 0 1-1.456-2.52l.126-.421a4.3 4.3 0 0 0-.835-.519l-.324.344a2 2 0 0 1-2.91-.001l-.337-.358a4.3 4.3 0 0 0-.822.497zM14.5 15.5a1 1 0 1 1 0-2a1 1 0 0 1 0 2'
+            ></path>
+        </svg>
+    )
+}
+
+export function Download(props: SVGProps<SVGSVGElement>) {
+    return (
+        <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width={24}
+            height={24}
+            viewBox='0 0 24 24'
+            {...props}
+        >
+            <path
+                fill='currentColor'
+                d='M13 3a1 1 0 1 0-2 0v12.086l-3.293-3.293a1 1 0 0 0-1.414 1.414l5 5a1 1 0 0 0 1.414 0l5-5a1 1 0 0 0-1.414-1.414L13 15.086zM5 20a1 1 0 1 0 0 2h14a1 1 0 1 0 0-2z'
+            ></path>
+        </svg>
+    )
+}
+
 export function WhatsAppIcon(props: SVGProps<SVGSVGElement>) {
     return (
         <svg
@@ -1218,7 +1269,7 @@ export function Link(props: SVGProps<SVGSVGElement>) {
 export function Verified({ className = 'size-6' }: { className?: string }) {
     return (
         <svg
-            className={cn(`flex-shrink-0 text-blue-500 ${className}`)}
+            className={cn(`shrink-0 text-blue-500 ${className}`)}
             fill='currentColor'
             viewBox='0 0 24 24'
         >

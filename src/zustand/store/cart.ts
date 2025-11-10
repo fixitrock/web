@@ -69,7 +69,7 @@ type PosState = {
         product: { id: string; name: string; category: string; variants: ProductVariant[] },
         selectedOptions: CartItem['selectedOptions'],
         qtyToAdd?: number
-      ) => boolean
+    ) => boolean
 
     clearAll: () => void
     order: () => Order | null

@@ -1,5 +1,3 @@
-
-
 export type Product = {
     id: string
     seller_id?: string
@@ -12,15 +10,14 @@ export type Product = {
     updated_at?: string
     deleted_at?: string | null
     variants: ProductVariant[]
-  }
-  
-  
-  export type ProductVariant = {
+}
+
+export type ProductVariant = {
     id?: string
     product_id?: string
     brand: string
     image: (string | File)[]
-    files?: File[]   
+    files?: File[]
     color: { name: string; hex: string } | null
     storage: string
     purchase_price: number
@@ -31,7 +28,6 @@ export type Product = {
     created_at?: string
     updated_at?: string
     deleted_at?: string | null
-  }
-  
+}
 
-  export type Products = Product[]
+export type Products = Product[]

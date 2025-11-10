@@ -1,7 +1,12 @@
 import { checkAuth } from '@/actions/auth'
 import { Category } from './category'
+interface PageProps {
+    params: {
+        user: string
+    }
+}
 
-export async function Categories() {
-    const { can } = await checkAuth(['create:category', 'update:category'])
+export async function Categories({ params }: PageProps) {
+    const { can } = await checkAuth(params.user)
     return <Category can={can} />
 }
