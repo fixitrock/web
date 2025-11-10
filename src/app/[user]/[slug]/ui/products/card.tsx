@@ -10,6 +10,7 @@ import { ScrollShadow, Image, Navbar, Button } from '@heroui/react'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { ProductGridSkeleton } from './skeleton'
+import { PosEmptyState } from '@/ui/empty'
 
 function ProductCard({ product }: { product: Product }) {
     const variants = product.variants || []
@@ -81,6 +82,13 @@ export function ProductsPage({ can, username }: { can: CanType; username: string
     const debouncedQuery = useDebounce(query)
     const [category, setCategory] = useState<string | null>(null)
     const { data, isLoading } = useUserProducts(username, debouncedQuery, category || '')
+    const isProductsEmpty = !isLoading && data?.products.length === 0
+
+    const showEmptyState = isProductsEmpty && !query && !category
+
+    const showSearchEmpty = isProductsEmpty && !!query
+
+    const showCategoryEmpty = isProductsEmpty && !!category && !query
     return (
         <div className='flex flex-col gap-2'>
             <Navbar
@@ -140,6 +148,9 @@ export function ProductsPage({ can, username }: { can: CanType; username: string
                     )}
                 </div>
             </Navbar>
+            {showEmptyState && <PosEmptyState type='product' />}
+            {showSearchEmpty && <PosEmptyState type='search' value={query} />}
+            {showCategoryEmpty && <PosEmptyState type='category' value={category} />}
             {isLoading && <ProductGridSkeleton />}
             <ProductGrid products={data?.products || []} />
         </div>
