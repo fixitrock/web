@@ -22,9 +22,6 @@ export default async function RootLayout({
 
     return (
         <html suppressHydrationWarning lang='en'>
-            <head>
-                <meta content={META_THEME_COLORS.light} name='theme-color' />
-            </head>
             <body className={cn('bg-background min-h-svh font-sans antialiased', fontVariables)}>
                 <AuthProvider>
                     <ErrorBoundary>
@@ -54,12 +51,22 @@ export const metadata: Metadata = {
     manifest: '/manifest.json',
     appleWebApp: {
         capable: true,
-        statusBarStyle: 'black-translucent',
+        statusBarStyle: 'default',
         title: `${siteConfig.title}`,
-        startupImage: ['/icons/fixitrock.png'],
+        startupImage: [
+            {
+                url: '/icons/fixitrock.png',
+                media: '(prefers-color-scheme: light)',
+            },
+            {
+                url: '/icons/fixitrock.png',
+                media: '(prefers-color-scheme: dark)',
+            },
+        ],
     },
     icons: {
         icon: '/favicon.ico',
+        apple: '/icons/android-chrome-192x192.png',
     },
     metadataBase: new URL(siteConfig.domain),
     openGraph: {
@@ -76,11 +83,12 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
     themeColor: [
-        { color: '#fff', media: '(prefers-color-scheme: light)' },
-        { color: '#000', media: '(prefers-color-scheme: dark)' },
+        { color: '#ffffff', media: '(prefers-color-scheme: light)' },
+        { color: '#000000', media: '(prefers-color-scheme: dark)' },
     ],
-    maximumScale: 1,
-    userScalable: false,
     width: 'device-width',
     initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+    viewportFit: 'cover',
 }

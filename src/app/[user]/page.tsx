@@ -92,9 +92,18 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
         metadata.manifest = `/manifest/${user.username}`
         metadata.appleWebApp = {
             capable: true,
-            statusBarStyle: 'black-translucent',
+            statusBarStyle: 'default',
             title: user.name,
-            startupImage: userAvatar(user),
+            startupImage: [
+                {
+                    url: userAvatar(user),
+                    media: '(prefers-color-scheme: light)',
+                },
+                {
+                    url: userAvatar(user),
+                    media: '(prefers-color-scheme: dark)',
+                },
+            ],
         }
     }
 

@@ -32,8 +32,9 @@ export async function GET(
             start_url: `/@${user.username}`,
             scope: `/@${user.username}`,
             display: 'standalone',
-            orientation: 'portrait',
-            theme_color: '#000000',
+            display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
+            orientation: 'any',
+            theme_color: '#ffffff',
             background_color: '#ffffff',
             icons: [
                 {
@@ -44,14 +45,32 @@ export async function GET(
                 },
                 {
                     src: user.avatar || '/fallback/boy.png',
+                    sizes: '384x384',
+                    type: 'image/png',
+                    purpose: 'any',
+                },
+                {
+                    src: user.avatar || '/fallback/boy.png',
                     sizes: '512x512',
                     type: 'image/png',
-                    purpose: 'any maskable',
+                    purpose: 'any',
                 },
             ],
             categories: ['business', 'shopping', 'utilities'],
             lang: 'en',
             dir: 'ltr',
+            prefer_related_applications: false,
+            shortcuts: [
+                {
+                    name: 'Products',
+                    short_name: 'Products',
+                    description: `View ${user.name}'s products`,
+                    url: `/@${user.username}?tab=products`,
+                    icons: [
+                        { src:'/shortcut/products.png', sizes: '192x192' },
+                    ],
+                },
+            ],
         }
 
         return new Response(JSON.stringify(manifest), {
