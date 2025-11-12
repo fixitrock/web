@@ -144,7 +144,7 @@ export function LastLogin({ userId }: LoginSessionsProps) {
             key={session.id}
             className={`flex items-center justify-between rounded-lg border p-4 ${
                 isCurrentSession
-                    ? 'border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 dark:border-blue-800 dark:from-blue-950/20 dark:to-indigo-950/20'
+                    ? 'border-blue-200 bg-linear-to-r from-blue-50 to-indigo-50 dark:border-blue-800 dark:from-blue-950/20 dark:to-indigo-950/20'
                     : 'bg-card'
             }`}
         >

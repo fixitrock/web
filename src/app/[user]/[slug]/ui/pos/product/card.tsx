@@ -64,7 +64,7 @@ export function ProductCard({ product }: { product: Product }) {
                     </div>
                 </div>
             </Card>
-            {/* <div className='absolute top-2 right-2 z-10 flex gap-2'>
+            <div className='absolute top-2 right-2 z-10 flex gap-2'>
                 <Button
                     isIconOnly
                     className='bg-background/80 border backdrop-blur'
@@ -81,7 +81,7 @@ export function ProductCard({ product }: { product: Product }) {
                     variant='light'
                     onPress={() => openUpdateModal(product)}
                 />
-            </div> */}
+            </div>
             <AddProduct mode='update' isOpen={updateModal.isOpen} onClose={updateModal.onClose} />
             <ProductModal isOpen={isOpen} product={product} onOpenChange={onOpenChange} />
         </div>
