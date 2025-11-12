@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 
 import { getUser } from '@/actions/user'
+import { createClient } from '@/supabase/server'
 
 export async function GET(
     request: NextRequest,
@@ -17,11 +18,85 @@ export async function GET(
             })
         }
 
-        // Only generate manifest for shopkeepers and admins (role 2 & 3)
         if (user.role !== 2 && user.role !== 3) {
             return new Response(JSON.stringify({ error: 'Not a shopkeeper' }), {
                 status: 403,
                 headers: { 'Content-Type': 'application/json' },
+            })
+        }
+
+        const supabase = await createClient()
+        const { data } = await supabase.auth.getClaims()
+        const currentUserId = data?.claims?.sub
+
+        let isOwner = false
+
+        if (currentUserId) {
+            const { data: currentUser } = await supabase
+                .from('users')
+                .select('username')
+                .eq('id', currentUserId)
+                .single()
+            isOwner = currentUser?.username === username
+        }
+
+        const shortcuts: Array<{
+            name: string
+            short_name: string
+            description: string
+            url: string
+            icons: Array<{ src: string; sizes: string }>
+        }> = []
+
+        if (isOwner) {
+            if (user.role === 3) {
+                shortcuts.push({
+                    name: 'Brands',
+                    short_name: 'Brands',
+                    description: 'Manage brands',
+                    url: `/@${user.username}/brands`,
+                    icons: [{ src: '/shortcut/brand.png', sizes: '192x192' }],
+                })
+                shortcuts.push({
+                    name: 'Categories',
+                    short_name: 'Categories',
+                    description: 'Manage categories',
+                    url: `/@${user.username}/categories`,
+                    icons: [{ src: '/shortcut/category.png', sizes: '192x192' }],
+                })
+            }
+
+            shortcuts.push({
+                name: 'Products',
+                short_name: 'Products',
+                description: `View ${user.name}'s products`,
+                url: `/@${user.username}/products`,
+                icons: [{ src: '/shortcut/products.png', sizes: '192x192' }],
+            })
+
+            shortcuts.push({
+                name: 'POS',
+                short_name: 'POS',
+                description: 'Point of Sale',
+                url: `/@${user.username}/pos`,
+                icons: [{ src: '/shortcut/pos.png', sizes: '192x192' }],
+            })
+
+            shortcuts.push({
+                name: 'Settings',
+                short_name: 'Settings',
+                description: 'Account settings',
+                url: `/@${user.username}/settings`,
+                icons: [{ src: '/shortcut/settings.png', sizes: '192x192' }],
+            })
+        } else {
+
+            shortcuts.push({
+                name: 'Products',
+                short_name: 'Products',
+                description: `View ${user.name}'s products`,
+                url: `/@${user.username}/products`,
+                icons: [{ src: '/shortcut/products.png', sizes: '192x192' }],
             })
         }
 
@@ -60,17 +135,7 @@ export async function GET(
             lang: 'en',
             dir: 'ltr',
             prefer_related_applications: false,
-            shortcuts: [
-                {
-                    name: 'Products',
-                    short_name: 'Products',
-                    description: `View ${user.name}'s products`,
-                    url: `/@${user.username}?tab=products`,
-                    icons: [
-                        { src:'/shortcut/products.png', sizes: '192x192' },
-                    ],
-                },
-            ],
+            shortcuts,
         }
 
         return new Response(JSON.stringify(manifest), {

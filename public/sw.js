@@ -1,4 +1,4 @@
-const CACHE_VERSION = '0.1.1-1752486872827'
+const CACHE_VERSION = '0.1.2-1752487000000'
 const CACHE_NAME = `fir-cache-${CACHE_VERSION}`
 const urlsToCache = [
     '/',
@@ -9,6 +9,11 @@ const urlsToCache = [
     '/fallback/girl.png',
     '/fallback/other.png',
     '/fallback/cover.png',
+    '/shortcut/products.png',
+    '/shortcut/pos.png',
+    '/shortcut/settings.png',
+    '/shortcut/brand.png',
+    '/shortcut/category.png',
 ]
 
 // Install event - cache resources
