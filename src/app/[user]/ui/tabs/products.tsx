@@ -1,21 +1,24 @@
 'use client'
 
-import { useUserProducts } from '@/hooks/tanstack/query'
+import { useUserProducts, useUserCategories } from '@/hooks/tanstack/query'
 import { ProductGrid } from '../../[slug]/ui/products/card'
 import { ProductGridSkeleton } from '../../[slug]/ui/products/skeleton'
-import { Autocomplete, AutocompleteItem, Button } from '@heroui/react'
+import { Button, Tabs, Tab, Image, Skeleton, ScrollShadow } from '@heroui/react'
 import { PosEmptyState } from '@/ui/empty'
-import { useState } from 'react'
-import { useDebounce } from '@/hooks'
+import { useRef, useState } from 'react'
+import { useDebounce, useDragScroll } from '@/hooks'
 import { Input } from '@/app/(space)/ui'
 import { X } from 'lucide-react'
-import { useFilter } from '@react-aria/i18n'
 import React from 'react'
+import { bucketUrl } from '@/supabase/bucket'
 
 export function ProductsTabs({ username }: { username: string }) {
+    const dragRef = useDragScroll<HTMLDivElement>()
+    const containerRef = useRef<HTMLDivElement | null>(null)
     const [query, setQuery] = useState('')
     const debouncedQuery = useDebounce(query)
-    const [category, setCategory] = useState<string | null>(null)
+    const [category, setCategory] = useState<string | null>('All')
+    const { data: cat, isLoading: catLoading } = useUserCategories(username)
     const { data, isLoading } = useUserProducts(username, debouncedQuery, category || '')
     const isProductsEmpty = !isLoading && data?.products.length === 0
 
@@ -25,95 +28,99 @@ export function ProductsTabs({ username }: { username: string }) {
 
     const showCategoryEmpty = isProductsEmpty && !!category && !query
 
-    const [fieldState, setFieldState] = React.useState<{
-        selectedKey: string | null
-        inputValue: string
-        items: Array<{ category: string; count: number }>
-    }>({
-        selectedKey: null,
-        inputValue: '',
-        items: data?.categories || [],
-    })
-
-    const { startsWith } = useFilter({ sensitivity: 'base' })
-
-    const onSelectionChange = (key: React.Key | null) => {
-        const keyString = key?.toString() || null
-        setFieldState((prevState) => {
-            let selectedItem = prevState?.items?.find((option) => option.category === keyString)
-
-            setCategory(selectedItem?.category || null)
-
-            return {
-                inputValue: selectedItem?.category || '',
-                selectedKey: keyString,
-                items:
-                    data?.categories?.filter((item) =>
-                        startsWith(item.category, selectedItem?.category || '')
-                    ) || [],
-            }
-        })
-    }
-
-    const onInputChange = (value: string) => {
-        setFieldState((prevState) => ({
-            inputValue: value,
-            selectedKey: value === '' ? null : prevState.selectedKey,
-            items: data?.categories?.filter((item) => startsWith(item.category, value)) || [],
-        }))
+    const combinedRef = (node: HTMLDivElement | null) => {
+        containerRef.current = node
+        if (node) {
+            dragRef(node)
+        }
     }
 
     return (
         <>
-            <div className='bg-background sticky top-[45px] z-20 flex flex-col items-center justify-between gap-2 py-2 sm:flex-row'>
-                <Input
-                    placeholder='Search Products . . . '
-                    hotKey='P'
-                    value={query}
-                    onValueChange={(value) => setQuery(value)}
-                    end={
-                        query && (
-                            <Button
-                                isIconOnly
-                                className='bg-default/20 h-6.5 w-6.5 min-w-auto border-1 p-0'
-                                radius='full'
-                                size='sm'
-                                startContent={<X size={18} />}
-                                variant='light'
-                                onPress={() => setQuery('')}
-                            />
-                        )
-                    }
-                />
-                <Autocomplete
-                    isLoading={isLoading}
-                    placeholder='Select category'
-                    size='sm'
-                    className='sm:max-w-[200px]'
-                    popoverProps={{
-                        classNames: {
-                            content: 'bg-background/80 backdrop-blur border shadow-none',
-                        },
-                    }}
-                    inputProps={{
-                        classNames: {
-                            inputWrapper:
-                                'bg-transparent group-data-[focus=true]:bg-transparent data-[hover=true]:bg-transparent border',
-                        },
-                    }}
-                    inputValue={fieldState.inputValue}
-                    items={fieldState.items ?? []}
-                    selectedKey={fieldState.selectedKey ?? undefined}
-                    onInputChange={onInputChange}
-                    onSelectionChange={onSelectionChange}
+            <div className='bg-background sticky top-[45px] z-20 flex flex-col-reverse items-center justify-between gap-2 py-2 sm:flex-row'>
+                <ScrollShadow
+                    ref={combinedRef}
+                    hideScrollBar
+                    className='w-full'
+                    orientation='horizontal'
                 >
-                    {(item) => (
-                        <AutocompleteItem key={item.category} textValue={item.category}>
-                            {item.category}{' '}
-                            <span className='text-muted-foreground ml-1 text-xs'>{item.count}</span>
-                        </AutocompleteItem>
-                    )}
-                </Autocomplete>
+                    <Tabs
+                        classNames={{
+                            base: 'bg-background w-full py-0.5',
+                            cursor: 'dark:bg-background rounded-full border shadow-none',
+                        }}
+                        items={cat?.categories}
+                        variant='light'
+                        size='lg'
+                        selectedKey={category}
+                        onSelectionChange={(key) => setCategory(String(key))}
+                    >
+                         {catLoading
+                            ? Array.from({ length: 10 }).map((_, i) => (
+                                  <Tab
+                                      key={i}
+                                      title={
+                                          <div className='flex items-center justify-between gap-1.5'>
+                                              <Skeleton className='size-6 rounded' />
+                                              <Skeleton className='h-4 w-20 rounded' />
+                                              <Skeleton className='ml-1 size-6 rounded-full' />
+                                          </div>
+                                      }
+                                  />
+                              ))
+                            : cat?.categories.map((tab) => (
+                                  <Tab
+                                      key={tab.category}
+                                      title={
+                                          <div className='flex items-center justify-between gap-1.5'>
+                                              <div className='size-6 overflow-hidden rounded'>
+                                                  <Image
+                                                      src={bucketUrl(
+                                                          '/assets/categories/' +
+                                                              tab.category
+                                                                  .toLowerCase()
+                                                                  .replace(/\s+/g, '-') +
+                                                              '.png'
+                                                      )}
+                                                      alt={tab.category}
+                                                      className='size-full rounded-none'
+                                                  />
+                                              </div>
+                                              <span>{tab.category}</span>
+                                              <span className='text-muted-foreground ml-1 text-xs'>
+                                                  {tab.count}
+                                              </span>
+                                          </div>
+                                      }
+                                  />
+                              ))}
+                    </Tabs>
+                </ScrollShadow>
+                <div className='flex w-full items-center gap-2 sm:w-[50%] md:w-[40%] xl:w-[25%]'>
+                    <Input
+                        placeholder={
+                            category && category !== 'all'
+                                ? `Search ${category} . . .`
+                                : 'Search Products . . .'
+                        }
+                        hotKey='P'
+                        value={query}
+                        onValueChange={(value) => setQuery(value)}
+                        end={
+                            query && (
+                                <Button
+                                    isIconOnly
+                                    className='bg-default/20 h-6.5 w-6.5 min-w-auto border-1 p-0'
+                                    radius='full'
+                                    size='sm'
+                                    startContent={<X size={18} />}
+                                    variant='light'
+                                    onPress={() => setQuery('')}
+                                />
+                            )
+                        }
+                    />
+                </div>
             </div>
             {showEmptyState && <PosEmptyState type='product' />}
             {showSearchEmpty && <PosEmptyState type='search' value={query} />}

@@ -100,9 +100,18 @@ export const userProducts = async (
 
     return {
         products: (data?.products ?? []) as Products,
-        categories: (data?.categories ?? []) as Categories,
         total: data?.total,
         error,
         empty: data?.empty ?? true,
+    }
+}
+
+export const userCategories = async (username: string) => {
+    const supabase = await createClient()
+    const { data, error } = await supabase.rpc('usercategories', { username })
+
+    return {
+        categories: (data ?? []) as Categories,
+        error,
     }
 }

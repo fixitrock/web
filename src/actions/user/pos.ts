@@ -158,7 +158,7 @@ export async function addCustomer(customer: CustomerInput) {
 //     }
 // }
 
-export const userCategories = cache(
+export const sellerCategories = cache(
     async (): Promise<{ categories: string[]; error: string | null; empty: boolean }> => {
         const supabase = await createClient()
         const id = await userID()
