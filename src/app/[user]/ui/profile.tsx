@@ -115,15 +115,14 @@ export default function Profile({ user, can }: ProfileProps) {
                 <div className='relative z-10 -mt-16 mb-2 px-[5%] md:-mt-20 lg:px-[10%]'>
                     <div className='flex items-center justify-between gap-4'>
                         <div className='relative shrink-0'>
-                            <div className='bg-background size-32 overflow-hidden rounded-full border p-1 md:size-36'>
+                            <div className='bg-default/20 dark:bg-default/40 size-28 overflow-hidden rounded-full border p-1 backdrop-blur md:size-36'>
                                 <Image
                                     isBlurred
                                     alt={`${user.name} avatar`}
                                     src={userAvatar(user)}
                                     className='h-full w-full object-cover'
                                     classNames={{
-                                        wrapper:
-                                            'bg-default/20 dark:bg-default/40 overflow-hidden rounded-full backdrop-blur',
+                                        wrapper: 'overflow-hidden rounded-full',
                                     }}
                                 />
                             </div>

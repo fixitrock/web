@@ -3,7 +3,7 @@
 import { withErrorHandling } from '@/lib/utils'
 import { createClient } from '@/supabase/server'
 import { DeleteObjectCommand } from '@aws-sdk/client-s3'
-import type { Product, Products } from '@/types/product'
+import type { Categories, Product, Products } from '@/types/product'
 import { R2 } from '@/supabase/r2'
 
 export const deleteImagesFromR2 = async (paths: string[]): Promise<void> => {
@@ -100,6 +100,7 @@ export const userProducts = async (
 
     return {
         products: (data?.products ?? []) as Products,
+        categories: (data?.categories ?? []) as Categories,
         total: data?.total,
         error,
         empty: data?.empty ?? true,

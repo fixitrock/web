@@ -26,7 +26,7 @@ function ProductCard({ product }: { product: Product }) {
                     loading='lazy'
                     src={getProductImage(product)}
                 />
-                <div className='absolute bottom-1 z-20 flex w-full overflow-auto'>
+                <div className='absolute bottom-1 z-10 flex w-full overflow-auto'>
                     <ScrollShadow
                         ref={drag}
                         hideScrollBar
@@ -69,7 +69,7 @@ function ProductCard({ product }: { product: Product }) {
 
 export function ProductGrid({ products }: { products: Products }) {
     return (
-        <div className='grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2 overflow-y-auto md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'>
+        <div className='grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2.5 sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'>
             {products.map((p) => (
                 <ProductCard key={p.id} product={p} />
             ))}

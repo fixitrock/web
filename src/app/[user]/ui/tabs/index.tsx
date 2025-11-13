@@ -38,6 +38,7 @@ export default function Tabs({ user, tabs }: TabsProps) {
         <UiTabs
             classNames={{
                 base: 'bg-background sticky top-0 z-20 w-full border-b-1 py-0.5',
+                panel: 'py-0 pb-3',
             }}
             items={tabs}
             selectedKey={selectedKey}

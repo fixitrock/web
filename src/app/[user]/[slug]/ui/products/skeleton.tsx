@@ -19,7 +19,7 @@ export function ProductSkeleton() {
 
 export function ProductGridSkeleton({ count = 18 }: { count?: number }) {
     return (
-        <div className='grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2.5 md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'>
+        <div className='grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2.5 sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'>
             {Array.from({ length: count }).map((_, i) => (
                 <ProductSkeleton key={i} />
             ))}

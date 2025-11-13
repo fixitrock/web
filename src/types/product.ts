@@ -31,3 +31,10 @@ export type ProductVariant = {
 }
 
 export type Products = Product[]
+
+export type Category = {
+    count: number
+    category: string
+}
+
+export type Categories = Category[]

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next'
 
 import { UserDrawer } from '@/app/[user]/ui'
 import Footer from '@/components/footer'
-import { META_THEME_COLORS, siteConfig } from '@/config/site'
+import { siteConfig } from '@/config/site'
 import { AuthProvider, Providers } from '@/provider'
 import '../styles/globals.css'
 import { cn } from '@/lib/utils'
@@ -16,7 +16,7 @@ export default async function RootLayout({
     modal,
 }: Readonly<{
     children: React.ReactNode
-    modal?: React.ReactNode
+    modal: React.ReactNode
 }>) {
     const { user, navigation, command } = await userSession()
 

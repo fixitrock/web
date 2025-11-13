@@ -90,12 +90,11 @@ export async function GET(
                 icons: [{ src: '/shortcut/settings.png', sizes: '192x192' }],
             })
         } else {
-
             shortcuts.push({
                 name: 'Products',
                 short_name: 'Products',
                 description: `View ${user.name}'s products`,
-                url: `/@${user.username}/products`,
+                url: `/@${user.username}?tab=products`,
                 icons: [{ src: '/shortcut/products.png', sizes: '192x192' }],
             })
         }
