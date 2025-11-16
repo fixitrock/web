@@ -6,63 +6,43 @@ import { useDebounce, useDragScroll } from '@/hooks'
 import { useUserProducts } from '@/hooks/tanstack/query'
 import { formatDiscount, formatPrice, getProductImage } from '@/lib/utils'
 import { Product, Products } from '@/types/product'
-import { ScrollShadow, Image, Navbar, Button } from '@heroui/react'
+import { Image, Navbar, Button, Card, useDisclosure } from '@heroui/react'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { ProductGridSkeleton } from './skeleton'
 import { PosEmptyState } from '@/ui/empty'
+import { ProductModal } from '@/app/[user]/ui/tabs/products/modal'
 
 function ProductCard({ product }: { product: Product }) {
-    const variants = product.variants || []
-    const drag = useDragScroll<HTMLDivElement>()
-
+    const { isOpen, onOpen, onOpenChange } = useDisclosure()
     return (
-        <div className='group flex flex-col gap-2 rounded-xl border p-1.5'>
-            <div className='relative m-auto w-full shrink-0'>
-                <Image
-                    removeWrapper
-                    alt={product.name}
-                    className='bg-default/10 aspect-square size-full object-cover select-none'
-                    loading='lazy'
-                    src={getProductImage(product)}
-                />
-                <div className='absolute bottom-1 z-10 flex w-full overflow-auto'>
-                    <ScrollShadow
-                        ref={drag}
-                        hideScrollBar
-                        className='bg-default/10 auto mx-auto flex max-w-[50%] items-center gap-1.5 rounded-2xl backdrop-blur'
-                        orientation='horizontal'
-                    >
-                        {variants
-                            .filter((v) => v.color?.hex)
-                            .map((v, i) => (
-                                <span
-                                    key={`color-${i}`}
-                                    className='inline-block size-2.5 shrink-0 rounded-full'
-                                    style={{ backgroundColor: v.color?.hex || '#ccc' }}
-                                    title={v.color?.name || ''}
-                                />
-                            ))}
-                    </ScrollShadow>
+        <div className='relative'>
+            <Card
+                isPressable
+                className='bg-background size-full gap-2 rounded-xl border p-1.5'
+                shadow='none'
+                onPress={onOpen}
+            >
+                <div className='relative m-auto w-full shrink-0'>
+                    <Image
+                        removeWrapper
+                        alt={product.name}
+                        className='bg-default/10 aspect-square size-full object-cover select-none'
+                        src={getProductImage(product)}
+                    />
                 </div>
-                {product.variants?.[0]?.price && product.variants?.[0]?.mrp && (
-                    <h3 className='absolute top-0.5 right-0.5 z-10 rounded-full bg-green-300 px-1.5 py-0.5 text-[10px] text-white'>
-                        {
-                            formatDiscount(
-                                product.variants?.[0]?.price || 0,
-                                product.variants?.[0]?.mrp || 0
-                            ).off
-                        }
+
+                <div className='flex flex-1 flex-col'>
+                    <h3 className='line-clamp-1 text-start text-sm font-semibold'>
+                        {product.name}
                     </h3>
-                )}
-            </div>
-            <div className='flex flex-1 flex-col'>
-                <h3 className='line-clamp-1 text-sm font-semibold'>{product.name}</h3>
-                <div className='text-muted-foreground flex w-full justify-between text-xs'>
-                    <span>{product.category}</span>
-                    <span>{formatPrice(product.variants?.[0]?.price || 0)}</span>
+                    <div className='text-muted-foreground flex w-full justify-between text-xs'>
+                        <span>{product.category}</span>
+                        <span>{formatPrice(product.variants?.[0]?.price)}</span>
+                    </div>
                 </div>
-            </div>
+            </Card>
+            <ProductModal isOpen={isOpen} product={product} onOpenChange={onOpenChange} />
         </div>
     )
 }

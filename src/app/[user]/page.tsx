@@ -37,7 +37,7 @@ export default async function Users({ params }: Props) {
     return (
         <div>
             <Profile can={can} user={user} />
-            <div className='mx-auto 2xl:px-[10%]'>
+            <div className='relative mx-auto 2xl:px-[10%]'>
                 <Tabs canManage={canManage} products={products} tabs={tabs} user={user} />
             </div>
         </div>

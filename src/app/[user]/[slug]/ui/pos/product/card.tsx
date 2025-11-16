@@ -264,7 +264,7 @@ type ActiveTabsProps = {
     items: string[]
 } & Omit<TabsProps, 'items'>
 
-function ActiveTabs({ title, items, ...tabsProps }: ActiveTabsProps) {
+export function ActiveTabs({ title, items, ...tabsProps }: ActiveTabsProps) {
     return (
         <div>
             <h3 className='text-muted-foreground mb-1 text-sm font-medium'>{title}</h3>

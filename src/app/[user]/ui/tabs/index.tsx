@@ -1,5 +1,4 @@
 'use client'
-
 import { Tab, Tabs as UiTabs } from '@heroui/react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -17,31 +16,24 @@ type TabsProps = {
     products: Product[]
     canManage: boolean
 }
+
 export default function Tabs({ user, tabs }: TabsProps) {
-    const { tab } = useTabs()
-
-    let selectedKey = 'activity'
-
-    if (tab.includes('tab=')) {
-        const match = tab.match(/tab=([^&]+)/)
-
-        if (match && match[1]) selectedKey = match[1]
-    }
-
+    const { selectedTab } = useTabs()
     const validTabKeys = tabs.map((t) => t.title.toLowerCase())
-
-    if (selectedKey && !validTabKeys.includes(selectedKey)) {
+    if (!validTabKeys.includes(selectedTab)) {
         redirect(`/@${user.username}`)
     }
-
     return (
         <UiTabs
             classNames={{
-                base: 'bg-background sticky top-0 z-20 w-full border-b-1 py-0.5',
+                tabList: 'border-b-1.5 relative w-full rounded-none p-0',
+                cursor: 'w-full',
+                tab: 'max-w-fit',
+                base: 'bg-background/90 sticky top-0 z-20 flex backdrop-blur',
                 panel: 'py-0 pb-3',
             }}
             items={tabs}
-            selectedKey={selectedKey}
+            selectedKey={selectedTab ?? undefined}
             variant='underlined'
         >
             {tabs.map((tab) => {

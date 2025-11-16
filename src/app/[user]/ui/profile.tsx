@@ -67,7 +67,7 @@ export default function Profile({ user, can }: ProfileProps) {
         <>
             <div className='relative flex flex-col'>
                 {/* Cover Image */}
-                <div className='relative h-30 w-full overflow-hidden border-b lg:h-60'>
+                <div className='relative h-30 w-full overflow-hidden border-b lg:h-50'>
                     <Image
                         disableSkeleton
                         alt={`${user.name} cover`}

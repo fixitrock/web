@@ -1,17 +1,14 @@
 'use client'
 
-import { usePathname, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useMemo } from 'react'
 
 export function useTabs() {
-    const pathname = usePathname()
     const searchParams = useSearchParams()
 
-    const tab = useMemo(() => {
-        const tabParam = searchParams?.get('tab')
+    const selectedTab = useMemo(() => {
+        return searchParams?.get('tab') || 'activity'
+    }, [searchParams])
 
-        return tabParam ? `${pathname}?tab=${tabParam}` : pathname
-    }, [pathname, searchParams])
-
-    return { tab }
+    return { selectedTab }
 }
