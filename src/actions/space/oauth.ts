@@ -41,13 +41,21 @@ export const generateMicrosoftAuthUrl = withErrorHandling(
 // Handle OAuth callback and get refresh token
 export const handleOAuthCallback = withErrorHandling(
     async (code: string): Promise<{ success: boolean; message: string }> => {
+        logWarning('🔐 Starting OAuth callback handling...')
         const credentials = await getSpaceCredentials()
 
         if (!credentials) {
-            throw new Error('No API credentials found')
+            throw new Error('No API credentials found. Please set up your Client ID and Client Secret first.')
         }
 
+        if (!credentials.id) {
+            throw new Error('Credential record has no ID. Please recreate your credentials.')
+        }
+
+        logWarning('✅ Found credentials with ID:', credentials.id)
+
         // Exchange authorization code for tokens
+        logWarning('🔄 Exchanging authorization code for tokens...')
         const tokenResponse = await fetch(
             'https://login.microsoftonline.com/common/oauth2/v2.0/token',
             {
@@ -80,6 +88,7 @@ export const handleOAuthCallback = withErrorHandling(
                 errorMessage = `Token exchange failed: ${errorDetails}`
             }
 
+            logWarning('❌ Token exchange failed:', errorMessage)
             throw new Error(errorMessage)
         }
 
@@ -90,16 +99,23 @@ export const handleOAuthCallback = withErrorHandling(
             throw new Error('No refresh token received from Microsoft')
         }
 
+        logWarning('✅ Received tokens from Microsoft')
+        logWarning('   Refresh token length:', refresh_token.length)
+        logWarning('   Access token length:', access_token?.length || 0)
+
         // Update credentials with new refresh token
-        await updateRefreshToken(credentials.id!, refresh_token)
+        logWarning('🔄 Updating refresh token in database...')
+        await updateRefreshToken(credentials.id, refresh_token)
 
         // Save initial access token
         if (access_token && expires_in) {
-            await saveAccessToken(credentials.id!, access_token, expires_in)
+            logWarning('🔄 Saving access token in database...')
+            await saveAccessToken(credentials.id, access_token, expires_in)
         }
 
         revalidatePath('/[user]/[slug]', 'page')
 
+        logWarning('🎉 OAuth callback completed successfully!')
         return {
             success: true,
             message: 'Successfully obtained refresh token and access token!',

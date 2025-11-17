@@ -109,7 +109,26 @@ export class ErrorBoundary extends Component<Props, State> {
             )
         }
 
-        return tryAgainButton
+        const needsReauth = /token|oauth|refresh token/i.test(error.message)
+
+        return needsReauth ? (
+            <div className='flex gap-2'>
+                {tryAgainButton}
+                <Button
+                    color='warning'
+                    size='sm'
+                    variant='flat'
+                    onPress={() => {
+                        const path = typeof window !== 'undefined' ? window.location.pathname : '/space'
+                        window.location.href = `/oauth?return=${encodeURIComponent(path)}`
+                    }}
+                >
+                    Re-auth OneDrive
+                </Button>
+            </div>
+        ) : (
+            tryAgainButton
+        )
     }
 
     getShortErrorDescription(message: string): string {

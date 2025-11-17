@@ -235,7 +235,20 @@ export async function updateRefreshToken(
     refreshToken: string
 ): Promise<void> {
     try {
+        logWarning('🔄 Updating refresh token for credential ID:', credentialId)
         const supabase = await createClient()
+
+        // First verify the credential exists
+        const { data: existing, error: fetchError } = await supabase
+            .from('space_credentials')
+            .select('id')
+            .eq('id', credentialId)
+            .single()
+
+        if (fetchError || !existing) {
+            logWarning('❌ Credential not found with ID:', credentialId)
+            throw new Error(`Credential with ID ${credentialId} not found. Please set up your OneDrive credentials first.`)
+        }
 
         const updateData: {
             refresh_token: string
@@ -250,11 +263,20 @@ export async function updateRefreshToken(
             .update(updateData)
             .eq('id', credentialId)
 
-        if (error) throw error
+        if (error) {
+            logWarning('❌ Supabase error updating refresh token:', error)
+            throw error
+        }
 
+        logWarning('✅ Refresh token updated successfully')
         revalidatePath('/[user]/[slug]', 'page')
     } catch (error) {
-        logWarning('Error updating refresh token:', error)
+        logWarning('❌ Error updating refresh token:', error)
+        
+        if (error instanceof Error) {
+            throw error
+        }
+        
         throw new Error('Failed to update refresh token')
     }
 }
