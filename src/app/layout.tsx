@@ -10,6 +10,7 @@ import { SearchBar } from '@/components/search/bar'
 import { fontVariables } from '@/lib/fonts'
 import { ErrorBoundary } from '@/components/error'
 import { userSession } from '@/actions/user'
+import { ThemeMetaTag } from '@/components/theme-meta'
 
 export default async function RootLayout({
     children,
@@ -26,6 +27,7 @@ export default async function RootLayout({
                 <AuthProvider>
                     <ErrorBoundary>
                         <Providers>
+                            <ThemeMetaTag />
                             <div className='bg-background relative flex min-h-screen flex-col'>
                                 <div className='flex-1 overflow-clip'>{children}</div>
                                 {modal}

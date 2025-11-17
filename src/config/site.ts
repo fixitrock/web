@@ -105,7 +105,7 @@ export const siteConfig = {
 
 export const META_THEME_COLORS = {
     light: '#ffffff',
-    dark: '#00000',
+    dark: '#000000',
 }
 
 export const fallback = {
