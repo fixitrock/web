@@ -10,14 +10,14 @@ import { Quotes } from './quotes'
 import { Activity } from './activity'
 
 export default function Tabs() {
-    const { tab } = useTabs()
+    const { selectedTab } = useTabs()
 
     return (
         <UiTabs
             classNames={{
                 base: 'bg-background sticky top-0 z-20 w-full border-b py-0.5',
             }}
-            selectedKey={tab}
+            selectedKey={selectedTab}
             variant='underlined'
         >
             <Tab key='/rockstar' href='/rockstar' title='Activity'>
