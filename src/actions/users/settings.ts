@@ -48,7 +48,7 @@ export async function updateUser(formData: FormData) {
         const { error } = await supabase.from('users').update(updateObj).eq('id', user.id)
 
         if (error) throw error
-        revalidatePath('/[user]/[slug]/settings', 'layout')
+        await revalidatePath('/[user]/[slug]/settings', 'layout')
 
         const { data: updatedUser, error: fetchError } = await supabase
             .from('users')
@@ -96,7 +96,7 @@ export async function uploadUserImage(file: File, type: 'avatar' | 'cover') {
         if (updateError) throw updateError
 
         revalidatePath('/[user]/[slug]')
-        revalidateTag(`user-${user.username}`)
+        revalidateTag(`user-${user.username}`, 'max')
 
         return { url: tablePath }
     } catch (error) {
@@ -142,8 +142,8 @@ export async function deleteUserImage(type: 'avatar' | 'cover') {
 
         if (updateError) throw updateError
 
-        revalidatePath('/[user]/[slug]')
-        revalidateTag(`user-${user.username}`)
+        await revalidatePath('/[user]/[slug]')
+        await revalidateTag(`user-${user.username}`, 'max')
 
         return { success: true }
     } catch (error) {

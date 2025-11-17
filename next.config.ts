@@ -2,26 +2,26 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
     transpilePackages: ['next-mdx-remote'],
-    optimizePackageImports: [
-        'lucide-react',
-        'recharts',
-        'framer-motion',
-        'react-icons',
-        '@iconify/react',
-        '@heroui/react',
-        'date-fns',
-        'usehooks-ts',
-    ],
     experimental: {
         serverActions: {
             bodySizeLimit: '10mb',
         },
-        turbo: {
-            rules: {
-                '*.svg': {
-                    loaders: ['@svgr/webpack'],
-                    as: '*.js',
-                },
+        optimizePackageImports: [
+            'lucide-react',
+            'recharts',
+            'framer-motion',
+            'react-icons',
+            '@iconify/react',
+            '@heroui/react',
+            'date-fns',
+            'usehooks-ts',
+        ],
+    },
+    turbopack: {
+        rules: {
+            '*.svg': {
+                loaders: ['@svgr/webpack'],
+                as: '*.js',
             },
         },
     },
