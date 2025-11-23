@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "bun --bun next dev",
-        "build": "next build; bun scripts/sw.js",
+        "build": "next build",
         "changelog": "bun scripts/auto-changelog.js",
         "start": "bun --bun next start",
         "lint": "eslint . --fix"

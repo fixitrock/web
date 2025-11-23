@@ -1,12 +1,13 @@
 'use client'
-import React from 'react'
 import { Button, Tooltip } from '@heroui/react'
-import { Check, Plus, Settings } from 'lucide-react'
+import { Settings } from 'lucide-react'
 import Link from 'next/link'
 import { FaWhatsapp } from 'react-icons/fa'
 
 import { User } from '@/app/login/types'
-import { useDevice, usePwa } from '@/hooks'
+import { useDevice } from '@/hooks'
+import { usePwaStore } from '@/zustand/store'
+import { useEffect } from 'react'
 import { CanType } from '@/actions/auth'
 
 interface ActionsProps {
@@ -18,13 +19,26 @@ interface ActionsProps {
 }
 
 export function Actions({ onFollow, onMessage, isFollowing, user, can }: ActionsProps) {
-    const { installPWA, isInstallable } = usePwa(user.role)
+    const { installPWA, isInstallable, isInstalled, isStandalone, isTooltipOpen, setTooltipOpen, initialize } = usePwaStore()
     const { icon } = useDevice()
+
+    useEffect(() => {
+        return initialize()
+    }, [initialize])
+
+    const showInstall = isInstallable && (user.role === 2 || user.role === 3) && !isStandalone
+    const showOpenApp = isInstalled && !isStandalone && (user.role === 2 || user.role === 3)
 
     return (
         <div className='my-auto flex w-full flex-1 items-end justify-end gap-2'>
-            {isInstallable && (
-                <Tooltip content='Tap to Install Our App'>
+            {showInstall && (
+                <Tooltip
+                    content='Tap to Install Our App'
+                    showArrow
+                    color='primary'
+                    isOpen={isTooltipOpen}
+                    onOpenChange={setTooltipOpen}
+                >
                     <Button
                         isIconOnly
                         className='border'
@@ -35,6 +49,18 @@ export function Actions({ onFollow, onMessage, isFollowing, user, can }: Actions
                         onPress={installPWA}
                     />
                 </Tooltip>
+            )}
+
+            {showOpenApp && (
+                <Button
+                    className='border'
+                    radius='full'
+                    size='sm'
+                    variant='flat'
+                    onPress={() => window.open(`/@${user.username}`, '_blank')}
+                >
+                    Open App
+                </Button>
             )}
 
             {can.view.profile && (

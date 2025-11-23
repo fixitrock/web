@@ -50,7 +50,6 @@ export const metadata: Metadata = {
         template: `%s ~ ${siteConfig.title}`,
     },
     description: siteConfig.description,
-    manifest: '/manifest.json',
     appleWebApp: {
         capable: true,
         statusBarStyle: 'default',
@@ -71,6 +70,7 @@ export const metadata: Metadata = {
         apple: '/icons/android-chrome-192x192.png',
     },
     metadataBase: new URL(siteConfig.domain),
+    manifest: "/manifest.webmanifest",
     openGraph: {
         title: siteConfig.title,
         description: siteConfig.description,

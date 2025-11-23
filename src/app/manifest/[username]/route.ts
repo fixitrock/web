@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 
 import { getUser } from '@/actions/user'
 import { createClient } from '@/supabase/server'
+import { userAvatar } from '@/lib/utils'
 
 export async function GET(
     request: NextRequest,
@@ -100,31 +101,31 @@ export async function GET(
         }
 
         const manifest = {
-            name: `${user.name} - Fix iT Rock`,
+            name: user.name,
             short_name: user.name,
             description: `Shop with ${user.name} on Fix iT Rock - Mobile Solutions & E-commerce`,
             start_url: `/@${user.username}`,
             scope: `/@${user.username}`,
             display: 'standalone',
             display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
-            orientation: 'any',
+            orientation: 'natural',
             theme_color: '#ffffff',
             background_color: '#ffffff',
             icons: [
                 {
-                    src: user.avatar || '/fallback/boy.png',
+                    src: userAvatar(user),
                     sizes: '192x192',
                     type: 'image/png',
                     purpose: 'any maskable',
                 },
                 {
-                    src: user.avatar || '/fallback/boy.png',
+                    src: userAvatar(user),
                     sizes: '384x384',
                     type: 'image/png',
                     purpose: 'any',
                 },
                 {
-                    src: user.avatar || '/fallback/boy.png',
+                    src: userAvatar(user),
                     sizes: '512x512',
                     type: 'image/png',
                     purpose: 'any',
@@ -140,7 +141,7 @@ export async function GET(
         return new Response(JSON.stringify(manifest), {
             headers: {
                 'Content-Type': 'application/json',
-                'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+                'Cache-Control': 'public, max-age=3600',
             },
         })
     } catch {
