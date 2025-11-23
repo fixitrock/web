@@ -129,8 +129,8 @@ export const getProductImage = (product: Product): string | undefined => {
             return (
                 bucketUrl(
                     '/assets/categories/' +
-                        product.category.toLowerCase().replace(/\s+/g, '-') +
-                        '.png'
+                    product.category.toLowerCase().replace(/\s+/g, '-') +
+                    '.png'
                 ) ?? undefined
             )
         }
@@ -246,8 +246,8 @@ export function userAvatar(user: User): string {
         user?.gender === 'female'
             ? '/fallback/girl.png'
             : user?.gender === 'other'
-              ? '/fallback/other.png'
-              : '/fallback/boy.png'
+                ? '/fallback/other.png'
+                : '/fallback/boy.png'
 
     const avatarUrl = bucketUrl(user?.avatar as string) || fallbackAvatar || ''
 
@@ -363,4 +363,9 @@ export function formatDiscount(price: number, mrp: number) {
         off: `${discount}% off`,
         discount: formatPrice(discount),
     }
+}
+
+export function formatPhone(phone?: string | null): string {
+    if (!phone) return 'N/A'
+    return phone.replace(/^91/, '')
 }

@@ -170,7 +170,7 @@ export function Quotes({ user }: { user: User }) {
     const { data, isLoading } = useQuote()
 
     return (
-        <div className='grid grid-cols-1 md:grid-cols-2 md:gap-4 lg:grid-cols-3 2xl:grid-cols-4'>
+        <div className='grid grid-cols-1 pt-3 md:grid-cols-2 md:gap-4 lg:grid-cols-3 2xl:grid-cols-4'>
             {isLoading ? (
                 <QuoteSkeleton />
             ) : (

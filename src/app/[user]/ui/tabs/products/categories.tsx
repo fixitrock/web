@@ -10,18 +10,15 @@ export function CategoryTabs({ username }: { username: string }) {
     const dragRef = useDragScroll<HTMLDivElement>()
     const containerRef = useRef<HTMLDivElement | null>(null)
     const { data, isLoading } = useUserCategories(username)
-    const { activeCategory, setActiveCategory, handleCategoryChange } =
-    useCategoryTabsStore()
-useEffect(() => {
-    if (!isLoading && data?.categories && data?.categories.length > 0) {
-        const exists = data.categories.some(
-            (c) => c.category === activeCategory
-        )
-        if (!exists) {
-            setActiveCategory(data.categories[0].category)
+    const { activeCategory, setActiveCategory, handleCategoryChange } = useCategoryTabsStore()
+    useEffect(() => {
+        if (!isLoading && data?.categories && data?.categories.length > 0) {
+            const exists = data.categories.some((c) => c.category === activeCategory)
+            if (!exists) {
+                setActiveCategory(data.categories[0].category)
+            }
         }
-    }
-}, [data, isLoading, activeCategory, setActiveCategory])
+    }, [data, isLoading, activeCategory, setActiveCategory])
 
     const combinedRef = (node: HTMLDivElement | null) => {
         containerRef.current = node
@@ -31,7 +28,7 @@ useEffect(() => {
     return (
         <ScrollShadow ref={combinedRef} hideScrollBar className='w-full' orientation='horizontal'>
             <Tabs
-            ref={combinedRef}
+                ref={combinedRef}
                 classNames={{
                     base: 'bg-transparent py-0',
                     cursor: 'dark:bg-background rounded-full border shadow-none',
@@ -87,4 +84,3 @@ useEffect(() => {
         </ScrollShadow>
     )
 }
-

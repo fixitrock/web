@@ -106,6 +106,7 @@ function ProductModal({ product, isOpen, onOpenChange }: ProductModalProps) {
     const handleAddToCart = () => {
         if (active && active.quantity > 0) {
             const price = type === 'retail' ? active.price : active.wholesale_price
+            const imageUrl = typeof active.image[0] === 'string' ? active.image[0] : null
 
             const cartItem = {
                 product: { id: product.id!, name: product.name, category: product.category },
@@ -113,6 +114,7 @@ function ProductModal({ product, isOpen, onOpenChange }: ProductModalProps) {
                 quantity: 1,
                 price,
                 selectedOptions: {
+                    image: imageUrl,
                     brand: selected.brand,
                     color: selected.color,
                     storage: selected.storage,

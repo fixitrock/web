@@ -247,7 +247,9 @@ export async function updateRefreshToken(
 
         if (fetchError || !existing) {
             logWarning('❌ Credential not found with ID:', credentialId)
-            throw new Error(`Credential with ID ${credentialId} not found. Please set up your OneDrive credentials first.`)
+            throw new Error(
+                `Credential with ID ${credentialId} not found. Please set up your OneDrive credentials first.`
+            )
         }
 
         const updateData: {
@@ -272,11 +274,11 @@ export async function updateRefreshToken(
         revalidatePath('/[user]/[slug]', 'page')
     } catch (error) {
         logWarning('❌ Error updating refresh token:', error)
-        
+
         if (error instanceof Error) {
             throw error
         }
-        
+
         throw new Error('Failed to update refresh token')
     }
 }

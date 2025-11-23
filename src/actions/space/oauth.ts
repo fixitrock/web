@@ -45,7 +45,9 @@ export const handleOAuthCallback = withErrorHandling(
         const credentials = await getSpaceCredentials()
 
         if (!credentials) {
-            throw new Error('No API credentials found. Please set up your Client ID and Client Secret first.')
+            throw new Error(
+                'No API credentials found. Please set up your Client ID and Client Secret first.'
+            )
         }
 
         if (!credentials.id) {

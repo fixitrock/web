@@ -17,7 +17,9 @@ export function ThemeMetaTag() {
         }
         const color = resolvedTheme === 'dark' ? META_THEME_COLORS.dark : META_THEME_COLORS.light
         metaThemeColor.setAttribute('content', color)
-        let appleStatusBar = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')
+        let appleStatusBar = document.querySelector(
+            'meta[name="apple-mobile-web-app-status-bar-style"]'
+        )
 
         if (!appleStatusBar) {
             appleStatusBar = document.createElement('meta')
@@ -25,7 +27,10 @@ export function ThemeMetaTag() {
             document.head.appendChild(appleStatusBar)
         }
 
-        appleStatusBar.setAttribute('content', resolvedTheme === 'dark' ? 'black-translucent' : 'default')
+        appleStatusBar.setAttribute(
+            'content',
+            resolvedTheme === 'dark' ? 'black-translucent' : 'default'
+        )
     }, [resolvedTheme])
 
     return null

@@ -9,10 +9,12 @@ import { Brands } from './ui/brands'
 import { Settings } from './ui/settings'
 import { Pos } from './ui/pos'
 import { Categories } from './ui/categories'
+import { Orders } from './ui/orders'
 
 const components: Record<string, React.ComponentType<{ params: { user: string } }>> = {
     Products: Products,
     Pos: Pos,
+    Orders: Orders,
     Brands: Brands,
     Categories: Categories,
     Settings: Settings,

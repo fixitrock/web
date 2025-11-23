@@ -119,7 +119,8 @@ export class ErrorBoundary extends Component<Props, State> {
                     size='sm'
                     variant='flat'
                     onPress={() => {
-                        const path = typeof window !== 'undefined' ? window.location.pathname : '/space'
+                        const path =
+                            typeof window !== 'undefined' ? window.location.pathname : '/space'
                         window.location.href = `/oauth?return=${encodeURIComponent(path)}`
                     }}
                 >

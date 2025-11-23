@@ -15,6 +15,7 @@ type CartItem = {
     quantity: number
     price: number
     selectedOptions: {
+        image: string | null
         brand: string | null
         color: string | null
         storage: string | null
@@ -273,6 +274,7 @@ export const useCartStore = create<PosState>((set, get) => ({
                 productID: item.variant.id,
                 name: item.product.name,
                 category: item.product.category,
+                image: item.selectedOptions.image || item.variant.image,
                 brand: item.selectedOptions.brand || item.variant.brand,
                 color: item.selectedOptions.color
                     ? { name: item.selectedOptions.color, hex: item.variant.color?.hex || '' }

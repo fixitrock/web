@@ -30,6 +30,7 @@ export type OrderProduct = {
     id?: string
     orderID?: string
     productID: string
+    image?: string
     name: string
     category?: string
     brand?: string
@@ -43,6 +44,7 @@ export type OrderProduct = {
     total?: number
     createdAt?: string
     updatedAt?: string
+    returnedAt?: string
 }
 
 export type Transaction = {
@@ -67,4 +69,14 @@ export type CreateTransactionType = {
     type: 'credit' | 'debit'
     mode?: string
     notes?: string
+}
+
+export interface ReturnData {
+    orderId: string
+    items: {
+        productId: string
+        quantity: number
+        maxQuantity: number
+    }[]
+    reason: string
 }

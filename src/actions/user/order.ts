@@ -82,6 +82,7 @@ export const createOrder = withErrorHandling(async ({ order }: CreateOrderInput)
         product_id: product.productID,
         name: product.name,
         category: product.category || null,
+        image: product.image || null,
         brand: product.brand || null,
         color: product.color || null,
         storage: product.storage || null,

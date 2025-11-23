@@ -134,7 +134,7 @@ export function Setting({ user }: { user: User }) {
                 <AccordionItem
                     key='personal-information'
                     startContent={
-                        <div className='rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 p-2 shadow-lg'>
+                        <div className='rounded-xl bg-linear-to-r from-blue-500 to-cyan-500 p-2 shadow-lg'>
                             <UserRound className='h-5 w-5 text-white' />
                         </div>
                     }
@@ -207,7 +207,7 @@ export function Setting({ user }: { user: User }) {
                 <AccordionItem
                     key='about-you'
                     startContent={
-                        <div className='rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 p-2 shadow-lg'>
+                        <div className='rounded-xl bg-linear-to-r from-purple-500 to-pink-500 p-2 shadow-lg'>
                             <Sparkles className='h-5 w-5 text-white' />
                         </div>
                     }
@@ -252,7 +252,7 @@ export function Setting({ user }: { user: User }) {
                     <AccordionItem
                         key='business'
                         startContent={
-                            <div className='rounded-xl bg-gradient-to-r from-green-500 to-teal-500 p-2 shadow-lg'>
+                            <div className='rounded-xl bg-linear-to-r from-green-500 to-teal-500 p-2 shadow-lg'>
                                 <Store className='h-5 w-5 text-white' />
                             </div>
                         }
@@ -323,7 +323,7 @@ export function Setting({ user }: { user: User }) {
                 <AccordionItem
                     key='account-status'
                     startContent={
-                        <div className='rounded-xl bg-gradient-to-r from-indigo-500 to-blue-500 p-2 shadow-lg'>
+                        <div className='rounded-xl bg-linear-to-r from-indigo-500 to-blue-500 p-2 shadow-lg'>
                             <Shield className='h-5 w-5 text-white' />
                         </div>
                     }
@@ -333,7 +333,7 @@ export function Setting({ user }: { user: User }) {
                     <div className='grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
                         <Card
                             isPressable
-                            className='border border-green-200/50 bg-gradient-to-br from-green-50 to-emerald-50 dark:border-green-700/30 dark:from-green-900/20 dark:to-emerald-900/20'
+                            className='border border-green-200/50 bg-linear-to-br from-green-50 to-emerald-50 dark:border-green-700/30 dark:from-green-900/20 dark:to-emerald-900/20'
                             shadow='none'
                         >
                             <div className='p-4'>
@@ -372,7 +372,7 @@ export function Setting({ user }: { user: User }) {
 
                         <Card
                             isPressable
-                            className='border border-blue-200/50 bg-gradient-to-br from-blue-50 to-cyan-50 dark:border-blue-700/30 dark:from-blue-900/20 dark:to-cyan-900/20'
+                            className='border border-blue-200/50 bg-linear-to-br from-blue-50 to-cyan-50 dark:border-blue-700/30 dark:from-blue-900/20 dark:to-cyan-900/20'
                             shadow='none'
                         >
                             <div className='p-4'>
@@ -405,7 +405,7 @@ export function Setting({ user }: { user: User }) {
 
                         <Card
                             isPressable
-                            className='border border-violet-200/50 bg-gradient-to-br from-violet-50 to-purple-50 dark:border-violet-700/30 dark:from-violet-900/20 dark:to-purple-900/20'
+                            className='border border-violet-200/50 bg-linear-to-br from-violet-50 to-purple-50 dark:border-violet-700/30 dark:from-violet-900/20 dark:to-purple-900/20'
                             shadow='none'
                         >
                             <div className='p-4'>
@@ -432,7 +432,7 @@ export function Setting({ user }: { user: User }) {
 
                         <Card
                             isPressable
-                            className='border border-orange-200/50 bg-gradient-to-br from-orange-50 to-amber-50 dark:border-orange-700/30 dark:from-orange-900/20 dark:to-amber-900/20'
+                            className='border border-orange-200/50 bg-linear-to-br from-orange-50 to-amber-50 dark:border-orange-700/30 dark:from-orange-900/20 dark:to-amber-900/20'
                             shadow='none'
                         >
                             <div className='p-4'>

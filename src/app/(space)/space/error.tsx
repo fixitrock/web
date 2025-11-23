@@ -39,10 +39,11 @@ export default function SpaceError({
                     <h2 className='text-2xl font-bold'>
                         {isTokenError ? 'Authentication Required' : 'Something went wrong'}
                     </h2>
-                    <p className='max-w-md text-default-500'>
+                    <p className='text-default-500 max-w-md'>
                         {isTokenError
                             ? 'Your OneDrive session has expired. Please re-authenticate to continue.'
-                            : error.message || 'An unexpected error occurred while loading your space.'}
+                            : error.message ||
+                              'An unexpected error occurred while loading your space.'}
                     </p>
                 </div>
 
@@ -70,7 +71,7 @@ export default function SpaceError({
             </div>
 
             {!isTokenError && error.digest && (
-                <p className='text-xs text-default-400'>Error ID: {error.digest}</p>
+                <p className='text-default-400 text-xs'>Error ID: {error.digest}</p>
             )}
         </div>
     )
