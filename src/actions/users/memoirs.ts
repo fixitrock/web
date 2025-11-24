@@ -2,11 +2,11 @@
 
 import useHidden from '@/hooks/useHidden'
 import { logWarning } from '@/lib/utils'
-import { DriveClient } from '@/lib/utils/DriveClient'
+import { Space } from '@/actions/space'
 import { Drive, DriveItem } from '@/types/drive'
 
 async function getThumbnails(id: string): Promise<DriveItem['thumbnails'] | null> {
-    const client = await DriveClient()
+    const client = await Space()
 
     try {
         const res = await client
@@ -32,9 +32,9 @@ export async function getMemoirs(
     top: number = 50
 ): Promise<Drive> {
     try {
-        const client = await DriveClient()
+        const client = await Space()
 
-        if (!client) throw new Error('DriveClient init failed')
+        if (!client) throw new Error('Space init failed')
 
         const endpoint = pageParam || `/me/drive/root:/user${slug}:/children?top=${top}`
         const res = await client

@@ -1,13 +1,13 @@
 'use server'
 
 import { logWarning } from '@/lib/utils'
-import { DriveClient } from '@/lib/utils/DriveClient'
+import { Space } from '@/actions/space'
 import { Drive, DriveItem } from '@/types/drive'
 
 export async function getTour(tour: string): Promise<Drive> {
-    const client = await DriveClient()
+    const client = await Space()
 
-    if (!client) throw new Error('DriveClient initialization failed')
+    if (!client) throw new Error('Space initialization failed')
 
     async function fetchAllChildren(url: string, items: DriveItem[] = []): Promise<DriveItem[]> {
         try {

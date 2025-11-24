@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 import { siteConfig } from '@/config/site'
 import { logWarning } from '@/lib/utils'
-import { DriveClient } from '@/lib/utils/DriveClient'
+import { Space } from '@/actions/space'
 
 const StorageSchema = z.object({
     remaining: z.number(),
@@ -36,10 +36,10 @@ const paths = [
 ]
 
 export async function getStorage(): Promise<StorageData> {
-    const client = await DriveClient()
+    const client = await Space()
 
     if (!client) {
-        throw new Error('DriveClient initialization failed')
+        throw new Error('Space initialization failed')
     }
 
     try {

@@ -3,14 +3,14 @@
 import { siteConfig } from '@/config/site'
 import useHidden from '@/hooks/useHidden'
 import { logWarning } from '@/lib/utils'
-import { DriveClient } from '@/lib/utils/DriveClient'
+import { Space } from '@/actions/space'
 import { Search, SearchItem } from '@/types/drive'
 
 export async function getSearch(query: string): Promise<Search> {
-    const client = await DriveClient()
+    const client = await Space()
 
     if (!client) {
-        throw new Error('DriveClient initialization failed')
+        throw new Error('Space initialization failed')
     }
     const sanitizeQuery = (query: string): string =>
         query

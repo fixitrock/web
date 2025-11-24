@@ -3,7 +3,7 @@
 import { z } from 'zod'
 
 import { logWarning } from '@/lib/utils'
-import { DriveClient } from '@/lib/utils/DriveClient'
+import { Space } from '@/actions/space'
 
 const ProfileItemSchema = z.object({
     name: z.string(),
@@ -18,9 +18,9 @@ const ProfileSchema = z.object({
 })
 
 export async function getProfile(username: string) {
-    const client = await DriveClient()
+    const client = await Space()
 
-    if (!client) throw new Error('DriveClient initialization failed')
+    if (!client) throw new Error('Space initialization failed')
 
     try {
         const response = await client.api(`/me/drive/root:/user/${username}:/children`).get()

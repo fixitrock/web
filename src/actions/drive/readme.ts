@@ -4,10 +4,10 @@ import { cache } from 'react'
 
 import { siteConfig } from '@/config/site'
 import { logWarning } from '@/lib/utils'
-import { DriveClient } from '@/lib/utils/DriveClient'
+import { Space } from '@/actions/space'
 
 export const getReadme = cache(async function getReadme(slug: string): Promise<string | null> {
-    const client = await DriveClient()
+    const client = await Space()
 
     try {
         const res = await client

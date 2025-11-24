@@ -116,19 +116,19 @@ export async function GET(
                     src: userAvatar(user),
                     sizes: '192x192',
                     type: 'image/png',
-                    purpose: 'any maskable',
+                    
                 },
                 {
                     src: userAvatar(user),
                     sizes: '384x384',
                     type: 'image/png',
-                    purpose: 'any',
+                   
                 },
                 {
                     src: userAvatar(user),
                     sizes: '512x512',
                     type: 'image/png',
-                    purpose: 'any',
+                   
                 },
             ],
             categories: ['business', 'shopping', 'utilities'],

@@ -1,7 +1,7 @@
 'use server'
 
 import { logWarning } from '@/lib/utils'
-import { DriveClient } from '@/lib/utils/DriveClient'
+import { Space } from '@/actions/space'
 import { Thumbnail } from '@/types/drive'
 import { GalleryProps, GallerySchema } from '@/types/user'
 
@@ -11,9 +11,9 @@ type DriveItem = {
 }
 
 export async function getGallery(username: string): Promise<GalleryProps[]> {
-    const client = await DriveClient()
+    const client = await Space()
 
-    if (!client) throw new Error('DriveClient initialization failed')
+    if (!client) throw new Error('Space initialization failed')
 
     try {
         const response = await client

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 
 import { logWarning } from '@/lib/utils'
-import { DriveClient } from '@/lib/utils/DriveClient'
+import { Space } from '@/actions/space'
 import { createClient } from '@/supabase/server'
 
 async function userSession() {
@@ -73,7 +73,7 @@ export async function canRename(prevState: ActionState, formData: FormData): Pro
             }
         }
 
-        const client = await DriveClient()
+        const client = await Space()
 
         if (!client) {
             return { errors: { general: 'Failed to initialize OneDrive client' } }
@@ -143,7 +143,7 @@ export async function canDelete(prevState: ActionState, formData: FormData): Pro
             return { errors: { itemName: 'Item name is required for confirmation' } }
         }
 
-        const client = await DriveClient()
+        const client = await Space()
 
         if (!client) {
             return { errors: { general: 'Failed to initialize OneDrive client' } }
