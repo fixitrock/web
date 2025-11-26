@@ -23,11 +23,10 @@ function ThemeSwitcher() {
                 tabContent: 'group-data-[selected=true]:text-none text-black dark:text-white',
                 tabList: 'bg-background gap-1',
                 tab: 'px-2',
-                cursor: 'group-data-[selected=true]:bg-default/20 dark:group-data-[selected=true]:bg-default/40 border-[0.5px] shadow-none',
+                cursor: 'border-[0.5px] shadow-none dark:bg-default/20',
             }}
-            defaultSelectedKey='light'
             radius='full'
-            selectedKey={mounted ? theme : undefined}
+            selectedKey={theme ?? undefined}
             size='sm'
             variant='light'
             onSelectionChange={(key) => setTheme(String(key))}

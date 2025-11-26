@@ -6,7 +6,7 @@ import { Button, Tab, Tabs, useDisclosure } from '@heroui/react'
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
 import { usePosTypeStore } from '@/zustand/store'
 import { AddProduct } from '../products/add'
-import { ExportStocks } from './export'
+// import { ExportStocks } from './export'
 import { useMounted } from '@/hooks'
 
 export function PosHeader() {
@@ -84,7 +84,7 @@ export function PosHeader() {
                 >
                     Add Product
                 </Button>
-                <ExportStocks />
+                {/* <ExportStocks /> */}
                 <AddProduct mode='add' isOpen={isOpen} onClose={onClose} />
                 <Button
                     isIconOnly
