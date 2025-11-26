@@ -123,7 +123,7 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
                             />
                         )}
 
-                        {storages.length > 0 && selected.color && (
+                        {storages.length > 0 && selected.brand && (
                             <ActiveTabs
                                 items={storages}
                                 selectedKey={selected.storage}

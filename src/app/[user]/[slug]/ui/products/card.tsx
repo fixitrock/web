@@ -2,9 +2,9 @@
 
 import { CanType } from '@/actions/auth'
 import { Input } from '@/app/(space)/ui'
-import { useDebounce, useDragScroll } from '@/hooks'
+import { useDebounce } from '@/hooks'
 import { useUserProducts } from '@/hooks/tanstack/query'
-import { formatDiscount, formatPrice, getProductImage } from '@/lib/utils'
+import {formatPrice, getProductImage } from '@/lib/utils'
 import { Product, Products } from '@/types/product'
 import { Image, Navbar, Button, Card, useDisclosure } from '@heroui/react'
 import { Plus } from 'lucide-react'
@@ -23,11 +23,14 @@ function ProductCard({ product }: { product: Product }) {
                 shadow='none'
                 onPress={onOpen}
             >
-                <div className='relative m-auto w-full shrink-0'>
+                <div className='relative m-auto w-full shrink-0 aspect-square'>
                     <Image
-                        removeWrapper
                         alt={product.name}
                         className='bg-default/10 aspect-square size-full object-cover select-none'
+                        classNames={{
+                            img: 'bg-default/10 aspect-square size-full object-cover select-none',
+                            wrapper: 'bg-default/10 aspect-square size-full object-cover select-none',               
+                        }}
                         src={getProductImage(product)}
                     />
                 </div>

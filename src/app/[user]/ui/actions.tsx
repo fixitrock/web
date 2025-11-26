@@ -19,7 +19,7 @@ interface ActionsProps {
 }
 
 export function Actions({ onFollow, onMessage, isFollowing, user, can }: ActionsProps) {
-    const { installPWA, isInstallable, isInstalled, isStandalone, isTooltipOpen, setTooltipOpen, initialize } = usePwaStore()
+    const { installPWA, isInstallable, isStandalone, isTooltipOpen, setTooltipOpen, initialize } = usePwaStore()
     const { icon } = useDevice()
 
     useEffect(() => {
@@ -27,7 +27,6 @@ export function Actions({ onFollow, onMessage, isFollowing, user, can }: Actions
     }, [initialize])
 
     const showInstall = isInstallable && (user.role === 2 || user.role === 3) && !isStandalone
-    const showOpenApp = isInstalled && !isStandalone && (user.role === 2 || user.role === 3)
 
     return (
         <div className='my-auto flex w-full flex-1 items-end justify-end gap-2'>
@@ -49,18 +48,6 @@ export function Actions({ onFollow, onMessage, isFollowing, user, can }: Actions
                         onPress={installPWA}
                     />
                 </Tooltip>
-            )}
-
-            {showOpenApp && (
-                <Button
-                    className='border'
-                    radius='full'
-                    size='sm'
-                    variant='flat'
-                    onPress={() => window.open(`/@${user.username}`, '_blank')}
-                >
-                    Open App
-                </Button>
             )}
 
             {can.view.profile && (

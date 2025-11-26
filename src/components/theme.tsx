@@ -2,24 +2,21 @@
 import { Tab, Tabs } from '@heroui/react'
 import { useTheme } from 'next-themes'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { useEffect, useState } from 'react'
 
 import { siteConfig } from '@/config/site'
+import { useMounted } from '@/hooks'
 
 function ThemeSwitcher() {
     const { theme, setTheme } = useTheme()
-    const [hasMounted, setHasMounted] = useState(false)
+    const { mounted } = useMounted()
 
     useHotkeys('d', () => setTheme('dark'), [setTheme])
     useHotkeys('l', () => setTheme('light'), [setTheme])
     useHotkeys('s', () => setTheme('system'), [setTheme])
 
-    useEffect(() => {
-        setHasMounted(true)
-    }, [])
-
     return (
         <Tabs
+        disableAnimation={!mounted}
             aria-label='Theme Switcher'
             classNames={{
                 base: 'rounded-full border',
@@ -30,7 +27,7 @@ function ThemeSwitcher() {
             }}
             defaultSelectedKey='light'
             radius='full'
-            selectedKey={hasMounted ? theme : undefined}
+            selectedKey={mounted ? theme : undefined}
             size='sm'
             variant='light'
             onSelectionChange={(key) => setTheme(String(key))}

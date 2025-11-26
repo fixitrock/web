@@ -9,6 +9,7 @@ import { Product } from '@/types/products'
 
 import { Quotes } from './quotes'
 import { ProductsTabs } from './products'
+import { useMounted } from '@/hooks'
 
 type TabsProps = {
     user: User
@@ -19,12 +20,15 @@ type TabsProps = {
 
 export default function Tabs({ user, tabs }: TabsProps) {
     const { selectedTab } = useTabs()
+    const { mounted } = useMounted()
+    
     const validTabKeys = tabs.map((t) => t.title.toLowerCase())
     if (!validTabKeys.includes(selectedTab)) {
         redirect(`/@${user.username}`)
     }
     return (
         <UiTabs
+           disableAnimation={!mounted}
             classNames={{
                 tabList: 'border-b-1.5 relative w-full rounded-none p-0',
                 cursor: 'w-full',

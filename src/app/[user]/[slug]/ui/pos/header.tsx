@@ -6,11 +6,14 @@ import { Button, Tab, Tabs, useDisclosure } from '@heroui/react'
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
 import { usePosTypeStore } from '@/zustand/store'
 import { AddProduct } from '../products/add'
+import { ExportStocks } from './export'
+import { useMounted } from '@/hooks'
 
 export function PosHeader() {
     const { type, setType } = usePosTypeStore()
     const [isFs, setIsFs] = useState(false)
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const { mounted } = useMounted()
 
     useEffect(() => {
         const onChange = () => setIsFs(Boolean(document.fullscreenElement))
@@ -36,6 +39,7 @@ export function PosHeader() {
             </div>
             <div className='flex items-center gap-2'>
                 <Tabs
+                disableAnimation={!mounted}
                     aria-label='Price Type'
                     classNames={{ cursor: 'bg-default/25 dark:bg-default/30 shadow-none' }}
                     radius='full'
@@ -80,6 +84,7 @@ export function PosHeader() {
                 >
                     Add Product
                 </Button>
+                <ExportStocks />
                 <AddProduct mode='add' isOpen={isOpen} onClose={onClose} />
                 <Button
                     isIconOnly
