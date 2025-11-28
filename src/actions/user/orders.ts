@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from "@/supabase/server"
-import { Order, ReturnData } from "@/types/orders"
+import { Order, RecentOrder, ReturnData, TopStats } from "@/types/orders"
 
 
 export async function sellerOrders(search: string) {
@@ -32,4 +32,31 @@ export async function processReturn(data: ReturnData) {
     }
 
     return { success: true }
+}
+
+
+export async function sellerRecentOrders(username: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.rpc('seller_recent_orders', {
+    p_username: username
+  });
+
+  return error ? [] : (data as RecentOrder[]);
+}
+
+export async function sellerTop(username: string): Promise<TopStats> {
+    const supabase = await createClient()
+    const { data, error } = await supabase.rpc('seller_top', { p_username: username })
+
+    if (error) {
+        console.error('Error fetching top stats:', error)
+        return {
+            top_brands: [],
+            top_categories: [],
+            top_products: []
+        }
+    }
+
+    return data as TopStats
 }

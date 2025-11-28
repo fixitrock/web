@@ -156,10 +156,10 @@ const Loading = () => {
             {meta.map((l) => (
                 <CommandItem key={l.id} value={l.title + Math.random()}>
                     {/* Icon/thumbnail placeholder */}
-                    <Skeleton className='h-8 w-8 flex-shrink-0 rounded-sm border' />
+                    <Skeleton className='h-8 w-8 shrink-0 rounded-sm border' />
 
                     {/* Text area placeholder */}
-                    <div className='flex flex-grow flex-col items-start gap-y-1 truncate'>
+                    <div className='flex grow flex-col items-start gap-y-1 truncate'>
                         {/* Title placeholder */}
                         <Skeleton className={`h-4 w-32 rounded ${l.title}`} />
 

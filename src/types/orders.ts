@@ -80,3 +80,26 @@ export interface ReturnData {
     }[]
     reason: string
 }
+
+
+export type RecentOrder = {
+    id: string
+    name: string
+    created_at: string
+    total_amount: number
+    status: string
+    item_count: number
+}
+
+export type TopItem = {
+    name: string
+    image: string | null
+    sales_count: number
+    total_amount: number
+}
+
+export type TopStats = {
+    top_brands: TopItem[]
+    top_categories: TopItem[]
+    top_products: TopItem[]
+}

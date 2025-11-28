@@ -9,6 +9,7 @@ import { Product } from '@/types/products'
 
 import { Quotes } from './quotes'
 import { ProductsTabs } from './products'
+import { ActivityTab } from './activity'
 import { useMounted } from '@/hooks'
 
 type TabsProps = {
@@ -18,7 +19,7 @@ type TabsProps = {
     canManage: boolean
 }
 
-export default function Tabs({ user, tabs }: TabsProps) {
+export default function Tabs({ user, tabs, canManage }: TabsProps) {
     const { selectedTab } = useTabs()
     const { mounted } = useMounted()
     
@@ -34,7 +35,7 @@ export default function Tabs({ user, tabs }: TabsProps) {
                 cursor: 'w-full',
                 tab: 'max-w-fit',
                 base: 'bg-background/90 sticky top-0 z-20 flex backdrop-blur',
-                panel: 'py-0 pb-3',
+                panel: 'py-0 pb-3 data-[focus-visible=true]:outline-none',
             }}
             items={tabs}
             selectedKey={selectedTab ?? undefined}
@@ -54,6 +55,8 @@ export default function Tabs({ user, tabs }: TabsProps) {
                             <ProductsTabs username={user.username} />
                         ) : tab.component === 'Quotes' ? (
                             <Quotes user={user} />
+                        ) : tab.component === 'Activity' ? (
+                            <ActivityTab user={user} canManage={canManage} />
                         ) : (
                             <div className='text-muted-foreground flex h-80 w-full flex-col items-center justify-center text-center select-none'>
                                 <span className='mb-2 animate-bounce text-6xl'>✨</span>

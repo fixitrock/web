@@ -8,13 +8,14 @@ import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useSellerOrders } from '@/hooks/tanstack/query'
 import { useOrderStore } from '@/zustand/store/orders'
-import { formatDateTime, formatPhone } from '@/lib/utils'
+import { formatPhone } from '@/lib/utils'
 import { bucketUrl } from '@/supabase/bucket'
 import { fallback } from '@/config/site'
 import { ReturnOrder } from './return'
 import { OrderDetailsDialog } from './order-details-dialog'
 import { Order } from '@/types/orders'
 import { useDebounce } from '@/hooks'
+import TimeAgo from 'react-timeago'
 
 export function OrdersPage({ can, username }: { can: CanType; username: string; }) {
     const [query, setQuery] = useState('')
@@ -107,7 +108,7 @@ function OrdersGrid({ orders }: { orders: Order[] }) {
                                         {order.userName} • {formatPhone(order.userPhone)}
                                     </p>
                                     <span className='text-muted-foreground text-[9px]'>
-                                        {formatDateTime(order.createdAt)}
+                                         <TimeAgo date={order.createdAt || ''} />
                                     </span>
                                 </div>
                                 {getPaymentStatusBadge(order.paid || 0, order.totalAmount)}
