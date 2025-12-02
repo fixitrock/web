@@ -6,20 +6,11 @@ import { createClient } from '@/supabase/server'
 import { User } from '@/app/login/types'
 
 export const getUser = cache(async (username: string): Promise<User | null> => {
-    try {
-        const supabase = await createClient()
+    const supabase = await createClient()
 
-        const { data, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('username', username)
-            .single()
+    const { data, error } = await supabase.rpc("user", {username})
 
-        if (error || !data) return null
+    if (error || !data) return null
 
-        return data as User
-    } catch {
-        // Optionally log error
-        return null
-    }
+    return data as User
 })

@@ -33,6 +33,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
         category: '',
         variants: [
             {
+                id: '',
                 brand: '',
                 storage: '',
                 purchase_price: 0,
@@ -70,6 +71,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
                     category: '',
                     variants: [
                         {
+                            id: '',
                             brand: '',
                             storage: '',
                             purchase_price: 0,
@@ -108,6 +110,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
                 category: '',
                 variants: [
                     {
+                        id: '',
                         brand: '',
                         storage: '',
                         purchase_price: 0,

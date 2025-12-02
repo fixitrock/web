@@ -34,6 +34,7 @@ export function Actions({ onFollow, onMessage, isFollowing, user, can }: Actions
                 <Tooltip
                     content='Tap to Install Our App'
                     showArrow
+                    placement='top-end'
                     color='primary'
                     isOpen={isTooltipOpen}
                     onOpenChange={setTooltipOpen}

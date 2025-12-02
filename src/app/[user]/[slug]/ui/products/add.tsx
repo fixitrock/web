@@ -240,6 +240,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                                         startContent={<Plus size={16} />}
                                         onPress={() =>
                                             addVariant({
+                                                id: '',
                                                 brand: '',
                                                 storage: '',
                                                 purchase_price: 0,
@@ -314,6 +315,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                                                     isIconOnly
                                                     onPress={() =>
                                                         addVariant({
+                                                            id: '',
                                                             brand: '',
                                                             storage: '',
                                                             purchase_price: 0,

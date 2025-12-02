@@ -5,16 +5,13 @@ import { getUser, userSession } from '@/actions/user'
 import { getSlug } from '@/actions/supabase/getSlug'
 
 import Products from './ui/products'
-import { Brands } from './ui/brands'
-import { Settings } from './ui/settings'
-import { Pos } from './ui/pos'
-import { Categories } from './ui/categories'
-import { Orders } from './ui/orders'
+import { Brands, Categories, Orders, Pos, Settings, Transactions } from './ui'
 
 const components: Record<string, React.ComponentType<{ params: { user: string } }>> = {
     Products: Products,
     Pos: Pos,
     Orders: Orders,
+    Transactions: Transactions,
     Brands: Brands,
     Categories: Categories,
     Settings: Settings,

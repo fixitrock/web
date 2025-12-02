@@ -13,7 +13,7 @@ export type Product = {
 }
 
 export type ProductVariant = {
-    id?: string
+    id: string
     product_id?: string
     brand: string
     image: (string | File)[]

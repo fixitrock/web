@@ -28,7 +28,7 @@ export function ActivityTab({ user, canManage }: ActivityTabProps) {
                     iconColor="text-blue-500"
                     top={data?.top_brands || []}
                     isLoading={isLoading}
-                    basis="sm:basis-1/2 md:basis-1/3 lg:basis-1/2"
+                    basis="sm:basis-1/2"
                 />
 
                 <TopCarousel
@@ -37,7 +37,7 @@ export function ActivityTab({ user, canManage }: ActivityTabProps) {
                     iconColor="text-purple-500"
                     top={data?.top_categories || []}
                     isLoading={isLoading}
-                    basis="sm:basis-1/2 md:basis-1/3 lg:basis-1/2"
+                    basis="sm:basis-1/2"
                 />
             </div>
             <TopCarousel

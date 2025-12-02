@@ -154,7 +154,7 @@ export const useCartStore = create<PosState>((set, get) => ({
 
             if (newItem.quantity <= newItem.variant.quantity) {
                 const cartItem: CartItem = {
-                    id: newItem.variant.id || '',
+                    id: newItem.variant.id,
                     product: {
                         id: newItem.product.id,
                         name: newItem.product.name,

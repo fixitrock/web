@@ -1,18 +1,16 @@
 'use server'
 
+import { cache } from 'react'
 import { createClient } from '@/supabase/server'
 
 export type PermissionAction = 'create' | 'update' | 'delete' | 'view'
 export type CanType = Record<string, Record<string, boolean>>
 
-export async function checkAuth(username: string) {
+export const checkAuth = cache(async (username: string) => {
     const supabase = await createClient()
     const { data, error } = await supabase.rpc('can', { p_username: username })
 
-    if (error) {
-        console.error('Permission check failed:', error)
-        throw new Error('Failed to check permissions')
-    }
+    if (error) throw new Error('Failed to check permissions')
 
     const can: CanType = {}
 
@@ -23,4 +21,4 @@ export async function checkAuth(username: string) {
     }
 
     return { can }
-}
+})

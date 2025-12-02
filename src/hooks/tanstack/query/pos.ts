@@ -42,3 +42,16 @@ export function useAddCustomer() {
         },
     })
 }
+
+
+// export function useSellerStocks(stock_filter: "out" | "low" | "both" = "both", category_filter: string | null = null) {
+//     const query = useQuery({
+//         queryKey: ['stocks'],
+//         queryFn: () => sellerStocks(stock_filter, category_filter),
+//         staleTime: 1000 * 60 * 5,
+//         retry: 1,
+//         refetchOnWindowFocus: false,
+//     })
+
+//     return { ...query }
+// }
