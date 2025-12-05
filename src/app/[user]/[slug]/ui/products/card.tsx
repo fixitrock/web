@@ -8,30 +8,33 @@ import {formatPrice, getProductImage } from '@/lib/utils'
 import { Product, Products } from '@/types/product'
 import { Image, Navbar, Button, Card, useDisclosure } from '@heroui/react'
 import { Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import { ProductGridSkeleton } from './skeleton'
 import { PosEmptyState } from '@/ui/empty'
 import { ProductModal } from '@/app/[user]/ui/tabs/products/modal'
 
-function ProductCard({ product }: { product: Product }) {
+const ProductCard = memo(({ product }: { product: Product }) => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const imageUrl = getProductImage(product)
+    
     return (
         <div className='relative'>
             <Card
                 isPressable
-                className='bg-background size-full gap-2 rounded-xl border p-1.5'
+                className='bg-background size-full gap-2 rounded-xl border p-1.5 will-change-transform'
                 shadow='none'
                 onPress={onOpen}
             >
-                <div className='relative m-auto w-full shrink-0 aspect-square'>
+                <div className='relative m-auto w-full shrink-0 aspect-square overflow-hidden'>
                     <Image
                         alt={product.name}
-                        className='bg-default/10 aspect-square size-full object-cover select-none'
+                        className='aspect-square size-full object-cover select-none'
                         classNames={{
-                            img: 'bg-default/10 aspect-square size-full object-cover select-none',
-                            wrapper: 'bg-default/10 aspect-square size-full object-cover select-none',               
+                            img: 'aspect-square size-full object-cover select-none',
+                            wrapper: 'bg-default/10 aspect-square size-full !max-w-full',               
                         }}
-                        src={getProductImage(product)}
+                        loading='lazy'
+                        src={imageUrl}
                     />
                 </div>
 
@@ -45,12 +48,14 @@ function ProductCard({ product }: { product: Product }) {
                     </div>
                 </div>
             </Card>
-            <ProductModal isOpen={isOpen} product={product} onOpenChange={onOpenChange} />
+            {isOpen && <ProductModal isOpen={isOpen} product={product} onOpenChange={onOpenChange} />}
         </div>
     )
-}
+})
 
-export function ProductGrid({ products }: { products: Products }) {
+ProductCard.displayName = 'ProductCard'
+
+const ProductGrid = memo(({ products }: { products: Products }) => {
     return (
         <div className='grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2.5 sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'>
             {products.map((p) => (
@@ -58,7 +63,11 @@ export function ProductGrid({ products }: { products: Products }) {
             ))}
         </div>
     )
-}
+})
+
+ProductGrid.displayName = 'ProductGrid'
+
+export { ProductGrid }
 
 export function ProductsPage({ can, username }: { can: CanType; username: string }) {
     const [query, setQuery] = useState('')
@@ -75,7 +84,6 @@ export function ProductsPage({ can, username }: { can: CanType; username: string
     return (
         <div className='flex flex-col gap-2'>
             <Navbar
-                shouldHideOnScroll
                 classNames={{
                     wrapper: 'h-auto w-full p-0 py-2',
                 }}
