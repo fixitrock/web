@@ -7,4 +7,3 @@ export type Transaction = {
 }
 
 export type Transactions = Transaction[]
-

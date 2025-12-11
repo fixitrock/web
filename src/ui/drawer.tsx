@@ -58,7 +58,7 @@ function DrawerContent({
                     // Top Drawer
                     'data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-lg data-[vaul-drawer-direction=top]:border-b',
                     // Bottom Drawer
-                    'data-[vaul-drawer-direction=bottom]:min-h-fit data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:rounded-t-3xl data-[vaul-drawer-direction=bottom]:border-t data-[vaul-drawer-direction=bottom]:border-x md:min-h-auto',
+                    'data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:min-h-fit data-[vaul-drawer-direction=bottom]:rounded-t-3xl data-[vaul-drawer-direction=bottom]:border-x data-[vaul-drawer-direction=bottom]:border-t md:min-h-auto',
                     // Right Drawer
                     'data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:rounded-l-3xl data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-xs',
                     // Left Drawer
@@ -68,7 +68,7 @@ function DrawerContent({
                 data-slot='drawer-content'
                 {...props}
             >
-                {showbar && <div className='bg-default mx-auto my-2 h-1 w-20 rounded-full ' />}
+                {showbar && <div className='bg-default mx-auto my-2 h-1 w-20 rounded-full' />}
                 {hideCloseButton && (
                     <DrawerPrimitive.Close
                         asChild

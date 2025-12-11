@@ -24,13 +24,15 @@ export type Order = {
     createdAt?: string
     updatedAt?: string
     products: OrderProduct[]
+    isFullyReturned?: boolean
+    orderReturnType?: 'none' | 'partial' | 'full'
 }
 
 export type OrderProduct = {
     id?: string
     orderID?: string
     productID: string
-    image?: string
+    image: string | null
     name: string
     category?: string
     brand?: string
@@ -45,6 +47,8 @@ export type OrderProduct = {
     createdAt?: string
     updatedAt?: string
     returnedAt?: string
+    isFullyReturned: boolean
+    returnType: 'none' | 'partial' | 'full'
 }
 
 export type Transaction = {
@@ -80,7 +84,6 @@ export interface ReturnData {
     }[]
     reason: string
 }
-
 
 export type RecentOrder = {
     id: string

@@ -43,7 +43,6 @@ export function useAddCustomer() {
     })
 }
 
-
 // export function useSellerStocks(stock_filter: "out" | "low" | "both" = "both", category_filter: string | null = null) {
 //     const query = useQuery({
 //         queryKey: ['stocks'],

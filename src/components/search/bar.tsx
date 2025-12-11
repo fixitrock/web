@@ -14,7 +14,7 @@ import { QuickAction } from './quick'
 import { Space } from './space'
 import { Navigations } from './type'
 import { Downloads, Download } from './download'
-
+import { Orders } from './orders'
 export function SearchBar({
     user,
     children,
@@ -59,6 +59,7 @@ export function SearchBar({
                         <CommandList>
                             {tab === 'actions' && <QuickAction command={command} />}
                             {tab === 'space' && <Space />}
+                            {tab === 'orders' && user && <Orders />}
                             {tab === 'downloads' && <Downloads />}
                         </CommandList>
 
@@ -72,14 +73,14 @@ export function SearchBar({
                             size='sm'
                             variant='underlined'
                             onSelectionChange={(key) => {
-                                const selectedTab = tabs.find((t) => t.key === key)
+                                const selectedTab = tabs(user).find((t) => t.key === key)
 
                                 if (!selectedTab) return
                                 setTab(key as string)
                                 setShouldFilter(selectedTab.shouldFilter)
                             }}
                         >
-                            {tabs.map((tab) => (
+                            {tabs(user).map((tab) => (
                                 <Tab
                                     key={tab.key}
                                     title={

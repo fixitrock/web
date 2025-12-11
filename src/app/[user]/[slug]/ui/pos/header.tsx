@@ -39,7 +39,7 @@ export function PosHeader() {
             </div>
             <div className='flex items-center gap-2'>
                 <Tabs
-                disableAnimation={!mounted}
+                    disableAnimation={!mounted}
                     aria-label='Price Type'
                     classNames={{ cursor: 'bg-default/25 dark:bg-default/30 shadow-none' }}
                     radius='full'

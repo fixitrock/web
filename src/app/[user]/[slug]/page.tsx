@@ -1,71 +1,79 @@
 import { redirect } from 'next/navigation'
 import { Metadata } from 'next'
 
-import { getUser, userSession } from '@/actions/user'
+import { userProfile, userSession } from '@/actions/user'
 import { getSlug } from '@/actions/supabase/getSlug'
 
 import Products from './ui/products'
-import { Brands, Categories, Orders, Pos, Settings, Transactions } from './ui'
+import { Brands, Categories, Orders, Pos, Settings, Stocks, Transactions } from './ui'
+import { userAvatar } from '@/lib/utils'
 
-const components: Record<string, React.ComponentType<{ params: { user: string } }>> = {
-    Products: Products,
-    Pos: Pos,
-    Orders: Orders,
-    Transactions: Transactions,
-    Brands: Brands,
-    Categories: Categories,
-    Settings: Settings,
+const components: Record<
+    string,
+    React.ComponentType<{
+        params: { user: string }
+        searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+    }>
+> = {
+    Products,
+    Pos,
+    Orders,
+    Stocks,
+    Transactions,
+    Brands,
+    Categories,
+    Settings,
 }
 
 type Props = {
     params: Promise<{ user: string; slug: string }>
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export default async function SlugPage({ params }: Props) {
+export default async function SlugPage({ params, searchParams }: Props) {
     const { user, slug } = await params
     const cleanUsername = decodeURIComponent(user).replace(/^@/, '')
-    const userObj = await getUser(cleanUsername)
+    const data = await userProfile(cleanUsername)
+    if (!data || !data.user) return redirect('/login')
 
-    if (!userObj) return redirect('/login')
+    const profile = data.user
+    const session = await userSession()
 
-    const currentUser = await userSession()
-
-    const allowedSlugs = await getSlug(userObj.role || 0)
+    const allowedSlugs = await getSlug(profile.role || 0)
     const slugConfig = allowedSlugs.find((s) => s && s.slug === slug)
 
     if (!slugConfig) return redirect(`/@${cleanUsername}`)
 
     if (
         slugConfig.private &&
-        (!currentUser?.user ||
-            currentUser.user.username !== cleanUsername ||
-            currentUser.user.role !== userObj.role)
+        (!session?.user ||
+            session.user.username !== cleanUsername ||
+            session.user.role !== profile.role)
     ) {
         return redirect(`/@${cleanUsername}`)
     }
 
-    const SectionComponent = components[slugConfig.component] || (() => <div>Page not found</div>)
+    const Section = components[slugConfig.component] || (() => <div>Page not found</div>)
 
-    return (
-        <>
-            <SectionComponent params={{ user: cleanUsername }} />
-        </>
-    )
+    return <Section params={{ user: cleanUsername }} searchParams={searchParams} />
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { user, slug } = await params
-    const cleanUsername = decodeURIComponent(user).replace(/^@/, '')
-    const userObj = await getUser(cleanUsername)
 
-    if (!userObj) {
+    const cleanUsername = decodeURIComponent(user).replace(/^@/, '')
+
+    const data = await userProfile(cleanUsername)
+    if (!data || !data.user) {
         return {
             title: 'User Not Found',
             description: 'The requested user profile could not be found.',
         }
     }
 
-    const allowedSlugs = await getSlug(userObj.role || 0)
+    const profile = data.user
+
+    const allowedSlugs = await getSlug(profile.role || 0)
     const slugConfig = allowedSlugs.find((s) => s && s.slug === slug)
 
     if (!slugConfig) {
@@ -75,38 +83,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         }
     }
 
-    const title = `${slugConfig.title || slug} - ${userObj.name}`
-
-    const description = slugConfig.description
-        ? slugConfig.description
-              .replace('the user', userObj.name)
-              .replace('this user', userObj.name)
-        : `View ${slugConfig.title || slug} from ${userObj.name}`
+    const title = `${slugConfig.title || slug} - ${profile.name}`
+    const description =
+        slugConfig.description
+            ?.replace('the user', profile.name)
+            ?.replace('this user', profile.name) ??
+        `View ${slugConfig.title || slug} from ${profile.name}`
 
     const metadata: Metadata = {
         title: { absolute: title },
-        description: description,
+        description,
         openGraph: {
-            title: title,
-            description: description,
-            images: userObj.avatar ? [userObj.avatar as string] : undefined,
+            title,
+            description,
+            images: [userAvatar(profile)],
         },
         twitter: {
             card: 'summary_large_image',
-            title: title,
-            description: description,
-            images: userObj.avatar ? [userObj.avatar as string] : undefined,
+            title,
+            description,
+            images: [userAvatar(profile)],
         },
-        creator: `@${userObj.username}`,
+        creator: `@${profile.username}`,
     }
 
-    if (userObj.role === 2 || userObj.role === 3) {
-        metadata.manifest = `/manifest/${userObj.username}`
+    if (profile.role === 2 || profile.role === 3) {
+        metadata.manifest = `/manifest/${profile.username}`
         metadata.appleWebApp = {
             capable: true,
             statusBarStyle: 'black-translucent',
-            title: userObj.name,
-            startupImage: userObj.avatar || '/fallback/boy.png',
+            title: profile.name,
+            startupImage: userAvatar(profile),
         }
     }
 

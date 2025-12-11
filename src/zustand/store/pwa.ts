@@ -49,7 +49,7 @@ export const usePwaStore = create<PwaState>((set, get) => ({
         }
     },
     initialize: () => {
-        if (typeof window === 'undefined') return () => { }
+        if (typeof window === 'undefined') return () => {}
 
         const checkIfInstalled = () => {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches
@@ -64,7 +64,7 @@ export const usePwaStore = create<PwaState>((set, get) => ({
             set({
                 deferredPrompt: e as BeforeInstallPromptEvent,
                 isInstallable: true,
-                isTooltipOpen: true
+                isTooltipOpen: true,
             })
 
             // Auto close tooltip after 5 seconds
@@ -85,5 +85,5 @@ export const usePwaStore = create<PwaState>((set, get) => ({
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
             window.removeEventListener('appinstalled', handleAppInstalled)
         }
-    }
+    },
 }))

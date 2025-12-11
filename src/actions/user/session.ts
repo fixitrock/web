@@ -1,75 +1,42 @@
 'use server'
 
-import { cache } from 'react'
-
-
-import { Navigation, User } from '@/app/login/types'
 import { createClient } from '@/supabase/server'
+import { Navigation, User } from '@/app/login/types'
 import { Navigations } from '@/components/search/type'
 
-export const userSession = cache(async function userSession(): Promise<{
+export async function userSession(): Promise<{
     user: User | null
     navigation: Navigation[]
     command: Record<string, Navigations> | null
 }> {
     const supabase = await createClient()
-    const { data, error: claimsError } = await supabase.auth.getClaims()
-    const claims = data?.claims
 
-    if (claimsError || !claims?.sub) return { user: null, navigation: [], command: null }
+    const { data, error } = await supabase.rpc('session')
 
-    const id = claims.sub
+    if (error || !data) return { user: null, navigation: [], command: null }
 
-    const { data: user, error } = await supabase.from('users').select('*').eq('id', id).single()
+    const user = data.user as User
+    let navigation = data.navigation as Navigation[]
+    let command = data.command as Record<string, Navigations> | null
 
-    if (error || !user) {
-        return { user: null, navigation: [], command: null }
-    }
+    navigation = navigation.map((item) => ({
+        ...item,
+        href: `/@${user.username}/${item.href?.replace(/^\/+/, '') ?? ''}`,
+    }))
 
-    let navFromDb: Navigation[] = []
-    let commandFromDb: Record<string, Navigations> | null = null
-
-    if (user.role) {
-        const { data: roleData } = await supabase
-            .from('roles')
-            .select('navigation, command')
-            .eq('id', user.role)
-            .single()
-
-        if (roleData) {
-            navFromDb = (roleData.navigation as Navigation[]) || []
-            commandFromDb = (roleData.command as Record<string, Navigations>) || null
-        }
-    }
-
-    const navigation: Navigation[] = [
-        {
-            href: `/@${user.username}`,
-            icon: 'Activity',
-            title: 'Activity',
-            description: 'Go to your profile',
-        },
-        ...navFromDb.map((item) => ({
-            ...item,
-            href: `/@${user.username}/${item.href.replace(/^\/+/, '')}`,
-        })),
-    ]
-
-    const processedCommand = commandFromDb
-        ? Object.fromEntries(
-            Object.entries(commandFromDb).map(([groupName, items]) => [
+    if (command) {
+        command = Object.fromEntries(
+            Object.entries(command).map(([groupName, items]) => [
                 groupName,
-                Array.isArray(items)
-                    ? items.map((item) => ({
-                        ...item,
-                        href: item.href
-                            ? `/@${user.username}/${item.href.replace(/^\/+/, '')}`
-                            : `/@${user.username}/`,
-                    }))
-                    : [],
+                items.map((item) => ({
+                    ...item,
+                    href: item.href
+                        ? `/@${user.username}/${item.href.replace(/^\/+/, '')}`
+                        : `/@${user.username}/`,
+                })),
             ])
         )
-        : null
+    }
 
-    return { user: user as User, navigation, command: processedCommand }
-})
+    return { user, navigation, command }
+}

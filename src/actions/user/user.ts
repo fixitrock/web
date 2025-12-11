@@ -1,16 +1,27 @@
 'use server'
 
-import { cache } from 'react'
+import { unstable_cache } from 'next/cache'
+import { createStaticClient } from '@/supabase/server'
 
-import { createClient } from '@/supabase/server'
-import { User } from '@/app/login/types'
+export async function userProfile(username: string) {
+    return unstable_cache(
+        async () => {
+            const supabase = await createStaticClient()
+            const { data, error } = await supabase.rpc('user_profile', { username })
 
-export const getUser = cache(async (username: string): Promise<User | null> => {
-    const supabase = await createClient()
+            if (error || !data || !data.user) return null
 
-    const { data, error } = await supabase.rpc("user", {username})
-
-    if (error || !data) return null
-
-    return data as User
-})
+            return {
+                user: data.user,
+                navigation: data.navigation || [],
+                command: data.command || null,
+                tabs: data.tabs || [],
+            }
+        },
+        [`user:${username}`],
+        {
+            tags: [`user:${username}`],
+            revalidate: false,
+        }
+    )()
+}

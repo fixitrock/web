@@ -19,7 +19,8 @@ interface ActionsProps {
 }
 
 export function Actions({ onFollow, onMessage, isFollowing, user, can }: ActionsProps) {
-    const { installPWA, isInstallable, isStandalone, isTooltipOpen, setTooltipOpen, initialize } = usePwaStore()
+    const { installPWA, isInstallable, isStandalone, isTooltipOpen, setTooltipOpen, initialize } =
+        usePwaStore()
     const { icon } = useDevice()
 
     useEffect(() => {

@@ -3,7 +3,17 @@
 import { useState } from 'react'
 import { CanType } from '@/actions/auth'
 import { Input } from '@/app/(space)/ui'
-import { Button, Card, CardBody, CardFooter, CardHeader, cn, Navbar, Skeleton, Image } from '@heroui/react'
+import {
+    Button,
+    Card,
+    CardBody,
+    CardFooter,
+    CardHeader,
+    cn,
+    Navbar,
+    Skeleton,
+    Image,
+} from '@heroui/react'
 import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useSellerOrders } from '@/hooks/tanstack/query'
@@ -17,7 +27,7 @@ import { Order } from '@/types/orders'
 import { useDebounce } from '@/hooks'
 import TimeAgo from 'react-timeago'
 
-export function OrdersPage({ can, username }: { can: CanType; username: string; }) {
+export function OrdersPage({ can, username }: { can: CanType; username: string }) {
     const [query, setQuery] = useState('')
     const debouncedQuery = useDebounce(query)
     const { data, isLoading } = useSellerOrders(debouncedQuery)
@@ -59,41 +69,39 @@ export function OrdersPage({ can, username }: { can: CanType; username: string; 
             <OrdersGrid orders={data?.orders || []} />
             {isLoading && <OrdersSkeleton />}
         </>
-
     )
 }
-
 
 function OrdersGrid({ orders }: { orders: Order[] }) {
     const { openDetails, openReturn } = useOrderStore()
 
     const getPaymentStatusBadge = (paid: number, total: number) => {
-        const isPaid = paid >= total;
-        const isPartial = paid > 0 && paid < total;
+        const isPaid = paid >= total
+        const isPartial = paid > 0 && paid < total
 
         const badgeConfig = isPaid
-            ? { label: "Paid", color: "green" }
+            ? { label: 'Paid', color: 'green' }
             : isPartial
-                ? { label: "Partial", color: "yellow" }
-                : { label: "Unpaid", color: "red" };
+              ? { label: 'Partial', color: 'yellow' }
+              : { label: 'Unpaid', color: 'red' }
 
         const colorClasses: Record<string, string> = {
-            green: "bg-green-500/10 text-green-500 border-green-500/10",
-            yellow: "bg-yellow-500/10 text-yellow-500 border-yellow-500/10",
-            red: "bg-red-500/10 text-red-500 border-red-500/10",
-        };
+            green: 'bg-green-500/10 text-green-500 border-green-500/10',
+            yellow: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/10',
+            red: 'bg-red-500/10 text-red-500 border-red-500/10',
+        }
 
         return (
             <div
                 className={cn(
-                    "px-2 py-0.5 rounded-lg border font-medium",
+                    'rounded-lg border px-2 py-0.5 font-medium',
                     colorClasses[badgeConfig.color]
                 )}
             >
                 {badgeConfig.label}
             </div>
-        );
-    };
+        )
+    }
 
     return (
         <>
@@ -103,12 +111,14 @@ function OrdersGrid({ orders }: { orders: Order[] }) {
                         <CardHeader className='items-start justify-between'>
                             <div className='flex w-full items-center justify-between'>
                                 <div className='flex flex-col'>
-                                    <p className='font-bold font-mono tracking-tight select-all'>#{order.id}</p>
-                                    <p className='text-[10px] text-muted-foreground'>
+                                    <p className='font-mono font-bold tracking-tight select-all'>
+                                        #{order.id}
+                                    </p>
+                                    <p className='text-muted-foreground text-[10px]'>
                                         {order.userName} • {formatPhone(order.userPhone)}
                                     </p>
                                     <span className='text-muted-foreground text-[9px]'>
-                                         <TimeAgo date={order.createdAt || ''} />
+                                        <TimeAgo date={order.createdAt || ''} />
                                     </span>
                                 </div>
                                 {getPaymentStatusBadge(order.paid || 0, order.totalAmount)}
@@ -116,28 +126,35 @@ function OrdersGrid({ orders }: { orders: Order[] }) {
                         </CardHeader>
                         <CardBody className='py-0'>
                             <div className='bg-default/20 flex items-center gap-4 rounded-xl border p-1'>
-                                <div className='size-24 shrink-0 border rounded-lg bg-background'>
+                                <div className='bg-background size-24 shrink-0 rounded-lg border'>
                                     <Image
                                         src={
-                                            `${bucketUrl(order.products?.[0]?.image || '')}` || `${fallback.order}`
+                                            `${bucketUrl(order.products?.[0]?.image || '')}` ||
+                                            `${fallback.order}`
                                         }
                                         alt={order.products?.[0]?.name || 'Product'}
-                                        className='size-full aspect-square rounded-lg object-cover'
+                                        className='aspect-square size-full rounded-lg object-cover'
                                         removeWrapper
                                     />
                                 </div>
                                 <div className='flex min-w-0 flex-1 flex-col gap-0.5'>
-                                    <p className='line-clamp-2 font-bold leading-tight'>
+                                    <p className='line-clamp-2 leading-tight font-bold'>
                                         {order.products?.[0]?.name || 'Unknown Product'}
                                     </p>
-                                    <div className='flex items-center gap-1.5 text-xs text-muted-foreground'>
+                                    <div className='text-muted-foreground flex items-center gap-1.5 text-xs'>
                                         <span className='font-semibold'>
-                                            Qty: {order.products?.reduce((acc, p) => acc + (p.quantity || 0), 0) || 0}
+                                            Qty:{' '}
+                                            {order.products?.reduce(
+                                                (acc, p) => acc + (p.quantity || 0),
+                                                0
+                                            ) || 0}
                                         </span>
                                         {order.products?.[0]?.category && (
                                             <>
                                                 <span>•</span>
-                                                <span className='truncate'>{order.products?.[0]?.category}</span>
+                                                <span className='truncate'>
+                                                    {order.products?.[0]?.category}
+                                                </span>
                                             </>
                                         )}
                                         {order.products?.[0]?.storage && (
@@ -160,7 +177,12 @@ function OrdersGrid({ orders }: { orders: Order[] }) {
                             >
                                 Return
                             </Button>
-                            <Button fullWidth color='primary' size='sm' onPress={() => openDetails(order)}>
+                            <Button
+                                fullWidth
+                                color='primary'
+                                size='sm'
+                                onPress={() => openDetails(order)}
+                            >
                                 Details
                             </Button>
                         </CardFooter>
@@ -177,13 +199,8 @@ export function OrdersSkeleton({ count = 12 }: { count?: number }) {
     return (
         <div className='grid gap-3 p-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
             {Array.from({ length: count }).map((_, i) => (
-                <Card
-                    key={i}
-                    className={cn(
-                        'border bg-transparent shadow-none'
-                    )}
-                >
-                    <CardHeader className='flex-row justify-between items-center'>
+                <Card key={i} className={cn('border bg-transparent shadow-none')}>
+                    <CardHeader className='flex-row items-center justify-between'>
                         <div className='flex flex-col items-center gap-1'>
                             <Skeleton className='h-4 w-32 rounded-xl' />
                             <Skeleton className='h-2 w-20 rounded-xl' />
@@ -196,7 +213,7 @@ export function OrdersSkeleton({ count = 12 }: { count?: number }) {
                             <Skeleton className='size-24 shrink-0 rounded-xl' />
                             <div className='flex min-w-0 flex-1 flex-col gap-2'>
                                 <Skeleton className='h-4 w-full rounded-xl' />
-                                <div className='flex items-center gap-1.5 text-xs text-muted-foreground'>
+                                <div className='text-muted-foreground flex items-center gap-1.5 text-xs'>
                                     <Skeleton className='h-4 w-1/2 rounded-xl' />
                                     <Skeleton className='h-4 w-1/2 rounded-xl' />
                                 </div>
@@ -205,8 +222,7 @@ export function OrdersSkeleton({ count = 12 }: { count?: number }) {
                     </CardBody>
                     <CardFooter className='gap-2'>
                         <Skeleton className='h-6 w-full rounded-md' />
-                        <Skeleton className='h-6 rounded-md w-full' />
-
+                        <Skeleton className='h-6 w-full rounded-md' />
                     </CardFooter>
                 </Card>
             ))}

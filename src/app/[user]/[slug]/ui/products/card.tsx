@@ -4,7 +4,7 @@ import { CanType } from '@/actions/auth'
 import { Input } from '@/app/(space)/ui'
 import { useDebounce } from '@/hooks'
 import { useUserProducts } from '@/hooks/tanstack/query'
-import {formatPrice, getProductImage } from '@/lib/utils'
+import { formatPrice, getProductImage } from '@/lib/utils'
 import { Product, Products } from '@/types/product'
 import { Image, Navbar, Button, Card, useDisclosure } from '@heroui/react'
 import { Plus } from 'lucide-react'
@@ -16,7 +16,7 @@ import { ProductModal } from '@/app/[user]/ui/tabs/products/modal'
 const ProductCard = memo(({ product }: { product: Product }) => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const imageUrl = getProductImage(product)
-    
+
     return (
         <div className='relative'>
             <Card
@@ -25,13 +25,13 @@ const ProductCard = memo(({ product }: { product: Product }) => {
                 shadow='none'
                 onPress={onOpen}
             >
-                <div className='relative m-auto w-full shrink-0 aspect-square overflow-hidden'>
+                <div className='relative m-auto aspect-square w-full shrink-0 overflow-hidden'>
                     <Image
                         alt={product.name}
                         className='aspect-square size-full object-cover select-none'
                         classNames={{
                             img: 'aspect-square size-full object-cover select-none',
-                            wrapper: 'bg-default/10 aspect-square size-full !max-w-full',               
+                            wrapper: 'bg-default/10 aspect-square size-full !max-w-full',
                         }}
                         loading='lazy'
                         src={imageUrl}
@@ -48,7 +48,9 @@ const ProductCard = memo(({ product }: { product: Product }) => {
                     </div>
                 </div>
             </Card>
-            {isOpen && <ProductModal isOpen={isOpen} product={product} onOpenChange={onOpenChange} />}
+            {isOpen && (
+                <ProductModal isOpen={isOpen} product={product} onOpenChange={onOpenChange} />
+            )}
         </div>
     )
 })

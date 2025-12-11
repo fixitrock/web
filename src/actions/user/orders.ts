@@ -1,8 +1,8 @@
 'use server'
 
-import { createClient } from "@/supabase/server"
-import { Order, RecentOrder, ReturnData, TopStats } from "@/types/orders"
-
+import { createClient, createStaticClient } from '@/supabase/server'
+import { Order, RecentOrder, ReturnData, TopStats } from '@/types/orders'
+import { cacheLife, cacheTag } from 'next/cache'
 
 export async function sellerOrders(search: string) {
     const supabase = await createClient()
@@ -23,7 +23,7 @@ export async function processReturn(data: ReturnData) {
     const { error } = await supabase.rpc('process_return', {
         p_order_id: data.orderId,
         p_items: data.items,
-        p_reason: data.reason
+        p_reason: data.reason,
     })
 
     if (error) {
@@ -34,27 +34,40 @@ export async function processReturn(data: ReturnData) {
     return { success: true }
 }
 
+export async function sellerRecentOrders(username: string): Promise<RecentOrder[]> {
+    'use cache'
+    cacheTag(`recent:@${username}`)
+    cacheLife('hours')
 
-export async function sellerRecentOrders(username: string) {
-  const supabase = await createClient();
+    const supabase = await createStaticClient()
 
-  const { data, error } = await supabase.rpc('seller_recent_orders', {
-    p_username: username
-  });
+    const { data, error } = await supabase.rpc('seller_recent_orders', {
+        p_username: username,
+    })
 
-  return error ? [] : (data as RecentOrder[]);
+    if (error) {
+        console.error('[sellerRecentOrders] error:', error)
+        return []
+    }
+
+    return data as RecentOrder[]
 }
 
-export async function sellerTop(username: string): Promise<TopStats> {
-    const supabase = await createClient()
+export async function sellerTop(username: string) {
+    'use cache'
+    cacheTag(`top:@${username}`)
+    cacheLife('hours')
+
+    const supabase = await createStaticClient()
+
     const { data, error } = await supabase.rpc('seller_top', { p_username: username })
 
     if (error) {
-        console.error('Error fetching top stats:', error)
+        console.error(error)
         return {
             top_brands: [],
             top_categories: [],
-            top_products: []
+            top_products: [],
         }
     }
 

@@ -44,10 +44,10 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
                     <Image
                         isBlurred
                         alt={product.name}
-                        className='rounded-md object-contain'
+                        className={`rounded-md object-contain ${isDesktop ? 'aspect-square' : 'aspect-video'}`}
                         classNames={{
                             img: `rounded-2xl ${isDesktop ? 'aspect-square' : 'aspect-video'}`,
-                            wrapper: 'mx-auto overflow-hidden rounded-2xl',
+                            wrapper: `mx-auto overflow-hidden rounded-2xl ${isDesktop ? 'aspect-square' : 'aspect-video'}`,
                         }}
                         src={getProductImage(product)}
                     />
@@ -135,7 +135,7 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
                     </div>
                 </DrawerBody>
                 <DrawerFooter>
-                    <Button radius='full' className={`${stockStatus?.color}`}>
+                    <Button radius='full' className={`${stockStatus?.color} text-white`}>
                         {stockStatus?.text}
                     </Button>
                 </DrawerFooter>

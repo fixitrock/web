@@ -16,14 +16,14 @@ function ThemeSwitcher() {
 
     return (
         <Tabs
-        disableAnimation={!mounted}
+            disableAnimation={!mounted}
             aria-label='Theme Switcher'
             classNames={{
                 base: 'rounded-full border',
                 tabContent: 'group-data-[selected=true]:text-none text-black dark:text-white',
                 tabList: 'bg-background gap-1',
                 tab: 'px-2',
-                cursor: 'border-[0.5px] shadow-none dark:bg-default/20',
+                cursor: 'dark:bg-default/20 border-[0.5px] shadow-none',
             }}
             radius='full'
             selectedKey={theme ?? undefined}

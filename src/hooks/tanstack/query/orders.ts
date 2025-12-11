@@ -9,7 +9,6 @@ export function useSellerOrders(search: string) {
         staleTime: 1000 * 60 * 5,
         retry: 1,
         refetchOnWindowFocus: false,
-
     })
 
     return { ...query }
@@ -22,7 +21,6 @@ export function useRecentOrders(username: string) {
         staleTime: 1000 * 60 * 5,
         retry: 1,
         refetchOnWindowFocus: false,
-
     })
 
     return { ...query }
@@ -35,9 +33,7 @@ export function useTop(username: string) {
         staleTime: 1000 * 60 * 5,
         retry: 1,
         refetchOnWindowFocus: false,
-
     })
 
     return { ...query }
 }
-

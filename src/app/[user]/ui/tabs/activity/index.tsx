@@ -1,55 +1,64 @@
-'use client'
-
 import { User } from '@/app/login/types'
-import { RecentOrders } from './recent'
-import { useTop } from '@/hooks/tanstack/query'
-import { TopCarousel } from './top'
-
-import { Tag, Layers, Package } from 'lucide-react'
+import { RecentOrders, RecentOrderSkeleton } from './recent'
+import { Suspense } from 'react'
+import { CanType } from '@/actions/auth'
+import { LucideIcon, Store } from 'lucide-react'
+import { sellerRecentOrders, sellerTop } from '@/actions/user'
+import { TopSection, TopSectionSkeleton } from './top'
 
 interface ActivityTabProps {
     user: User
-    canManage: boolean
+    can: CanType
 }
 
-export function ActivityTab({ user, canManage }: ActivityTabProps) {
-    const { data, isLoading } = useTop(user.username)
+export function ActivityTab({ user }: ActivityTabProps) {
     const show = [2, 3].includes(user.role as number)
 
     return (
-        <div className="py-3 space-y-4">
-            {show  && (<>
-                <RecentOrders username={user.username} />
-   
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <TopCarousel
-                    title="Brands"
-                    icon={Tag}
-                    iconColor="text-blue-500"
-                    top={data?.top_brands || []}
-                    isLoading={isLoading}
-                    basis="sm:basis-1/2"
-                />
+        <div className='space-y-4 py-3'>
+            {show && (
+                <>
+                    <TopTitle title='Recent Orders' icon={Store} iconColor='text-amber-400'>
+                        <Suspense fallback={<RecentOrderSkeleton />}>
+                            <Recent username={user.username} />
+                        </Suspense>
+                    </TopTitle>
+                    <Suspense fallback={<TopSectionSkeleton />}>
+                        <Top username={user.username} />
+                    </Suspense>
+                </>
+            )}
+        </div>
+    )
+}
 
-                <TopCarousel
-                    title="Categories"
-                    icon={Layers}
-                    iconColor="text-purple-500"
-                    top={data?.top_categories || []}
-                    isLoading={isLoading}
-                    basis="sm:basis-1/2"
-                />
+async function Recent({ username }: { username: string }) {
+    const recent = await sellerRecentOrders(username)
+    return <RecentOrders recent={recent} />
+}
+
+async function Top({ username }: { username: string }) {
+    const top = await sellerTop(username)
+    return <TopSection top={top} />
+}
+
+interface TopProps {
+    title: string
+    icon: LucideIcon
+    iconColor: string
+    children?: React.ReactNode
+}
+
+function TopTitle({ title, icon: Icon, iconColor, children }: TopProps) {
+    return (
+        <div className='w-full space-y-2'>
+            <div className='flex items-center justify-between px-1'>
+                <div className='flex items-center gap-2'>
+                    <Icon className={`size-5 ${iconColor}`} />
+                    <h3 className='text-lg font-semibold tracking-tight'>{title}</h3>
+                </div>
             </div>
-            <TopCarousel
-                title="Products"
-                icon={Package}
-                iconColor="text-green-500"
-                top={data?.top_products || []}
-                isLoading={isLoading}
-                basis="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
-            />
-            </>
-         )}
+            {children}
         </div>
     )
 }
