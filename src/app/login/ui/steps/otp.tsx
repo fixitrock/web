@@ -8,6 +8,8 @@ import { useEffect } from 'react'
 import { LoginStep } from '@/app/login/types'
 import { DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from '@/ui/drawer'
 import { verifyOtp } from '@/actions/user'
+import { verifyFirebaseLogin } from '@/actions/user/firebase'
+import { authConfig } from '@/config/auth'
 
 interface StepOtpProps {
     otp: string
@@ -61,14 +63,42 @@ export function StepOtp({
     const handleVerifyOtp = async () => {
         setError('')
         setLoading(true)
-        const res = await verifyOtp('+91' + phone, otp)
+        
+        try {
+            if (authConfig.provider === 'firebase') {
+                if (!window.confirmationResult) {
+                    throw new Error('Please request OTP first.')
+                }
 
-        setLoading(false)
-        if (res.error) setError(res.error)
-        else if (res.user) {
-            window.location.href = `/@${res.user.username}`
-        } else {
-            setStep('details')
+                const result = await window.confirmationResult.confirm(otp)
+                const idToken = await result.user.getIdToken()
+
+                const res = await verifyFirebaseLogin(idToken)
+                
+                setLoading(false)
+                
+                if (res.user) {
+                    window.location.href = `/@${res.user.username}`
+                } else if (res.error) {
+                    setError(res.error)
+                } else {
+                    // Success but no profile -> New User
+                    setStep('details')
+                }
+            } else {
+                const res = await verifyOtp('+91' + phone, otp)
+        
+                setLoading(false)
+                if (res.error) setError(res.error)
+                else if (res.user) {
+                    window.location.href = `/@${res.user.username}`
+                } else {
+                    setStep('details')
+                }
+            }
+        } catch (err: any) {
+            setLoading(false)
+            setError(err.message || 'Invalid OTP')
         }
     }
 

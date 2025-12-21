@@ -6,6 +6,10 @@ import Link from 'next/link'
 import { sendOtp } from '@/actions/user'
 import { LoginStep } from '@/app/login/types'
 import { DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from '@/ui/drawer'
+import { authConfig } from '@/config/auth'
+import { firebaseAuth } from '@/firebase/client'
+import { signInWithPhoneNumber } from 'firebase/auth'
+import { useRecaptcha } from '@/app/login/hooks/useRecaptcha'
 
 interface StepPhoneProps {
     phone: string
@@ -25,16 +29,44 @@ export function StepPhone({
     loading,
 }: StepPhoneProps) {
     const isPhoneValid = /^\d{10}$/.test(phone)
+    const recaptchaVerifierRef = useRecaptcha()
 
     const handleSendOtp = async () => {
         setError('')
         setLoading(true)
-        const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`
-        const res = await sendOtp(formattedPhone)
+        try {
+            const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`
 
-        setLoading(false)
-        if (res.error) setError(res.error)
-        else setStep('otp')
+            if (authConfig.provider === 'firebase') {
+                if (!recaptchaVerifierRef.current) {
+                    throw new Error('Recaptcha not initialized')
+                }
+                
+                const confirmationResult = await signInWithPhoneNumber(
+                    firebaseAuth, 
+                    formattedPhone, 
+                    recaptchaVerifierRef.current
+                )
+                window.confirmationResult = confirmationResult
+                setStep('otp')
+            } else {
+                const res = await sendOtp(formattedPhone)
+                if (res.error) {
+                    setError(res.error)
+                } else {
+                    setStep('otp')
+                }
+            }
+        } catch (err: any) {
+            console.error(err)
+            setError(err.message || 'Failed to send OTP')
+            if (window.recaptchaVerifier) {
+                // recaptchaVerifierRef.current was cleared by hook logic potentially, 
+                // but checking window just in case or try ref
+            }
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (

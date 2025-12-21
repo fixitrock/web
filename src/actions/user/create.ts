@@ -7,13 +7,13 @@ import { createClient } from '@/supabase/server'
 export async function createUser(profile: Partial<User>): Promise<{ user?: User; error?: string }> {
     const supabase = await createClient()
 
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims()
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
 
-    if (claimsError || !claimsData?.claims) {
+    if (userError || !user) {
         return { error: 'Not authenticated' }
     }
 
-    const { id, phone_number: phone } = claimsData.claims
+    const { id, phone } = user
 
     const { data, error } = await supabase
         .from('users')
