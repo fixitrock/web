@@ -11,7 +11,7 @@ export async function revalidateUser(username: string) {
 }
 
 /**
- * Revalidate seller top stats:
+ * Revalidate seller top stats
  * - top brands
  * - top categories
  * - top products
@@ -28,6 +28,20 @@ export async function revalidateSellerRecent(username: string) {
 }
 
 /**
+ * Revalidate seller categories
+ */
+export async function revalidateSellerCategories(username: string) {
+    await revalidateTag(`categories:${username}`, 'max')
+}
+
+/**
+ * Revalidate seller products
+ */
+export async function revalidateSellerProducts(username: string) {
+    await revalidateTag(`products:${username}`, 'max')
+}
+
+/**
  * Revalidate EVERYTHING related to this seller
  */
 export async function revalidateSellerAll(username: string) {
@@ -35,5 +49,7 @@ export async function revalidateSellerAll(username: string) {
         revalidateUser(username),
         revalidateSellerTop(username),
         revalidateSellerRecent(username),
+        revalidateSellerCategories(username),
+        revalidateSellerProducts(username),
     ])
 }

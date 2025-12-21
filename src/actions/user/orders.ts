@@ -2,7 +2,7 @@
 
 import { createClient, createStaticClient } from '@/supabase/server'
 import { Order, RecentOrder, ReturnData, TopStats } from '@/types/orders'
-import { cacheLife, cacheTag } from 'next/cache'
+import { unstable_cache } from 'next/cache'
 
 export async function sellerOrders(search: string) {
     const supabase = await createClient()
@@ -34,42 +34,54 @@ export async function processReturn(data: ReturnData) {
     return { success: true }
 }
 
-export async function sellerRecentOrders(username: string): Promise<RecentOrder[]> {
-    'use cache'
-    cacheTag(`recent:@${username}`)
-    cacheLife('hours')
+export async function sellerRecentOrders(username: string) {
+    return unstable_cache(
+        async () => {
+            const supabase = await createStaticClient()
 
-    const supabase = await createStaticClient()
+            const { data, error } = await supabase.rpc('seller_recent_orders', {
+                p_username: username,
+            })
 
-    const { data, error } = await supabase.rpc('seller_recent_orders', {
-        p_username: username,
-    })
+            if (error) {
+                console.error('[sellerRecentOrders] error:', error)
+                return []
+            }
 
-    if (error) {
-        console.error('[sellerRecentOrders] error:', error)
-        return []
-    }
-
-    return data as RecentOrder[]
+            return data as RecentOrder[]
+        },
+        [`recent:@${username}`],
+        {
+            tags: [`recent:@${username}`],
+            revalidate: 3600,
+        }
+    )()
 }
 
 export async function sellerTop(username: string) {
-    'use cache'
-    cacheTag(`top:@${username}`)
-    cacheLife('hours')
+    return unstable_cache(
+        async () => {
+            const supabase = await createStaticClient()
 
-    const supabase = await createStaticClient()
+            const { data, error } = await supabase.rpc('seller_top', {
+                p_username: username,
+            })
 
-    const { data, error } = await supabase.rpc('seller_top', { p_username: username })
+            if (error) {
+                console.error('[sellerTop] error:', error)
+                return {
+                    top_brands: [],
+                    top_categories: [],
+                    top_products: [],
+                }
+            }
 
-    if (error) {
-        console.error(error)
-        return {
-            top_brands: [],
-            top_categories: [],
-            top_products: [],
+            return data as TopStats
+        },
+        [`top:@${username}`],
+        {
+            tags: [`top:@${username}`],
+            revalidate: 3600,
         }
-    }
-
-    return data as TopStats
+    )()
 }
