@@ -1,3 +1,3 @@
 export const authConfig = {
-    provider: 'firebase' as 'firebase' | 'firebase',
+    provider: 'supabase' as 'supabase' | 'firebase',
 }
