@@ -11,6 +11,8 @@ import { fontVariables } from '@/lib/fonts'
 import { ErrorBoundary } from '@/components/error'
 import { userSession } from '@/actions/user'
 import { ThemeMetaTag } from '@/components/theme-meta'
+import { Suspense } from 'react'
+import { SearchBarSkeleton } from '@/components/search/skeleton'
 
 export default async function RootLayout({
     children,
@@ -19,7 +21,6 @@ export default async function RootLayout({
     children: React.ReactNode
     modal: React.ReactNode
 }>) {
-    const { user, navigation, command } = await userSession()
 
     return (
         <html suppressHydrationWarning lang='en'>
@@ -31,9 +32,9 @@ export default async function RootLayout({
                             <div className='bg-background relative flex min-h-screen flex-col'>
                                 <div className='flex-1 overflow-clip'>{children}</div>
                                 {modal}
-                                <SearchBar command={command} user={user}>
-                                    <UserDrawer navigation={navigation} user={user} />
-                                </SearchBar>
+                                <Suspense fallback={<SearchBarSkeleton />}>
+                                    <Bar />
+                                </Suspense>
                                 <Footer />
                             </div>
                         </Providers>
@@ -41,6 +42,15 @@ export default async function RootLayout({
                 </AuthProvider>
             </body>
         </html>
+    )
+}
+
+async function Bar() {
+    const { user, navigation, command } = await userSession()
+    return (
+        <SearchBar command={command} user={user}>
+            <UserDrawer navigation={navigation} user={user} />
+        </SearchBar>
     )
 }
 

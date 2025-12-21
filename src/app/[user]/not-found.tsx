@@ -14,7 +14,7 @@ export default function UserNotFound() {
                     <div className='mb-4 flex justify-center'>
                         <User className='animate-pulse text-gray-800 dark:text-white' size={64} />
                     </div>
-                    <div className='mx-auto mb-8 h-1 w-24 rounded-full bg-gradient-to-r from-blue-500 to-purple-500' />
+                    <div className='mx-auto mb-8 h-1 w-24 rounded-full bg-linear-to-r from-blue-500 to-purple-500' />
                     <h2 className='mb-4 text-3xl font-semibold text-gray-700 dark:text-gray-200'>
                         User Not Found
                     </h2>

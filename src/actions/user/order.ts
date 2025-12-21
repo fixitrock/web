@@ -5,6 +5,7 @@ import { createClient } from '@/supabase/server'
 import { CreateTransactionType, Order } from '@/types/orders'
 
 import { authorize, can } from '../authorize'
+import { revalidateSellerProducts, revalidateSellerRecent, revalidateSellerTop } from '../revalidate'
 
 const seller = withErrorHandling(async () => {
     const supabase = await createClient()
@@ -99,6 +100,10 @@ export const createOrder = withErrorHandling(async ({ order }: CreateOrderInput)
         logWarning('Error creating order products:', productsError)
         throw new Error(`Failed to create order products: ${productsError.message}`)
     }
+
+    await revalidateSellerRecent(sellerData.username)
+    await revalidateSellerTop(sellerData.username)
+    await revalidateSellerProducts(sellerData.username)
 
     return { success: true, orderId }
 })

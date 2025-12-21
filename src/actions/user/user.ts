@@ -21,7 +21,7 @@ export async function userProfile(username: string) {
         [`user:${username}`],
         {
             tags: [`user:${username}`],
-            revalidate: false,
+            revalidate: 3600,
         }
     )()
 }
