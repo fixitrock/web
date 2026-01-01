@@ -12,7 +12,6 @@ import { ErrorBoundary } from '@/components/error'
 import { userSession } from '@/actions/user'
 import { ThemeMetaTag } from '@/components/theme-meta'
 import { Suspense } from 'react'
-import { SearchBarSkeleton } from '@/components/search/skeleton'
 
 export default async function RootLayout({
     children,
@@ -32,7 +31,7 @@ export default async function RootLayout({
                             <div className='bg-background relative flex min-h-screen flex-col'>
                                 <div className='flex-1 overflow-clip'>{children}</div>
                                 {modal}
-                                <Suspense fallback={<SearchBarSkeleton />}>
+                                <Suspense>
                                     <Bar />
                                 </Suspense>
                                 <Footer />

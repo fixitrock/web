@@ -62,7 +62,6 @@ export const metadata: Metadata = {
     },
     category: 'technology',
 }
-
 async function Space() {
     try {
         const data = await getChildren('')
@@ -74,3 +73,4 @@ async function Space() {
         throw error
     }
 }
+

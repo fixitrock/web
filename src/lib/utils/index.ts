@@ -209,6 +209,15 @@ export function slugify(text: string): string {
         .replace(/-+/g, '-')
 }
 
+export function deslugify(text: string): string {
+    return text
+        .trim()
+        .toLowerCase()
+        .replace(/-/g, ' ')
+        .replace(/\s+/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase())
+}
+
 export function path(url: string, isFile?: boolean) {
     const path = url
         .replace(

@@ -48,9 +48,7 @@ const ProductCard = memo(({ product }: { product: Product }) => {
                     </div>
                 </div>
             </Card>
-            {isOpen && (
-                <ProductModal isOpen={isOpen} product={product} onOpenChange={onOpenChange} />
-            )}
+            <ProductModal isOpen={isOpen} product={product} onOpenChange={onOpenChange} />
         </div>
     )
 })
@@ -123,7 +121,7 @@ export function ProductsPage({ can, username }: { can: CanType; username: string
                                         size='sm'
                                         startContent={<Plus size={20} />}
                                         variant='light'
-                                        // onPress={addModal.onOpen}
+                                    // onPress={addModal.onOpen}
                                     />
                                 )}
                             </>

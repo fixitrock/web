@@ -38,20 +38,22 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
             direction={isDesktop ? 'right' : 'bottom'}
             open={isOpen}
             onOpenChange={onOpenChange}
-        >
-            <DrawerContent showbar={!isDesktop}>
-                <DrawerBody className='flex flex-col'>
-                    <Image
-                        isBlurred
-                        alt={product.name}
-                        className={`rounded-md object-contain ${isDesktop ? 'aspect-square' : 'aspect-video'}`}
-                        classNames={{
-                            img: `rounded-2xl ${isDesktop ? 'aspect-square' : 'aspect-video'}`,
-                            wrapper: `mx-auto overflow-hidden rounded-2xl ${isDesktop ? 'aspect-square' : 'aspect-video'}`,
-                        }}
-                        src={getProductImage(product)}
-                    />
 
+        >
+            <DrawerContent className='h-[80vh] md:h-auto' showbar={!isDesktop}>
+                <DrawerBody className='flex flex-col'>
+                    <div className={isDesktop ? 'aspect-square' : 'aspect-video'}>
+                        <Image
+                            isBlurred
+                            alt={product.name}
+                            className={`rounded-md object-contain ${isDesktop ? 'aspect-square' : 'aspect-video'}`}
+                            classNames={{
+                                img: `rounded-2xl ${isDesktop ? 'aspect-square' : 'aspect-video'}`,
+                                wrapper: `mx-auto overflow-hidden rounded-2xl ${isDesktop ? 'aspect-square' : 'aspect-video'}`,
+                            }}
+                            src={getProductImage(product)}
+                        />
+                    </div>
                     <DrawerHeader className='px-0 py-3'>
                         <DrawerTitle className='text-xl font-semibold tracking-tight'>
                             {product.name}
@@ -132,6 +134,17 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
                                 onSelectionChange={(key) => setSelected.storage(key as string)}
                             />
                         )}
+                        {product.description && (
+                            <div>
+                                <h3 className='text-muted-foreground mb-1 text-sm font-medium'>
+                                    Description
+                                </h3>
+                                <p className="whitespace-pre-line text-sm">
+                                    {product.description}
+                                </p>
+                            </div>
+                        )}
+
                     </div>
                 </DrawerBody>
                 <DrawerFooter>

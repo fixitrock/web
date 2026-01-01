@@ -28,6 +28,7 @@ function ThemeSwitcher() {
             radius='full'
             selectedKey={theme ?? undefined}
             size='sm'
+            data-selected={theme ?? undefined}
             variant='light'
             onSelectionChange={(key) => setTheme(String(key))}
         >

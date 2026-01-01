@@ -26,7 +26,7 @@ export default function Tabs({ user, tabs }: TabsProps) {
             selectedKey={selectedTab}
             variant='underlined'
             classNames={{
-                tabList: 'border-b-1.5 relative w-full rounded-none p-0',
+                tabList: 'border-b-1 relative w-full rounded-none p-0',
                 cursor: 'w-full',
                 tab: 'max-w-fit',
                 base: 'bg-background/90 sticky top-0 z-20 flex backdrop-blur',
