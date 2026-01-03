@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { useTabs } from '@/hooks/useTabs'
 import { useMounted } from '@/hooks'
 import { User } from '@/types/users'
+import { useRouter } from 'next/navigation'
+import React from 'react'
 
 type TabsProps = {
     user: User
@@ -13,10 +15,13 @@ type TabsProps = {
 export default function Tabs({ user, tabs }: TabsProps) {
     const { selectedTab } = useTabs()
     const { mounted } = useMounted()
-
-    const validTabKeys = tabs.map((t) => t.title.toLowerCase())
+    const router = useRouter()
+    const validTabKeys = React.useMemo(
+        () => tabs.map((t) => t.title.toLowerCase()),
+        [tabs]
+    )
     if (!validTabKeys.includes(selectedTab)) {
-        window.location.href = `/@${user.username}`
+        router.replace(`/@${user.username}`)
         return null
     }
 
@@ -26,7 +31,7 @@ export default function Tabs({ user, tabs }: TabsProps) {
             selectedKey={selectedTab}
             variant='underlined'
             classNames={{
-                tabList: 'border-b-1 relative w-full rounded-none p-0',
+                tabList: 'border-b-1 relative w-full rounded-none p-0 mb-1',
                 cursor: 'w-full',
                 tab: 'max-w-fit',
                 base: 'bg-background/90 sticky top-0 z-20 flex backdrop-blur',

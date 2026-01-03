@@ -30,7 +30,7 @@ function DrawerOverlay({
     return (
         <DrawerPrimitive.Overlay
             className={cn(
-                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50',
+                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/20',
                 className
             )}
             data-slot='drawer-overlay'
@@ -54,7 +54,7 @@ function DrawerContent({
             <DrawerOverlay />
             <DrawerPrimitive.Content
                 className={cn(
-                    'group/drawer-content bg-background/80 fixed z-50 flex h-auto flex-col backdrop-blur focus:outline-none',
+                    'group/drawer-content bg-background fixed z-50 flex h-auto flex-col focus:outline-none',
                     // Top Drawer
                     'data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-lg data-[vaul-drawer-direction=top]:border-b',
                     // Bottom Drawer

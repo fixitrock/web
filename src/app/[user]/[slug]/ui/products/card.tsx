@@ -25,19 +25,13 @@ const ProductCard = memo(({ product }: { product: Product }) => {
                 shadow='none'
                 onPress={onOpen}
             >
-                <div className='relative m-auto aspect-square w-full shrink-0 overflow-hidden'>
-                    <Image
-                        alt={product.name}
-                        className='aspect-square size-full object-cover select-none'
-                        classNames={{
-                            img: 'aspect-square size-full object-cover select-none',
-                            wrapper: 'bg-default/10 aspect-square size-full !max-w-full',
-                        }}
-                        loading='lazy'
-                        src={imageUrl}
-                    />
-                </div>
-
+                <Image
+                    removeWrapper
+                    alt={product.name}
+                    className='bg-default/10 aspect-square size-full object-cover select-none'
+                    loading='lazy'
+                    src={getProductImage(product)}
+                />
                 <div className='flex flex-1 flex-col'>
                     <h3 className='line-clamp-1 text-start text-sm font-semibold'>
                         {product.name}

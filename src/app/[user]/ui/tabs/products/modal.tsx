@@ -42,18 +42,16 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
         >
             <DrawerContent className='h-[80vh] md:h-auto' showbar={!isDesktop}>
                 <DrawerBody className='flex flex-col'>
-                    <div className={isDesktop ? 'aspect-square' : 'aspect-video'}>
+                    <div className='aspect-square'>
                         <Image
-                            isBlurred
+                            removeWrapper
                             alt={product.name}
-                            className={`rounded-md object-contain ${isDesktop ? 'aspect-square' : 'aspect-video'}`}
-                            classNames={{
-                                img: `rounded-2xl ${isDesktop ? 'aspect-square' : 'aspect-video'}`,
-                                wrapper: `mx-auto overflow-hidden rounded-2xl ${isDesktop ? 'aspect-square' : 'aspect-video'}`,
-                            }}
+                            className='bg-default/10 aspect-square size-full object-cover select-none'
+                            loading='lazy'
                             src={getProductImage(product)}
                         />
                     </div>
+
                     <DrawerHeader className='px-0 py-3'>
                         <DrawerTitle className='text-xl font-semibold tracking-tight'>
                             {product.name}

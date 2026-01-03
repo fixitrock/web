@@ -7,12 +7,12 @@ import { checkAuth } from '@/actions/auth'
 
 import Profile from './ui/profile'
 import Tabs from './ui/tabs'
-import { loadServerTabComponent } from './ui/tabs/loadTab'
+import { loadServerTabComponent, TabComponentName } from './ui/tabs/loadTab'
 
 export type UserTab = {
     title: string
     description?: string
-    component: string
+    component: TabComponentName
 }
 
 type Props = {
@@ -28,8 +28,6 @@ export default async function Users({ params, searchParams }: Props) {
 
     const cleanUsername = username.slice(1)
     if (!cleanUsername) return notFound()
-
-    // Fetch user profile via RPC
     const profile = await userProfile(cleanUsername)
     if (!profile) return notFound()
 
@@ -38,11 +36,9 @@ export default async function Users({ params, searchParams }: Props) {
 
     const { can } = await checkAuth(cleanUsername)
 
-    // Determine active tab
     const requestedTab = (await searchParams).tab?.toLowerCase() || 'activity'
     const activeTab = tabs.find((t) => t.title.toLowerCase() === requestedTab) || tabs[0]
 
-    // Load correct server tab component
     const Content = await loadServerTabComponent(activeTab.component)
 
     return (
@@ -51,8 +47,9 @@ export default async function Users({ params, searchParams }: Props) {
 
             <div className='relative mx-auto 2xl:px-[10%]'>
                 <Tabs tabs={tabs} user={user} />
-
-                <Content user={user} can={can} />
+                <div className='m-2'>
+                    <Content user={user} can={can} />
+                </div>
             </div>
         </div>
     )

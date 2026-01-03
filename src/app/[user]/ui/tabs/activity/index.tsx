@@ -15,7 +15,7 @@ export function ActivityTab({ user }: ActivityTabProps) {
     const show = [2, 3].includes(user.role as number)
 
     return (
-        <div className='space-y-4 py-3'>
+        <div className='space-y-4'>
             {show && (
                 <>
                     <TopTitle title='Recent Orders' icon={Store} iconColor='text-amber-400'>
