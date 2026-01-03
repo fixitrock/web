@@ -6,8 +6,9 @@ import { useDebounce } from '@/hooks'
 import { useUserProducts } from '@/hooks/tanstack/query'
 import { formatPrice, getProductImage } from '@/lib/utils'
 import { Product, Products } from '@/types/product'
-import { Image, Navbar, Button, Card, useDisclosure } from '@heroui/react'
+import { Navbar, Button, Card, useDisclosure } from '@heroui/react'
 import { Plus } from 'lucide-react'
+import Image from 'next/image'
 import { useState, memo } from 'react'
 import { ProductGridSkeleton } from './skeleton'
 import { PosEmptyState } from '@/ui/empty'
@@ -25,13 +26,17 @@ const ProductCard = memo(({ product }: { product: Product }) => {
                 shadow='none'
                 onPress={onOpen}
             >
-                <Image
-                    removeWrapper
-                    alt={product.name}
-                    className='bg-default/10 aspect-square size-full object-cover select-none'
-                    loading='lazy'
-                    src={getProductImage(product)}
-                />
+                <div className='relative aspect-square w-full bg-default/10 overflow-hidden rounded-lg'>
+                    {imageUrl && (
+                        <Image
+                            alt={product.name}
+                            src={imageUrl}
+                            fill
+                            className='object-cover select-none'
+                            sizes='(max-width: 640px) 140px, 220px'
+                        />
+                    )}
+                </div>
                 <div className='flex flex-1 flex-col'>
                     <h3 className='line-clamp-1 text-start text-sm font-semibold'>
                         {product.name}

@@ -75,28 +75,36 @@ export function RecentOrders({ recent }: { recent: RecentOrder[] }) {
 
 export function RecentOrderSkeleton() {
     return (
-        <>
-            {Array.from({ length: 5 }).map((_, i) => (
-                <CarouselItem key={i} className='sm:basis-1/2 md:basis-1/3 lg:basis-1/4'>
-                    <div className='group relative overflow-hidden rounded-xl border p-3 backdrop-blur-sm transition-all'>
-                        <div className='flex items-start justify-between'>
-                            <div className='flex items-center gap-3'>
-                                <Skeleton className='h-12 w-12 rounded-lg' />
-                                <div className='space-y-1'>
-                                    <Skeleton className='h-4 w-24 rounded-lg' />
-                                    <Skeleton className='h-3 w-16 rounded-lg' />
+        <Carousel
+            opts={{
+                align: 'start',
+                loop: false,
+            }}
+            className='w-full'
+        >
+            <CarouselContent className='select-none'>
+                {Array.from({ length: 5 }).map((_, i) => (
+                    <CarouselItem key={i} className='sm:basis-1/2 md:basis-1/3 lg:basis-1/4'>
+                        <div className='group relative overflow-hidden rounded-xl border p-3 backdrop-blur-sm transition-all'>
+                            <div className='flex items-start justify-between'>
+                                <div className='flex items-center gap-3'>
+                                    <Skeleton className='h-12 w-12 rounded-lg' />
+                                    <div className='space-y-1'>
+                                        <Skeleton className='h-4 w-24 rounded-lg' />
+                                        <Skeleton className='h-3 w-16 rounded-lg' />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className='flex items-end justify-between'>
-                            <Skeleton className='h-4 w-16 rounded-lg' />
-                            <Skeleton className='h-6 w-20 rounded-lg' />
+                            <div className='flex items-end justify-between'>
+                                <Skeleton className='h-4 w-16 rounded-lg' />
+                                <Skeleton className='h-6 w-20 rounded-lg' />
+                            </div>
                         </div>
-                    </div>
-                </CarouselItem>
-            ))}
-        </>
+                    </CarouselItem>
+                ))}
+            </CarouselContent>
+        </Carousel>
     )
 }
 

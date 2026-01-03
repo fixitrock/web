@@ -1,6 +1,7 @@
 'use client'
 
-import { Button, Image, User as HeroUser } from '@heroui/react'
+import { Button, User as HeroUser } from '@heroui/react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 

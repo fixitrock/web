@@ -1,8 +1,9 @@
 'use client'
 
-import { Button, Image, useDisclosure } from '@heroui/react'
+import { Button, useDisclosure } from '@heroui/react'
 import React from 'react'
 import { ArrowLeft, Camera, Share } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { FaCamera } from 'react-icons/fa'
 
@@ -69,14 +70,16 @@ export default function Profile({ user, can }: ProfileProps) {
                 {/* Cover Image */}
                 <div className='relative h-30 w-full overflow-hidden border-b lg:h-50'>
                     <Image
-                        disableSkeleton
                         alt={`${user.name} cover`}
                         src={
-                            (bucketUrl(user.cover as string) || '/fallback/cover.png') +
-                            (user.updated_at ? `?t=${user.updated_at}` : '')
+                            user.cover
+                                ? bucketUrl(user.cover) + (user.updated_at ? `?t=${user.updated_at}` : '')
+                                : '/fallback/cover.png'
                         }
-                        className='h-full w-full object-cover'
-                        radius='none'
+
+                        fill
+                        className='object-cover'
+                        sizes='100vw'
                     />
                     {can.view.profile && (
                         <Button
@@ -117,13 +120,11 @@ export default function Profile({ user, can }: ProfileProps) {
                         <div className='relative shrink-0'>
                             <div className='bg-default/20 dark:bg-default/40 size-28 overflow-hidden rounded-full border p-1 backdrop-blur md:size-36'>
                                 <Image
-                                    isBlurred
                                     alt={`${user.name} avatar`}
                                     src={userAvatar(user)}
-                                    className='h-full w-full object-cover'
-                                    classNames={{
-                                        wrapper: 'overflow-hidden rounded-full',
-                                    }}
+                                    fill
+                                    className='object-cover rounded-full'
+                                    sizes='(max-width: 768px) 112px, 144px'
                                 />
                             </div>
                             {can.view.profile && (

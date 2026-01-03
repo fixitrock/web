@@ -3,6 +3,14 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
     // cacheComponents: true,
     transpilePackages: ['next-mdx-remote'],
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'cdn.fixitrock.com',
+            },
+        ],
+    },
     experimental: {
         serverActions: {
             bodySizeLimit: '10mb',
