@@ -26,7 +26,7 @@ const ProductCard = memo(({ product }: { product: Product }) => {
                 shadow='none'
                 onPress={onOpen}
             >
-                <div className='relative aspect-square w-full bg-default/10 overflow-hidden rounded-lg'>
+                <div className='bg-default/10 relative aspect-square w-full overflow-hidden rounded-lg'>
                     {imageUrl && (
                         <Image
                             alt={product.name}
@@ -120,7 +120,7 @@ export function ProductsPage({ can, username }: { can: CanType; username: string
                                         size='sm'
                                         startContent={<Plus size={20} />}
                                         variant='light'
-                                    // onPress={addModal.onOpen}
+                                        // onPress={addModal.onOpen}
                                     />
                                 )}
                             </>

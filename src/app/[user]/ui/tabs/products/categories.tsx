@@ -41,45 +41,45 @@ export function CategoryTabs({ username }: { username: string }) {
             >
                 {isLoading
                     ? Array.from({ length: 10 }).map((_, i) => (
-                        <Tab
-                            key={i}
-                            title={
-                                <div className='flex items-center justify-between gap-1'>
-                                    <Skeleton className='size-6 rounded' />
-                                    <Skeleton className='h-4 w-16 rounded' />
-                                    <Skeleton className='size-6 rounded-full' />
-                                </div>
-                            }
-                        />
-                    ))
+                          <Tab
+                              key={i}
+                              title={
+                                  <div className='flex items-center justify-between gap-1'>
+                                      <Skeleton className='size-6 rounded' />
+                                      <Skeleton className='h-4 w-16 rounded' />
+                                      <Skeleton className='size-6 rounded-full' />
+                                  </div>
+                              }
+                          />
+                      ))
                     : data?.categories.map((tab) => (
-                        <Tab
-                            key={tab.category}
-                            data-key={tab.category}
-                            title={
-                                <div className='flex items-center justify-between gap-1.5'>
-                                    <div className='size-6 overflow-hidden rounded'>
-                                        <Image
-                                            src={bucketUrl(
-                                                '/assets/categories/' +
-                                                tab.category
-                                                    .toLowerCase()
-                                                    .replace(/\s+/g, '-') +
-                                                '.png'
-                                            )}
-                                            alt={tab.category}
-                                            className='size-full rounded-none'
-                                            loading='lazy'
-                                        />
-                                    </div>
-                                    <span className='font-medium'>{tab.category}</span>
-                                    <span className='text-muted-foreground bg-default-100 rounded-full px-2 py-0.5 text-xs'>
-                                        {tab.count}
-                                    </span>
-                                </div>
-                            }
-                        />
-                    ))}
+                          <Tab
+                              key={tab.category}
+                              data-key={tab.category}
+                              title={
+                                  <div className='flex items-center justify-between gap-1.5'>
+                                      <div className='size-6 overflow-hidden rounded'>
+                                          <Image
+                                              src={bucketUrl(
+                                                  '/assets/categories/' +
+                                                      tab.category
+                                                          .toLowerCase()
+                                                          .replace(/\s+/g, '-') +
+                                                      '.png'
+                                              )}
+                                              alt={tab.category}
+                                              className='size-full rounded-none'
+                                              loading='lazy'
+                                          />
+                                      </div>
+                                      <span className='font-medium'>{tab.category}</span>
+                                      <span className='text-muted-foreground bg-default-100 rounded-full px-2 py-0.5 text-xs'>
+                                          {tab.count}
+                                      </span>
+                                  </div>
+                              }
+                          />
+                      ))}
             </Tabs>
         </ScrollShadow>
     )

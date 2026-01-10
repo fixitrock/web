@@ -38,7 +38,6 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
             direction={isDesktop ? 'right' : 'bottom'}
             open={isOpen}
             onOpenChange={onOpenChange}
-
         >
             <DrawerContent className='h-[80vh] md:h-auto' showbar={!isDesktop}>
                 <DrawerBody className='flex flex-col'>
@@ -137,12 +136,9 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
                                 <h3 className='text-muted-foreground mb-1 text-sm font-medium'>
                                     Description
                                 </h3>
-                                <p className="whitespace-pre-line text-sm">
-                                    {product.description}
-                                </p>
+                                <p className='text-sm whitespace-pre-line'>{product.description}</p>
                             </div>
                         )}
-
                     </div>
                 </DrawerBody>
                 <DrawerFooter>

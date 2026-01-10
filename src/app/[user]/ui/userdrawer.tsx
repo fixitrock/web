@@ -58,7 +58,13 @@ export default function UserDrawer({
                 onPress={handlePress}
             >
                 {user ? (
-                    <Image alt={user.name} height={30} src={userAvatar(user)} width={30} />
+                    <Image
+                        alt={user.name}
+                        height={30}
+                        src={userAvatar(user)}
+                        width={30}
+                        quality={100}
+                    />
                 ) : (
                     <UserIcon aria-label='Login to your account' />
                 )}

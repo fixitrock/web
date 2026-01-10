@@ -1,7 +1,6 @@
 'use client'
 
-import { User } from '@/types/users'
-import { Download, Setup, Suggestion, OrdersIcon } from '@/ui/icons'
+import { Download, Setup, Suggestion, OrdersIcon, TransactionsIcon } from '@/ui/icons'
 import { useDownloadStore } from '@/zustand/store'
 
 export const tabConfigs = [
@@ -17,21 +16,29 @@ export const tabConfigs = [
         title: 'Space',
         icon: Setup,
         shouldFilter: false,
-        visible: () => true,
+        visible: (user: any) => !user,
     },
     {
         key: 'orders',
         title: 'Orders',
         icon: OrdersIcon,
         shouldFilter: false,
-        visible: (user: User) => user !== null,
+        visible: (user: any) => !!user,
+    },
+    {
+        key: 'transactions',
+        title: 'Transactions',
+        icon: TransactionsIcon,
+        shouldFilter: false,
+        visible: (user: any) => !!user,
     },
     {
         key: 'downloads',
         title: 'Downloads',
         icon: Download,
         shouldFilter: true,
-        visible: () => useDownloadStore.getState().hasDownloads(),
+        visible: (user: any) => !user && useDownloadStore.getState().hasDownloads(),
     },
 ]
+
 export const tabs = (user: any) => tabConfigs.filter((t) => t.visible(user))

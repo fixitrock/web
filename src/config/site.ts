@@ -116,6 +116,7 @@ export const fallback = {
     brandSearch: '/fallback/categorySearch.png',
     category: '/fallback/category.png',
     categorySearch: '/fallback/categorySearch.png',
+    user: 'https://avatar.vercel.sh/',
 }
 
 export type Fallback = typeof fallback

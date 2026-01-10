@@ -16,10 +16,7 @@ export default function Tabs({ user, tabs }: TabsProps) {
     const { selectedTab } = useTabs()
     const { mounted } = useMounted()
     const router = useRouter()
-    const validTabKeys = React.useMemo(
-        () => tabs.map((t) => t.title.toLowerCase()),
-        [tabs]
-    )
+    const validTabKeys = React.useMemo(() => tabs.map((t) => t.title.toLowerCase()), [tabs])
     if (!validTabKeys.includes(selectedTab)) {
         router.replace(`/@${user.username}`)
         return null
@@ -31,7 +28,7 @@ export default function Tabs({ user, tabs }: TabsProps) {
             selectedKey={selectedTab}
             variant='underlined'
             classNames={{
-                tabList: 'border-b-1 relative w-full rounded-none p-0 mb-1',
+                tabList: 'relative mb-1 w-full rounded-none border-b-1 p-0',
                 cursor: 'w-full',
                 tab: 'max-w-fit',
                 base: 'bg-background/90 sticky top-0 z-20 flex backdrop-blur',

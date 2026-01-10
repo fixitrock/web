@@ -31,14 +31,15 @@ export function RecentOrders({ recent }: { recent: RecentOrder[] }) {
                                 <div className='group relative overflow-hidden rounded-xl border p-3 backdrop-blur-sm transition-all'>
                                     <div className='flex items-start justify-between'>
                                         <div className='flex items-center gap-3'>
-                                            <div className='bg-background size-12 shrink-0 rounded-lg border'>
-                                                <Image
-                                                    src={fallback.recentOrder}
-                                                    alt={order.name}
-                                                    className='aspect-square size-full rounded-lg object-cover'
-                                                    removeWrapper
-                                                />
-                                            </div>
+                                            <Image
+                                                src={
+                                                    fallback.user +
+                                                    `${order.name}.svg?text=${order.name.charAt(0)}`
+                                                }
+                                                alt={order.name}
+                                                className='aspect-square size-10 rounded-full object-cover'
+                                                removeWrapper
+                                            />
 
                                             <div className='overflow-hidden'>
                                                 <p className='truncate leading-none font-medium'>

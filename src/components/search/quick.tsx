@@ -23,8 +23,12 @@ export function QuickAction({ command }: { command: Record<string, Navigations> 
 
     useEffect(() => {
         if (command) {
-            const { ['📦\u00A0\u00A0space']: _space, ...restActions } = actions
-            setDynamicNavigations({ ...command, ...restActions })
+            const { ['Repair Tools']: _space, ...restActions } = actions
+            setDynamicNavigations({
+                ...command,
+                Quick: shortcuts,
+                ...restActions,
+            })
         } else {
             setDynamicNavigations({ ...actions })
         }
@@ -74,8 +78,25 @@ export function QuickAction({ command }: { command: Record<string, Navigations> 
     )
 }
 
+const shortcuts: Navigations = [
+    {
+        id: 'space-shortcut',
+        title: 'Search Firmwares . . .',
+        icon: 'fluent:phone-link-setup-24-regular',
+        action: { type: 'tab', value: 'space' },
+        keywords: ['search', 'firmware', 'phone', 'device', 'flash'],
+    },
+    {
+        id: 'download-shortcut',
+        title: 'Downloads & History',
+        icon: 'hugeicons:download-01',
+        action: { type: 'tab', value: 'downloads' },
+        keywords: ['download', 'history', 'received', 'files'],
+    },
+]
+
 const actions: Record<string, Navigations> = {
-    '📦\u00A0\u00A0space': [
+    'Repair Tools': [
         {
             id: 'space',
             title: 'Search Firmwares . . .',
@@ -106,7 +127,7 @@ const actions: Record<string, Navigations> = {
             keywords: ['spare', 'parts', 'price', 'mobile', 'repair'],
         },
     ],
-    '⚙️\u00A0\u00A0general': [
+    general: [
         {
             id: 'home',
             title: 'Return to Home',
@@ -148,7 +169,7 @@ const actions: Record<string, Navigations> = {
             ],
         },
     ],
-    '💬\u00A0\u00A0help': [
+    Support: [
         {
             id: 'support',
             title: 'Contact Support',

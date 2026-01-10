@@ -63,7 +63,7 @@ export function StepOtp({
     const handleVerifyOtp = async () => {
         setError('')
         setLoading(true)
-        
+
         try {
             if (authConfig.provider === 'firebase') {
                 if (!window.confirmationResult) {
@@ -74,9 +74,9 @@ export function StepOtp({
                 const idToken = await result.user.getIdToken()
 
                 const res = await verifyFirebaseLogin(idToken)
-                
+
                 setLoading(false)
-                
+
                 if (res.user) {
                     window.location.href = `/@${res.user.username}`
                 } else if (res.error) {
@@ -87,7 +87,7 @@ export function StepOtp({
                 }
             } else {
                 const res = await verifyOtp('+91' + phone, otp)
-        
+
                 setLoading(false)
                 if (res.error) setError(res.error)
                 else if (res.user) {

@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient, createStaticClient } from '@/supabase/server'
-import { Order, RecentOrder, ReturnData, TopStats } from '@/types/orders'
+import { MyOrderItem, Order, RecentOrder, ReturnData, TopStats } from '@/types/orders'
 import { unstable_cache } from 'next/cache'
 
 export async function sellerOrders(search: string) {
@@ -11,6 +11,21 @@ export async function sellerOrders(search: string) {
 
     return {
         orders: (data?.orders ?? []) as Order[],
+        total: data?.totalOrders ?? 0,
+        empty: Boolean(data?.empty),
+        error,
+    }
+}
+
+export async function myOrders(search: string) {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase.rpc('myorders', {
+        query: search || null,
+    })
+
+    return {
+        orders: (data?.orders ?? []) as MyOrderItem[],
         total: data?.totalOrders ?? 0,
         empty: Boolean(data?.empty),
         error,

@@ -41,10 +41,10 @@ export function StepPhone({
                 if (!recaptchaVerifierRef.current) {
                     throw new Error('Recaptcha not initialized')
                 }
-                
+
                 const confirmationResult = await signInWithPhoneNumber(
-                    firebaseAuth, 
-                    formattedPhone, 
+                    firebaseAuth,
+                    formattedPhone,
                     recaptchaVerifierRef.current
                 )
                 window.confirmationResult = confirmationResult
@@ -61,7 +61,7 @@ export function StepPhone({
             console.error(err)
             setError(err.message || 'Failed to send OTP')
             if (window.recaptchaVerifier) {
-                // recaptchaVerifierRef.current was cleared by hook logic potentially, 
+                // recaptchaVerifierRef.current was cleared by hook logic potentially,
                 // but checking window just in case or try ref
             }
         } finally {

@@ -6,20 +6,15 @@ const Fallback = () => (
 )
 
 const TAB_COMPONENTS = {
-    ProductCard: () =>
-        import('./products').then((m) => m.ProductsTabs),
+    ProductCard: () => import('./products').then((m) => m.ProductsTabs),
 
-    Quotes: () =>
-        import('./quotes').then((m) => m.Quotes),
+    Quotes: () => import('./quotes').then((m) => m.Quotes),
 
-    Activity: () =>
-        import('./activity').then((m) => m.ActivityTab),
+    Activity: () => import('./activity').then((m) => m.ActivityTab),
 } as const
 
 export type TabComponentName = keyof typeof TAB_COMPONENTS
 
-export async function loadServerTabComponent(
-    name: TabComponentName
-) {
+export async function loadServerTabComponent(name: TabComponentName) {
     return TAB_COMPONENTS[name]?.() ?? Fallback
 }

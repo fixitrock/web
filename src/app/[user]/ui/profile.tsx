@@ -14,6 +14,7 @@ import { bucketUrl } from '@/supabase/bucket'
 import { Actions } from './actions'
 import AvatarCover from './add'
 import { CanType } from '@/actions/auth'
+import { fallback } from '@/config/site'
 
 type ProfileProps = {
     user: User
@@ -73,11 +74,12 @@ export default function Profile({ user, can }: ProfileProps) {
                         alt={`${user.name} cover`}
                         src={
                             user.cover
-                                ? bucketUrl(user.cover) + (user.updated_at ? `?t=${user.updated_at}` : '')
-                                : '/fallback/cover.png'
+                                ? bucketUrl(user.cover) +
+                                  (user.updated_at ? `?t=${user.updated_at}` : '')
+                                : fallback.user + user.name + '.svg?text=' + user.name
                         }
-
                         fill
+                        quality={100}
                         className='object-cover'
                         sizes='100vw'
                     />
@@ -123,8 +125,9 @@ export default function Profile({ user, can }: ProfileProps) {
                                     alt={`${user.name} avatar`}
                                     src={userAvatar(user)}
                                     fill
-                                    className='object-cover rounded-full'
+                                    className='rounded-full object-cover'
                                     sizes='(max-width: 768px) 112px, 144px'
+                                    quality={100}
                                 />
                             </div>
                             {can.view.profile && (

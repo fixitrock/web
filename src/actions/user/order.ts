@@ -5,7 +5,11 @@ import { createClient } from '@/supabase/server'
 import { CreateTransactionType, Order } from '@/types/orders'
 
 import { authorize, can } from '../authorize'
-import { revalidateSellerProducts, revalidateSellerRecent, revalidateSellerTop } from '../revalidate'
+import {
+    revalidateSellerProducts,
+    revalidateSellerRecent,
+    revalidateSellerTop,
+} from '../revalidate'
 
 const seller = withErrorHandling(async () => {
     const supabase = await createClient()

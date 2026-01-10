@@ -15,6 +15,7 @@ import { Space } from './space'
 import { Navigations } from './type'
 import { Downloads, Download } from './download'
 import { Orders } from './orders'
+import { Transactions } from './transactions'
 export function SearchBar({
     user,
     children,
@@ -60,6 +61,7 @@ export function SearchBar({
                             {tab === 'actions' && <QuickAction command={command} />}
                             {tab === 'space' && <Space />}
                             {tab === 'orders' && user && <Orders />}
+                            {tab === 'transactions' && user && <Transactions />}
                             {tab === 'downloads' && <Downloads />}
                         </CommandList>
 

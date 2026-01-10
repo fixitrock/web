@@ -215,7 +215,7 @@ export function deslugify(text: string): string {
         .toLowerCase()
         .replace(/-/g, ' ')
         .replace(/\s+/g, ' ')
-        .replace(/\b\w/g, char => char.toUpperCase())
+        .replace(/\b\w/g, (char) => char.toUpperCase())
 }
 
 export function path(url: string, isFile?: boolean) {
@@ -258,10 +258,11 @@ export function userAvatar(user: User): string {
               ? '/fallback/other.png'
               : '/fallback/boy.png'
 
-    const avatarUrl = bucketUrl(user?.avatar as string) || fallbackAvatar || ''
+    const avatar = bucketUrl(user?.avatar as string)
 
-    // Add cache busting parameter if user has been updated
-    return user?.updated_at ? `${avatarUrl}?t=${user.updated_at}` : avatarUrl
+    if (!avatar) return fallbackAvatar
+
+    return user?.updated_at ? `${avatar}?t=${encodeURIComponent(user.updated_at)}` : avatar
 }
 
 // Download progress utilities

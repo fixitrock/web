@@ -20,7 +20,6 @@ export default async function RootLayout({
     children: React.ReactNode
     modal: React.ReactNode
 }>) {
-
     return (
         <html suppressHydrationWarning lang='en'>
             <body className={cn('bg-background min-h-svh font-sans antialiased', fontVariables)}>
