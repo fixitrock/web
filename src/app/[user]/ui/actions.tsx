@@ -89,6 +89,7 @@ export function Actions({ onFollow, onMessage, isFollowing, user, can }: Actions
                     {isFollowing ? 'Following' : 'Follow'}
                 </Button>
             )} */}
+            {user.showWhatsapp && 
             <Tooltip className='bg-green-500 text-white' content='Message on WhatsApp'>
                 <Button
                     isIconOnly
@@ -99,6 +100,7 @@ export function Actions({ onFollow, onMessage, isFollowing, user, can }: Actions
                     onPress={onMessage}
                 />
             </Tooltip>
+}
         </div>
     )
 }

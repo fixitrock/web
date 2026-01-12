@@ -96,7 +96,7 @@ export async function uploadUserImage(file: File, type: 'avatar' | 'cover') {
         if (updateError) throw updateError
 
         revalidatePath('/[user]/[slug]')
-        revalidateTag(`user-${user.username}`, 'max')
+        revalidateTag(`user:${user.username}`, 'max')
 
         return { url: tablePath }
     } catch (error) {

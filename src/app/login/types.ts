@@ -17,6 +17,7 @@ export type User = {
     location_url?: string | null
     cover?: string | null
     verified: boolean
+    showWhatsapp: boolean
     last_login_at: string
     last_login_ip: string
     last_login_device: string

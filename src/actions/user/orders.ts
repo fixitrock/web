@@ -65,10 +65,10 @@ export async function sellerRecentOrders(username: string) {
 
             return data as RecentOrder[]
         },
-        [`recent:@${username}`],
+        [`recent:${username}`],
         {
-            tags: [`recent:@${username}`],
-            revalidate: 3600,
+            tags: [`recent:${username}`],
+            revalidate: 60,
         }
     )()
 }
@@ -93,10 +93,10 @@ export async function sellerTop(username: string) {
 
             return data as TopStats
         },
-        [`top:@${username}`],
+        [`top:${username}`],
         {
-            tags: [`top:@${username}`],
-            revalidate: 3600,
+            tags: [`top:${username}`],
+            revalidate: 60,
         }
     )()
 }

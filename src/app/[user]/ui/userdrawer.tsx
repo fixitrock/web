@@ -63,7 +63,7 @@ export default function UserDrawer({
                         height={30}
                         src={userAvatar(user)}
                         width={30}
-                        quality={100}
+                        quality={70}
                     />
                 ) : (
                     <UserIcon aria-label='Login to your account' />

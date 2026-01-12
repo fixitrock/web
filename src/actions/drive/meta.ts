@@ -6,58 +6,63 @@ import { siteConfig } from '@/config/site'
 import { logWarning } from '@/lib/utils'
 import { Space } from '@/actions/space'
 
-export const getMeta = unstable_cache(
-    async (meta: string) => {
-        const client = await Space()
+export async function getMeta(meta: string) {
+    return unstable_cache(
+        async () => {
+            const client = await Space()
 
-        if (!client) {
-            throw new Error('Space initialization failed')
-        }
+            if (!client) {
+                throw new Error('Space initialization failed')
+            }
 
-        try {
-            const response = await client
-                .api(`/me/drive/root:/${siteConfig.baseDirectory}/${meta}`)
-                .select('id,name,size,folder,lastModifiedDateTime')
-                .get()
+            try {
+                const response = await client
+                    .api(`/me/drive/root:/${siteConfig.baseDirectory}/${meta}`)
+                    .select('id,name,size,folder,lastModifiedDateTime')
+                    .get()
 
-            let thumbnails = null
+                let thumbnails = null
 
-            if (response?.id) {
-                try {
-                    const thumbnailResponse = await client
-                        .api(`/me/drive/items/${response.id}:/icon.png`)
-                        .expand('thumbnails($select=large)')
-                        .get()
+                if (response?.id) {
+                    try {
+                        const thumbnailResponse = await client
+                            .api(`/me/drive/items/${response.id}:/icon.png`)
+                            .expand('thumbnails($select=large)')
+                            .get()
 
-                    thumbnails = thumbnailResponse?.thumbnails || null
-                } catch (error: unknown) {
-                    if (
-                        error instanceof Error &&
-                        (error as { statusCode?: number }).statusCode === 404
-                    ) {
-                        logWarning(`Thumbnails not found for item ${response.id}.`)
-                    } else {
-                        logWarning(
-                            `Unexpected error while fetching thumbnails for item ${response.id}:`,
-                            error instanceof Error ? error.message : error
-                        )
+                        thumbnails = thumbnailResponse?.thumbnails || null
+                    } catch (error: unknown) {
+                        if (
+                            error instanceof Error &&
+                            (error as { statusCode?: number }).statusCode === 404
+                        ) {
+                            logWarning(`Thumbnails not found for item ${response.id}.`)
+                        } else {
+                            logWarning(
+                                `Unexpected error while fetching thumbnails for item ${response.id}:`,
+                                error instanceof Error ? error.message : error
+                            )
+                        }
                     }
                 }
-            }
 
-            return {
-                ...response,
-                thumbnails,
-            }
-        } catch (error: unknown) {
-            logWarning(
-                `Failed to fetch metadata for ${meta} from OneDrive (getMeta):`,
-                error instanceof Error ? error.message : error
-            )
+                return {
+                    ...response,
+                    thumbnails,
+                }
+            } catch (error: unknown) {
+                logWarning(
+                    `Failed to fetch metadata for ${meta} from OneDrive (getMeta):`,
+                    error instanceof Error ? error.message : error
+                )
 
-            return {}
+                return {}
+            }
+        },
+        [`meta:${meta}`],
+        {
+            tags: [`meta:${meta}`],
+            revalidate: 3600,
         }
-    },
-    ['og-meta'],
-    { revalidate: 3600 }
-)
+    )()
+}
