@@ -150,7 +150,7 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
                     We need some more information to create your account.
                 </DrawerDescription>
             </DrawerHeader>
-            <div className='w-full space-y-10'>
+            <div className='w-full space-y-10 px-2'>
                 <Input
                     autoFocus
                     isRequired
@@ -202,7 +202,7 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
                     onChange={(e) => handleUsernameChange(e.target.value)}
                 />
             </div>
-            <div className='space-y-4'>
+            <div className='space-y-4 px-2'>
                 <div className='flex items-center gap-3'>
                     <Input
                         isRequired
@@ -246,7 +246,7 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
                     />
                 </div>
             </div>
-            <div className='space-y-4'>
+            <div className='space-y-4 px-2'>
                 <Dob
                     isRequired
                     description='Enter your birth date (must be 18+)'
