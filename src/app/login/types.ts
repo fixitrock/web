@@ -22,6 +22,13 @@ export type User = {
     last_login_ip: string
     last_login_device: string
     last_login_location: string
+    address?: {
+        city: string
+        district: string
+        state: string
+        pincode?: number
+        country: string
+    } | null
 }
 
 export type TabsConfig = {

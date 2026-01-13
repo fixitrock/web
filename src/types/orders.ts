@@ -107,29 +107,33 @@ export type TopStats = {
     top_products: TopItem[]
 }
 
-
 export type MyOrders = {
-  orders: MyOrderItem[]
-  totalOrders: number
-  empty: boolean
+    orders: MyOrderItem[]
+    totalOrders: number
+    empty: boolean
 }
 
 export type MyOrderItem = {
-  id: string
-  mode: 'cash' | 'upi' | 'card' | 'paylater' | string
-  note: string | null
-  paid: number
-  totalAmount: number
+    id: string
+    mode: 'cash' | 'upi' | 'card' | 'paylater' | string
+    note: string | null
+    paid: number
+    totalAmount: number
 
-  createdAt: string
-  updatedAt: string
-  name: string
-  phone: string
-  username: string | null
-  products: MyOrderProduct[]
+    createdAt: string
+    updatedAt: string
+    name: string
+    phone: string
+    username: string | null
+    products: MyOrderProduct[]
 }
 
 export type MyOrderProduct = {
-  id: number
-  name: string
+    id: number
+    name: string
+    category: string | null
+    price: number
+    quantity: number
+    returnedQuantity: number
+    returnType: 'none' | 'partial' | 'full'
 }

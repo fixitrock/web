@@ -1,5 +1,4 @@
-'use client'
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 import { myOrders, sellerOrders, sellerRecentOrders, sellerTop } from '@/actions/user'
 
 export function useSellerOrders(search: string) {
@@ -15,9 +14,13 @@ export function useSellerOrders(search: string) {
 }
 
 export function useMyOrders(search: string) {
-    const query = useQuery({
+    const query = useInfiniteQuery({
         queryKey: ['myOrders', search],
-        queryFn: () => myOrders(search),
+        queryFn: ({ pageParam = 1 }) => myOrders(search, pageParam as number),
+        getNextPageParam: (lastPage) => {
+            return lastPage.hasMore ? lastPage.page + 1 : undefined
+        },
+        initialPageParam: 1,
         staleTime: 1000 * 60 * 5,
         retry: 1,
         refetchOnWindowFocus: false,

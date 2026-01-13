@@ -25,13 +25,13 @@ export function LoginModal() {
 
     return isDesktop ? (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogContent className='sm:max-w-md'>
+            <DialogContent className='max-h-full overflow-auto sm:max-w-md'>
                 <Steps />
             </DialogContent>
         </Dialog>
     ) : (
         <Drawer open={isOpen} onOpenChange={setIsOpen}>
-            <DrawerContent>
+            <DrawerContent childrenClassName='overflow-y-auto'>
                 <Steps />
             </DrawerContent>
         </Drawer>

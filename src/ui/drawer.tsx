@@ -41,11 +41,13 @@ function DrawerOverlay({
 
 function DrawerContent({
     className,
+    childrenClassName,
     children,
     showbar = true,
     hideCloseButton = false,
     ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Content> & {
+    childrenClassName?: string
     showbar?: boolean
     hideCloseButton?: boolean
 }) {
@@ -86,7 +88,7 @@ function DrawerContent({
                     </DrawerPrimitive.Close>
                 )}
 
-                <div className={cn('flex h-full flex-col')}>{children}</div>
+                <div className={cn('flex h-full flex-col', childrenClassName)}>{children}</div>
             </DrawerPrimitive.Content>
         </DrawerPortal>
     )

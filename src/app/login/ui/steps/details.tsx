@@ -9,6 +9,8 @@ import { useDebounce } from '@/hooks/useDebounce'
 import { User } from '@/app/login/types'
 import { Dob } from '@/ui/dob'
 import { DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from '@/ui/drawer'
+import { usePinCodeStore } from '@/zustand/store/pincode'
+import { useTransition } from 'react'
 
 interface StepDetailsProps {
     user: Partial<User>
@@ -33,6 +35,15 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
     const [isUsernameUnique, setIsUsernameUnique] = useState<boolean | null>(null)
     const [dob, setDob] = useState('')
     const [dobError, setDobError] = useState('')
+
+    const fetchPincode = usePinCodeStore((state) => state.fetchPincode)
+    const [isPendingPincode, startPincodeTransition] = useTransition()
+    const [pincode, setPincode] = useState('')
+    const [city, setCity] = useState('')
+    const [district, setDistrict] = useState('')
+    const [state, setState] = useState('')
+    const [country] = useState('India')
+
     const isValidFormat = USERNAME_REGEX.test(username)
     const isValidLength = username.length >= MIN_LENGTH && username.length <= MAX_LENGTH
     const showUsernameError = hasSubmitted || username.length > 0
@@ -53,6 +64,25 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
         })
     }, [debouncedUsername, isValidFormat, isValidLength])
 
+    const handlePincodeChange = (value: string) => {
+        const sanitized = value.replace(/\D/g, '').slice(0, 6)
+        setPincode(sanitized)
+
+        if (sanitized.length === 6) {
+            startPincodeTransition(async () => {
+                try {
+                    const data = await fetchPincode(sanitized)
+                    if (data) {
+                        setDistrict(data.district || '')
+                        setState(data.state || '')
+                    }
+                } catch (error) {
+                    console.error('Error fetching pincode:', error)
+                }
+            })
+        }
+    }
+
     const handleSave = async () => {
         setError('')
         setHasSubmitted(true)
@@ -67,7 +97,11 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
             isValidLength &&
             isUsernameUnique === true &&
             gender &&
-            !dobError
+            !dobError &&
+            pincode.length === 6 &&
+            city.trim() &&
+            district.trim() &&
+            state.trim()
 
         if (!isFormValid) return
         setLoading(true)
@@ -77,6 +111,13 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
                 username: user.username as string,
                 gender: user.gender as 'male' | 'female' | 'other',
                 dob: dob || null,
+                address: {
+                    city,
+                    district,
+                    state,
+                    pincode: pincode ? Number(pincode) : undefined,
+                    country,
+                },
             })
 
             if (res?.error) throw new Error(res.error)
@@ -103,7 +144,7 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
                 await handleSave()
             }}
         >
-            <DrawerHeader className='w-full px-0 py-2'>
+            <DrawerHeader className='w-full py-2'>
                 <DrawerTitle className='text-xl font-semibold'>Introduce Yourself</DrawerTitle>
                 <DrawerDescription className='text-muted-foreground text-sm'>
                     We need some more information to create your account.
@@ -162,6 +203,50 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
                 />
             </div>
             <div className='space-y-4'>
+                <div className='flex items-center gap-3'>
+                    <Input
+                        isRequired
+                        endContent={
+                            isPendingPincode ? (
+                                <Loader className='text-muted-foreground h-4 w-4 shrink-0 animate-spin' />
+                            ) : null
+                        }
+                        label='Pincode'
+                        labelPlacement='outside'
+                        maxLength={6}
+                        placeholder='203205'
+                        value={pincode}
+                        onChange={(e) => handlePincodeChange(e.target.value)}
+                    />
+                    <Input
+                        isRequired
+                        label='Town/City'
+                        labelPlacement='outside'
+                        placeholder='ex. Sikandrabad'
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                    />
+                </div>
+                <div className='flex items-center gap-3'>
+                    <Input
+                        isRequired
+                        label='District'
+                        labelPlacement='outside'
+                        placeholder='District'
+                        value={district}
+                        onChange={(e) => setDistrict(e.target.value)}
+                    />
+                    <Input
+                        isRequired
+                        label='State'
+                        labelPlacement='outside'
+                        placeholder='State'
+                        value={state}
+                        onChange={(e) => setState(e.target.value)}
+                    />
+                </div>
+            </div>
+            <div className='space-y-4'>
                 <Dob
                     isRequired
                     description='Enter your birth date (must be 18+)'
@@ -196,7 +281,11 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
                         !isValidLength ||
                         isUsernameUnique !== true ||
                         !gender ||
-                        !!dobError
+                        !!dobError ||
+                        pincode.length !== 6 ||
+                        !city.trim() ||
+                        !district.trim() ||
+                        !state.trim()
                     }
                     isLoading={loading}
                     type='submit'

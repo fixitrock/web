@@ -43,6 +43,9 @@ type SearchState = {
     getCurrentPageItems: () => Navigation[]
     heading: () => string | null
     isPageMode: () => boolean
+
+    expandedOrderId: string | null
+    setExpandedOrderId: (id: string | null) => void
 }
 
 export const useSearchStore = create<SearchState>()(
@@ -111,6 +114,9 @@ export const useSearchStore = create<SearchState>()(
                 open: false,
                 setOpen: () => {},
 
+                expandedOrderId: null,
+                setExpandedOrderId: (id) => set({ expandedOrderId: id }),
+
                 bounce: () => {
                     if (ref.current) {
                         ref.current.classList.remove('bounce')
@@ -120,10 +126,10 @@ export const useSearchStore = create<SearchState>()(
                 },
 
                 page: null,
-                setPage: (id) => set({ page: id }, false, 'setPages'),
+                setPage: (id) => set({ page: id, expandedOrderId: null }, false, 'setPages'),
 
                 tab: 'actions',
-                setTab: (tab) => set({ tab }, false, 'setTab'),
+                setTab: (tab) => set({ tab, expandedOrderId: null }, false, 'setTab'),
 
                 onSelect: (item, router, setTheme) => {
                     if (item.action?.type === 'tab' && item.action.value)

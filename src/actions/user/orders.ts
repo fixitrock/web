@@ -17,17 +17,20 @@ export async function sellerOrders(search: string) {
     }
 }
 
-export async function myOrders(search: string) {
+export async function myOrders(search: string, page: number = 1) {
     const supabase = await createClient()
 
     const { data, error } = await supabase.rpc('myorders', {
         query: search || null,
+        page: page,
     })
 
     return {
         orders: (data?.orders ?? []) as MyOrderItem[],
         total: data?.totalOrders ?? 0,
         empty: Boolean(data?.empty),
+        hasMore: Boolean(data?.hasMore),
+        page: data?.page ?? page,
         error,
     }
 }
