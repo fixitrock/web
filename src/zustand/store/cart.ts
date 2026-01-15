@@ -74,6 +74,8 @@ type PosState = {
         qtyToAdd?: number
     ) => boolean
 
+    selectedReceiptOption: 'whatsapp' | 'print'
+    setReceiptOption: (option: 'whatsapp' | 'print') => void
     clearAll: () => void
     order: () => Order | null
 }
@@ -265,7 +267,11 @@ export const useCartStore = create<PosState>((set, get) => ({
             note: { cash: '', upi: '', card: '', paylater: '' },
             selectedPaymentMethod: '',
             showCart: false,
+            selectedReceiptOption: 'whatsapp',
         }),
+
+    selectedReceiptOption: 'whatsapp',
+    setReceiptOption: (option) => set({ selectedReceiptOption: option }),
 
     order: () => {
         const state = get()

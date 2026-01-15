@@ -1,7 +1,7 @@
 'use client'
 
 import { Button, Input, useDisclosure, Card, ScrollShadow, addToast } from '@heroui/react'
-import React, { useMemo, useCallback, useState } from 'react'
+import React, { useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { IndianRupee, Check } from 'lucide-react'
 
@@ -18,8 +18,6 @@ import { cn, logWarning, formatPrice } from '@/lib/utils'
 import { useCartStore, PaymentMethodType } from '@/zustand/store/cart'
 import { CreditCard, GooglePay, PrinterIcon, RupeeBag, WhatsAppIcon } from '@/ui/icons'
 import { useOrder } from '@/hooks/tanstack/mutation'
-
-type ReceiptOptionType = 'print' | 'whatsapp'
 
 export function OrderPlace() {
     const { isOpen, onOpenChange, onOpen, onClose } = useDisclosure()
@@ -38,10 +36,11 @@ export function OrderPlace() {
         setSelectedPaymentMethod,
         order,
         clearAll,
+        selectedReceiptOption,
+        setReceiptOption,
     } = useCartStore()
 
     const { addOrder } = useOrder()
-    const [selectedReceiptOption, setSelectedReceiptOption] = useState<ReceiptOptionType>('whatsapp')
     const displayAmount = useMemo(() => paidAmount || getTotalPrice(), [paidAmount, getTotalPrice])
 
     const isValidAmount = useMemo(
@@ -78,85 +77,94 @@ export function OrderPlace() {
                 description: 'Please select a customer and payment method',
                 color: 'danger',
             })
-
             return
         }
 
         const orderData = order()
-
         if (!orderData) {
             addToast({
                 title: 'Error',
                 description: 'Unable to create order data',
                 color: 'danger',
             })
-
             return
         }
 
         try {
             const result = await addOrder.mutateAsync(orderData)
 
-            if (result.success && result.orderId) {
-                addToast({
-                    title: 'Success',
-                    description: 'Order created successfully',
-                    color: 'success',
-                })
-
-                // WhatsApp Receipt logic
-                if (selectedReceiptOption === 'whatsapp') {
-                    const last4Digits = result.orderId.slice(-4).toUpperCase()
-                    const now = new Date()
-                    const date = now.toLocaleDateString('en-IN', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                    })
-                    const time = now.toLocaleTimeString('en-IN', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true,
-                    })
-
-                    const message = [
-                        `*🙏 राधे राधे, राजन् 🙏*`,
-                        `*🧾 ORDER RECEIPT 🧾*`,
-                        `Invoice: #${last4Digits}`,
-                        `${date} | ${time}`,
-                        ``,
-                        `*🛒 Products 🛒*`,
-                        ...orderData.products.map((p) => {
-                            const details = [p.brand, p.category, p.color?.name, p.storage]
-                                .filter(Boolean)
-                                .join(' / ')
-
-                            const total = p.total ?? p.price * p.quantity
-
-                            return [
-                                `• *${p.name}*`,
-                                details ? `  _${details}_` : null,
-                                `  ${p.quantity} × ${formatPrice(p.price)} = *${formatPrice(total)}*`,
-                            ]
-                                .filter(Boolean)
-                                .join('\n')
-                        }),
-                        ``,
-                        `*💰 Total:* *${formatPrice(orderData.totalAmount)}*`,
-                        `*💳 Payment:* ${selectedPaymentMethod.toUpperCase()}`,
-                        `_Thank you for your purchase! 🙏_`,
-                    ].join('\n')
-
-                    const phone = selectedCustomer.phone.replace(/\D/g, '')
-                    const cleanPhone = phone.startsWith('91') ? phone : `91${phone}`
-                    const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`
-
-                    window.open(whatsappUrl, '_blank')
-                }
-
-                clearAll()
-                onClose()
+            if (!result.success || !result.orderId) {
+                throw new Error('Order creation failed')
             }
+
+            // Build WhatsApp message
+            const last4Digits = result.orderId.slice(-4).toUpperCase()
+            const now = new Date()
+
+            // Robust symbols using Unicode escapes
+            const sym = {
+                greet: '\uD83D\uDE4F', // 🙏
+                receipt: '\uD83E\uDDFE', // 🧾
+                cart: '\uD83D\uDED2', // 🛒
+                money: '\uD83D\uDCB0', // 💰
+                card: '\uD83D\uDCB3', // 💳
+            }
+
+            const message = [
+                `*${sym.greet} राधे राधे, राजन् ${sym.greet}*`,
+                `*${sym.receipt} ORDER RECEIPT ${sym.receipt}*`,
+                `Invoice: #${last4Digits}`,
+                now.toLocaleString('en-IN'),
+                ``,
+                `*${sym.cart} Products ${sym.cart}*`,
+                ...orderData.products.map((p) => {
+                    const details = [p.brand, p.category, p.color?.name, p.storage]
+                        .filter(Boolean)
+                        .join(' / ')
+
+                    const total = p.total ?? p.price * p.quantity
+
+                    return [
+                        `• *${p.name}*`,
+                        details ? `  _${details}_` : null,
+                        `  ${p.quantity} \u00D7 ${formatPrice(p.price)} = *${formatPrice(total)}*`,
+                    ]
+                        .filter(Boolean)
+                        .join('\n')
+                }),
+                ``,
+                `*${sym.money} Total:* *${formatPrice(orderData.totalAmount)}*`,
+                `*${sym.card} Payment:* ${selectedPaymentMethod.toUpperCase()}`,
+                `_Thank you for your purchase! ${sym.greet}_`,
+            ].join('\n')
+
+            const phone = selectedCustomer.phone.replace(/\D/g, '')
+            const cleanPhone = phone.startsWith('91') ? phone : `91${phone}`
+
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`
+
+            addToast({
+                title: `Send Receipt #${last4Digits} to WhatsApp`,
+                endContent: (
+                    <Button
+                        size='sm'
+                        variant='light'
+                        className='border'
+                        onPress={() => {
+                            openWhatsApp(whatsappUrl)
+                        }}
+                    >
+                        Send
+                    </Button>
+                ),
+                icon: <WhatsAppIcon />,
+                color: 'success',
+                shouldShowTimeoutProgress: true,
+                timeout: 3000,
+            })
+
+            clearAll()
+            onClose()
         } catch (error) {
             logWarning('Error creating order:', error)
             addToast({
@@ -165,15 +173,7 @@ export function OrderPlace() {
                 color: 'danger',
             })
         }
-    }, [
-        selectedCustomer,
-        selectedPaymentMethod,
-        order,
-        addOrder,
-        clearAll,
-        onClose,
-        selectedReceiptOption,
-    ])
+    }, [selectedCustomer, selectedPaymentMethod, order, addOrder, clearAll, onClose])
 
     const isPlaceOrderDisabled = useMemo(
         () =>
@@ -367,13 +367,13 @@ export function OrderPlace() {
                                         icon={<PrinterIcon />}
                                         isSelected={selectedReceiptOption === 'print'}
                                         title='Print'
-                                        onClick={() => setSelectedReceiptOption('print')}
+                                        onClick={() => setReceiptOption('print')}
                                     />
                                     <ReceiptOption
                                         icon={<WhatsAppIcon />}
                                         isSelected={selectedReceiptOption === 'whatsapp'}
                                         title='WhatsApp'
-                                        onClick={() => setSelectedReceiptOption('whatsapp')}
+                                        onClick={() => setReceiptOption('whatsapp')}
                                     />
                                 </div>
                             </div>
@@ -510,4 +510,21 @@ const ReceiptOption = ({
             <span className='text-xs font-medium'>{title}</span>
         </Card>
     )
+}
+
+function openWhatsApp(url: string) {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+
+    const isPWA =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        // @ts-ignore (iOS)
+        (window.navigator as any).standalone === true
+
+    if (isMobile || isPWA) {
+        // Mobile / PWA → must be same window
+        window.location.href = url
+    } else {
+        // Desktop browser → open new tab
+        window.open(url, '_blank', 'noopener,noreferrer')
+    }
 }
