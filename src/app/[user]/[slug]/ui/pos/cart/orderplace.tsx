@@ -41,7 +41,7 @@ export function OrderPlace() {
     } = useCartStore()
 
     const { addOrder } = useOrder()
-    const [selectedReceiptOption, setSelectedReceiptOption] = useState<ReceiptOptionType>('print')
+    const [selectedReceiptOption, setSelectedReceiptOption] = useState<ReceiptOptionType>('whatsapp')
     const displayAmount = useMemo(() => paidAmount || getTotalPrice(), [paidAmount, getTotalPrice])
 
     const isValidAmount = useMemo(
@@ -97,12 +97,63 @@ export function OrderPlace() {
         try {
             const result = await addOrder.mutateAsync(orderData)
 
-            if (result.success) {
+            if (result.success && result.orderId) {
                 addToast({
                     title: 'Success',
                     description: 'Order created successfully',
                     color: 'success',
                 })
+
+                // WhatsApp Receipt logic
+                if (selectedReceiptOption === 'whatsapp') {
+                    const last4Digits = result.orderId.slice(-4).toUpperCase()
+                    const now = new Date()
+                    const date = now.toLocaleDateString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                    })
+                    const time = now.toLocaleTimeString('en-IN', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                    })
+
+                    const message = [
+                        `*🙏 राधे राधे, राजन् 🙏*`,
+                        `*🧾 ORDER RECEIPT 🧾*`,
+                        `Invoice: #${last4Digits}`,
+                        `${date} | ${time}`,
+                        ``,
+                        `*🛒 Products 🛒*`,
+                        ...orderData.products.map((p) => {
+                            const details = [p.brand, p.category, p.color?.name, p.storage]
+                                .filter(Boolean)
+                                .join(' / ')
+
+                            const total = p.total ?? p.price * p.quantity
+
+                            return [
+                                `• *${p.name}*`,
+                                details ? `  _${details}_` : null,
+                                `  ${p.quantity} × ${formatPrice(p.price)} = *${formatPrice(total)}*`,
+                            ]
+                                .filter(Boolean)
+                                .join('\n')
+                        }),
+                        ``,
+                        `*💰 Total:* *${formatPrice(orderData.totalAmount)}*`,
+                        `*💳 Payment:* ${selectedPaymentMethod.toUpperCase()}`,
+                        `_Thank you for your purchase! 🙏_`,
+                    ].join('\n')
+
+                    const phone = selectedCustomer.phone.replace(/\D/g, '')
+                    const cleanPhone = phone.startsWith('91') ? phone : `91${phone}`
+                    const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`
+
+                    window.open(whatsappUrl, '_blank')
+                }
+
                 clearAll()
                 onClose()
             }
@@ -114,7 +165,15 @@ export function OrderPlace() {
                 color: 'danger',
             })
         }
-    }, [selectedCustomer, selectedPaymentMethod, order, addOrder, clearAll, onClose])
+    }, [
+        selectedCustomer,
+        selectedPaymentMethod,
+        order,
+        addOrder,
+        clearAll,
+        onClose,
+        selectedReceiptOption,
+    ])
 
     const isPlaceOrderDisabled = useMemo(
         () =>
