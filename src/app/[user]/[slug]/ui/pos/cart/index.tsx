@@ -11,8 +11,8 @@ import {
     Tooltip,
 } from '@heroui/react'
 import NumberFlow from '@number-flow/react'
-import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 
 import { useCartStore } from '@/zustand/store/cart'
 
@@ -71,7 +71,7 @@ export function PosCart() {
     return (
         <section
             aria-label='Cart'
-            className='hidden rounded-lg border sm:flex sm:w-96 sm:flex-col'
+            className='flex h-full w-full flex-col rounded-lg border'
             data-slot='cart'
         >
             <div className='flex items-center justify-between p-2'>

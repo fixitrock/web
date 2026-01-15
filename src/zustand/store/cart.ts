@@ -38,6 +38,8 @@ type PosState = {
     setTransactionNote: (type: 'debit' | 'credit', note: string) => void
     setTransactionMode: (type: 'debit' | 'credit', mode: PaymentMethodType) => void
     clearTransaction: (type?: 'debit' | 'credit') => void
+    showCart: boolean
+    setShowCart: (show: boolean) => void
 
     selectedCustomer: CustomerInput | null
     setSelectedCustomer: (customer: CustomerInput | null) => void
@@ -115,6 +117,8 @@ export const useCartStore = create<PosState>((set, get) => ({
                       credit: { amount: 0, note: '', mode: 'cash' },
                   },
         })),
+    showCart: false,
+    setShowCart: (show) => set({ showCart: show }),
     selectedCustomer: null,
     setSelectedCustomer: (customer) => set({ selectedCustomer: customer }),
     clearCustomer: () => set({ selectedCustomer: null }),
@@ -173,22 +177,27 @@ export const useCartStore = create<PosState>((set, get) => ({
             return { items: state.items }
         }),
 
-    removeItem: (id) => set((state) => ({ items: state.items.filter((i) => i.id !== id) })),
+    removeItem: (id) =>
+        set((state) => {
+            const newItems = state.items.filter((i) => i.id !== id)
+            return { items: newItems, showCart: newItems.length > 0 ? state.showCart : false }
+        }),
     updateQuantity: (id, quantity) =>
-        set((state) => ({
-            items: state.items
+        set((state) => {
+            const newItems = state.items
                 .map((item) =>
                     item.id === id ? { ...item, quantity: Math.max(0, quantity) } : item
                 )
-                .filter((i) => i.quantity > 0),
-        })),
+                .filter((i) => i.quantity > 0)
+            return { items: newItems, showCart: newItems.length > 0 ? state.showCart : false }
+        }),
     updatePrice: (id, price) =>
         set((state) => ({
             items: state.items.map((item) =>
                 item.id === id ? { ...item, price: Math.max(0, price) } : item
             ),
         })),
-    clearCart: () => set({ items: [] }),
+    clearCart: () => set({ items: [], showCart: false }),
 
     addSerialNumber: (id, serial) =>
         set((state) => ({
@@ -255,6 +264,7 @@ export const useCartStore = create<PosState>((set, get) => ({
             paidAmount: 0,
             note: { cash: '', upi: '', card: '', paylater: '' },
             selectedPaymentMethod: '',
+            showCart: false,
         }),
 
     order: () => {

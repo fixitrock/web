@@ -9,6 +9,7 @@ import { PosEmptyState } from '@/ui/empty'
 import { Input } from '@/app/(space)/ui'
 
 import { ProductCard, ProductSkeleton } from './card'
+import { motion } from 'motion/react'
 
 export function PosProduct() {
     const [query, setQuery] = useState('')
@@ -27,7 +28,7 @@ export function PosProduct() {
     return (
         <section
             aria-label='Products'
-            className='flex flex-1 flex-col gap-2 rounded-lg border p-2'
+            className='flex h-full flex-col gap-2 rounded-lg border p-2'
             data-slot='products'
         >
             <div className='flex flex-col items-center gap-2 sm:flex-row'>
@@ -69,7 +70,7 @@ export function PosProduct() {
                 <div className='grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-2 overflow-y-auto md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'>
                     {isLoading && (
                         <>
-                            {Array.from({ length: 15 }).map((_, i) => (
+                            {Array.from({ length: 18 }).map((_, i) => (
                                 <ProductSkeleton key={i} />
                             ))}
                         </>

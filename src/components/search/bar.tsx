@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
-import { Button, Tab, Tabs } from '@heroui/react'
-import { ArrowLeft, SearchIcon, X } from 'lucide-react'
+import { Badge, Button, Tab, Tabs } from '@heroui/react'
+import { ArrowLeft, SearchIcon, ShoppingCart, X } from 'lucide-react'
 
 import AnimatedSearch from '@/ui/farmer/search'
 import { Command, CommandInput, CommandList } from '@/ui/command'
@@ -16,6 +16,7 @@ import { Navigations } from './type'
 import { Downloads, Download } from './download'
 import { Orders } from './orders'
 import { Transactions } from './transactions'
+import { useCartStore } from '@/zustand/store/cart'
 export function SearchBar({
     user,
     children,
@@ -41,6 +42,8 @@ export function SearchBar({
         ref,
         heading,
     } = useSearchStore()
+
+    const { showCart, setShowCart, getTotalItems } = useCartStore()
 
     return (
         <AnimatedSearch open={open} setOpen={setOpen}>
@@ -101,6 +104,25 @@ export function SearchBar({
                     endContent={
                         <>
                             <Download />
+                            {user && getTotalItems() > 0 && (
+                                <Badge
+                                    color='danger'
+                                    content={getTotalItems()}
+                                    isInvisible={getTotalItems() === 0}
+                                    shape='circle'
+                                    size='sm'
+                                >
+                                    <Button
+                                        isIconOnly
+                                        className='bg-default/20'
+                                        radius='full'
+                                        size='sm'
+                                        startContent={<ShoppingCart size={18} />}
+                                        variant='light'
+                                        onPress={() => setShowCart(!showCart)}
+                                    />
+                                </Badge>
+                            )}
                             {query ? (
                                 <Button
                                     isIconOnly

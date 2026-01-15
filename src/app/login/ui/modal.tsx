@@ -25,7 +25,7 @@ export function LoginModal() {
 
     return isDesktop ? (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogContent className='max-h-full overflow-auto sm:max-w-max p-2'>
+            <DialogContent className='max-h-full overflow-auto p-2 sm:max-w-max'>
                 <Steps />
             </DialogContent>
         </Dialog>
