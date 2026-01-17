@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 import { SearchBar } from '@/components/search/bar'
 import { fontVariables } from '@/lib/fonts'
 import { ErrorBoundary } from '@/components/error'
-import { userSession } from '@/actions/user'
+import { getBalance, userSession } from '@/actions/user'
 import { ThemeMetaTag } from '@/components/theme-meta'
 import { Suspense } from 'react'
 
@@ -45,8 +45,9 @@ export default async function RootLayout({
 
 async function Bar() {
     const { user, navigation, command } = await userSession()
+    const balance = await getBalance()
     return (
-        <SearchBar command={command} user={user}>
+        <SearchBar command={command} user={user} balance={balance}>
             <UserDrawer navigation={navigation} user={user} />
         </SearchBar>
     )

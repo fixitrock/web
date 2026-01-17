@@ -21,10 +21,12 @@ export function SearchBar({
     user,
     children,
     command,
+    balance,
 }: {
     user: UserType | null
     children: React.ReactNode
     command: Record<string, Navigations> | null
+    balance: { get: number; give: number }
 }) {
     const {
         open,
@@ -64,7 +66,7 @@ export function SearchBar({
                             {tab === 'actions' && <QuickAction command={command} />}
                             {tab === 'space' && <Space />}
                             {tab === 'orders' && user && <Orders />}
-                            {tab === 'transactions' && user && <Transactions />}
+                            {tab === 'transactions' && user && <Transactions balance={balance} />}
                             {tab === 'downloads' && <Downloads />}
                         </CommandList>
 
