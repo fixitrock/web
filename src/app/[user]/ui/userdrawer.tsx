@@ -59,11 +59,12 @@ export default function UserDrawer({
             >
                 {user ? (
                     <Image
+                        className='rounded-full'
                         alt={user.name}
                         height={30}
                         src={userAvatar(user)}
                         width={30}
-                        quality={70}
+                        quality={100}
                     />
                 ) : (
                     <UserIcon aria-label='Login to your account' />

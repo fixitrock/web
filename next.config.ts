@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
     // cacheComponents: true,
     transpilePackages: ['next-mdx-remote'],
     images: {
-        qualities: [70, 75],
+        qualities: [70, 75, 100],
         remotePatterns: [
             {
                 protocol: 'https',
