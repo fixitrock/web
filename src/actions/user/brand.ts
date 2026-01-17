@@ -1,14 +1,15 @@
 'use server'
 import { createClient } from '@/supabase/server'
 import sharp from 'sharp'
+import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import {
     Category as Brand,
     Categories as Brands,
     CategoryInput as BrandInput,
 } from '@/types/category'
+import { R2 } from '@/supabase/r2'
 
 async function uploadImageFromUrl(url: string, name: string) {
-    const supabase = await createClient()
 
     const response = await fetch(url)
     if (!response.ok) throw new Error('Failed to fetch image from URL')
@@ -18,15 +19,18 @@ async function uploadImageFromUrl(url: string, name: string) {
     const pngBuffer = await sharp(inputBuffer).png().toBuffer()
 
     const safeName = name.trim().toLowerCase().replace(/\s+/g, '-')
-    const storagePath = `brands/${safeName}.png`
+    const storagePath = `assets/brands/${safeName}.png`
 
-    const { error } = await supabase.storage.from('assets').upload(storagePath, pngBuffer, {
-        contentType: 'image/png',
-        upsert: true,
-    })
-    if (error) throw error
+    await R2.send(
+        new PutObjectCommand({
+            Bucket: process.env.R2_BUCKET_NAME!,
+            Key: storagePath,
+            Body: pngBuffer,
+            ContentType: 'image/png',
+        })
+    )
 
-    return `/assets/${storagePath}`
+    return `/${storagePath}`
 }
 
 export async function createBrand(input: BrandInput) {
@@ -54,8 +58,13 @@ export async function updateBrand(input: Brand & { imageUrl?: string }) {
 
     if (input.imageUrl && input.imageUrl.startsWith('http')) {
         if (input.image) {
-            const oldPath = input.image.replace('/assets/', '')
-            await supabase.storage.from('assets').remove([oldPath])
+            const oldPath = input.image.replace(/^\//, '')
+            await R2.send(
+                new DeleteObjectCommand({
+                    Bucket: process.env.R2_BUCKET_NAME!,
+                    Key: oldPath,
+                })
+            )
         }
 
         imagePath = await uploadImageFromUrl(input.imageUrl, input.name)
@@ -77,9 +86,13 @@ export async function deleteBrand(brandId: string, imagePath?: string) {
     const supabase = await createClient()
 
     if (imagePath) {
-        const storagePath = imagePath.replace('/assets/', '')
-        const { error: deleteError } = await supabase.storage.from('assets').remove([storagePath])
-        if (deleteError) throw deleteError
+        const storagePath = imagePath.replace(/^\//, '')
+        await R2.send(
+            new DeleteObjectCommand({
+                Bucket: process.env.R2_BUCKET_NAME!,
+                Key: storagePath,
+            })
+        )
     }
 
     const { error } = await supabase.rpc('delete_brand', { p_id: brandId })

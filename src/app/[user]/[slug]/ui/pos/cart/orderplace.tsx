@@ -144,7 +144,7 @@ export function OrderPlace() {
             const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`
 
             addToast({
-                title: `Send Receipt #${last4Digits} to WhatsApp`,
+                title: `Send Receipt #${last4Digits} to ${selectedCustomer.name}`,
                 endContent: (
                     <Button
                         size='sm'
@@ -160,7 +160,7 @@ export function OrderPlace() {
                 icon: <WhatsAppIcon />,
                 color: 'success',
                 shouldShowTimeoutProgress: true,
-                timeout: 3000,
+                timeout: 5000,
             })
 
             clearAll()

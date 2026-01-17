@@ -9,7 +9,6 @@ import { PosEmptyState } from '@/ui/empty'
 import { Input } from '@/app/(space)/ui'
 
 import { ProductCard, ProductSkeleton } from './card'
-import { motion } from 'motion/react'
 
 export function PosProduct() {
     const [query, setQuery] = useState('')

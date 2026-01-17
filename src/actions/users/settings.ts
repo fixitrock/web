@@ -2,10 +2,12 @@
 
 import { z } from 'zod'
 import { revalidatePath, revalidateTag } from 'next/cache'
+import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 
 import { createClient } from '@/supabase/server'
 import { logWarning } from '@/lib/utils'
 import { userSession } from '@/actions/user'
+import { R2 } from '@/supabase/r2'
 
 const SettingsSchema = z.object({
     name: z.string().min(1, 'Name is required'),
@@ -77,14 +79,17 @@ export async function uploadUserImage(file: File, type: 'avatar' | 'cover') {
         const bytes = new Uint8Array(arrayBuffer)
         const fileName = `${type}.png`
         const storagePath = `@${user.username}/${fileName}`
-        const tablePath = `/user/@${user.username}/${fileName}`
+        const tablePath = `/@${user.username}/${fileName}`
 
-        // Upload to Supabase storage
-        const { error: uploadError } = await supabase.storage
-            .from('user')
-            .upload(storagePath, bytes, { contentType: 'image/png', upsert: true })
-
-        if (uploadError) throw uploadError
+        // Upload to Cloudflare R2
+        await R2.send(
+            new PutObjectCommand({
+                Bucket: process.env.R2_BUCKET_NAME!,
+                Key: storagePath,
+                Body: bytes,
+                ContentType: 'image/png',
+            })
+        )
 
         // Update user table
         const updateData = type === 'avatar' ? { avatar: tablePath } : { cover: tablePath }
@@ -95,7 +100,7 @@ export async function uploadUserImage(file: File, type: 'avatar' | 'cover') {
 
         if (updateError) throw updateError
 
-        revalidatePath('/[user]/[slug]')
+        revalidatePath(`/@${user.username}`, 'layout')
         revalidateTag(`user:${user.username}`, 'max')
 
         return { url: tablePath }
@@ -129,10 +134,13 @@ export async function deleteUserImage(type: 'avatar' | 'cover') {
         const storagePath = `@${user.username}/${fileName}`
         const tablePath = type === 'avatar' ? { avatar: null } : { cover: null }
 
-        // Delete from storage
-        const { error: deleteError } = await supabase.storage.from('user').remove([storagePath])
-
-        if (deleteError) throw deleteError
+        // Delete from Cloudflare R2
+        await R2.send(
+            new DeleteObjectCommand({
+                Bucket: process.env.R2_BUCKET_NAME!,
+                Key: storagePath,
+            })
+        )
 
         // Remove from table
         const { error: updateError } = await supabase
@@ -142,8 +150,8 @@ export async function deleteUserImage(type: 'avatar' | 'cover') {
 
         if (updateError) throw updateError
 
-        await revalidatePath('/[user]/[slug]')
-        await revalidateTag(`user-${user.username}`, 'max')
+        await revalidatePath(`/@${user.username}`, 'layout')
+        await revalidateTag(`user:${user.username}`, 'max')
 
         return { success: true }
     } catch (error) {
