@@ -162,6 +162,9 @@ export function OrderPlace() {
                 shouldShowTimeoutProgress: true,
                 timeout: 5000,
             })
+            if (selectedReceiptOption === 'whatsapp') {
+                openWhatsApp(whatsappUrl)
+            }
 
             clearAll()
             onClose()
