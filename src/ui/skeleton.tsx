@@ -110,8 +110,8 @@ export const ListSkeleton = () => {
         <>
             {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className='flex items-center gap-2 rounded-lg border p-1'>
-                    <Skeleton className='size-10 flex-shrink-0 rounded-lg' />
-                    <div className='flex flex-grow flex-col gap-y-2'>
+                    <Skeleton className='size-10 shrink-0 rounded-lg' />
+                    <div className='flex grow flex-col gap-y-2'>
                         <Skeleton className='h-4 w-auto rounded-lg sm:max-w-lg' />
                         <span className='text-muted-foreground flex items-center gap-2 text-xs'>
                             <Skeleton className='h-4 w-14 rounded-lg sm:w-20' /> •{' '}
@@ -135,8 +135,8 @@ export const SpaceSearchSkeleton = () => {
         <>
             {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index}>
-                    <Skeleton className='size-10 flex-shrink-0 rounded-lg' />
-                    <div className='flex flex-grow flex-col gap-y-2'>
+                    <Skeleton className='size-10 shrink-0 rounded-lg' />
+                    <div className='flex grow flex-col gap-y-2'>
                         <Skeleton className='h-4 w-auto rounded-lg sm:max-w-sm' />
                         <span className='text-muted-foreground flex items-center gap-2 text-xs'>
                             <Skeleton className='h-4 w-14 rounded-lg sm:w-20' /> •
@@ -176,5 +176,22 @@ export function FRPSkeleton() {
                 </div>
             ))}
         </div>
+    )
+}
+
+export function TransactionSkeleton({ length = 10 }: { length?: number }) {
+    return (
+        <>
+            {Array.from({ length }).map((_, i) => (
+                <div key={i} className='flex items-center gap-2 px-2 py-1.5'>
+                    <Skeleton className='size-8 rounded-full' />
+                    <div className='flex flex-1 flex-col gap-1'>
+                        <Skeleton className='h-4 w-24 rounded-lg' />
+                        <Skeleton className='h-3 w-32 rounded-lg' />
+                    </div>
+                    <Skeleton className='h-6 w-16 rounded' />
+                </div>
+            ))}
+        </>
     )
 }

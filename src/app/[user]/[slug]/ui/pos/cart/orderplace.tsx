@@ -145,18 +145,18 @@ export function OrderPlace() {
 
             addToast({
                 title: `Send Receipt #${last4Digits} to ${selectedCustomer.name}`,
-                endContent: (
-                    <Button
-                        size='sm'
-                        variant='light'
-                        className='border'
-                        onPress={() => {
-                            openWhatsApp(whatsappUrl)
-                        }}
-                    >
-                        Send
-                    </Button>
-                ),
+                // endContent: (
+                //     <Button
+                //         size='sm'
+                //         variant='light'
+                //         className='border'
+                //         onPress={() => {
+                //             openWhatsApp(whatsappUrl)
+                //         }}
+                //     >
+                //         Send
+                //     </Button>
+                // ),
                 icon: <WhatsAppIcon />,
                 color: 'success',
                 shouldShowTimeoutProgress: true,

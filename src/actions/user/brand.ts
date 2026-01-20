@@ -10,7 +10,6 @@ import {
 import { R2 } from '@/supabase/r2'
 
 async function uploadImageFromUrl(url: string, name: string) {
-
     const response = await fetch(url)
     if (!response.ok) throw new Error('Failed to fetch image from URL')
 

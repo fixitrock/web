@@ -108,12 +108,18 @@ export const formatBytes = (bytes: number, decimals = 2): string => {
 }
 
 export const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-IN', {
+    const formatter = new Intl.NumberFormat('en-IN', {
         style: 'currency',
         currency: 'INR',
         minimumFractionDigits: 0,
         maximumFractionDigits: 2,
-    }).format(price)
+    })
+
+    const absolutePrice = Math.abs(price)
+
+    const parts = formatter.formatToParts(absolutePrice)
+
+    return parts.map((part) => (part.type === 'currency' ? `${part.value} ` : part.value)).join('')
 }
 
 export const getStockStatus = (qty: number) => {
@@ -378,4 +384,20 @@ export function formatDiscount(price: number, mrp: number) {
 export function formatPhone(phone?: string | null): string {
     if (!phone) return 'N/A'
     return phone.replace(/^91/, '')
+}
+
+export function normalizeName(name: string): string {
+    return name
+        .replace(/[^a-zA-Z0-9\s]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+}
+
+export function balanceColor(balance: number, view: 'seller' | 'user' = 'user'): string {
+    const displayBalance = view === 'seller' ? -balance : balance
+
+    if (displayBalance > 0) return 'text-green-500'
+    if (displayBalance < 0) return 'text-red-500'
+
+    return 'text-muted-foreground'
 }
