@@ -516,18 +516,5 @@ const ReceiptOption = ({
 }
 
 function openWhatsApp(url: string) {
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
-
-    const isPWA =
-        window.matchMedia('(display-mode: standalone)').matches ||
-        // @ts-ignore (iOS)
-        (window.navigator as any).standalone === true
-
-    if (isMobile || isPWA) {
-        // Mobile / PWA → must be same window
-        window.location.href = url
-    } else {
-        // Desktop browser → open new tab
-        window.open(url, '_blank', 'noopener,noreferrer')
-    }
+    window.open(url, '_blank', 'noopener,noreferrer')
 }
