@@ -94,7 +94,7 @@ export function Category({ can }: { can: CanType }) {
             </Navbar>
             <CommandList
                 asChild
-                className='grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-2 md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] md:px-4'
+                className='grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2 md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] md:px-4'
             >
                 {isLoading && <CategorySkeleton />}
                 {data?.categories.map((c) => {

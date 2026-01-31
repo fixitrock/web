@@ -1,12 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { RefreshCcw, CalendarClock, Minimize2, Maximize2, Plus } from 'lucide-react'
+import { RefreshCcw, CalendarClock, Minimize2, Maximize2, Plus, ShoppingCart } from 'lucide-react'
 import { Button, Tab, Tabs, useDisclosure } from '@heroui/react'
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
-import { usePosTypeStore } from '@/zustand/store'
+import { useCartStore, usePosTypeStore } from '@/zustand/store'
 import { AddProduct } from '../products/add'
-// import { ExportStocks } from './export'
 import { useMounted } from '@/hooks'
 
 export function PosHeader() {
@@ -14,7 +13,7 @@ export function PosHeader() {
     const [isFs, setIsFs] = useState(false)
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { mounted } = useMounted()
-
+    const { showCart, setShowCart, getTotalItems } = useCartStore()
     useEffect(() => {
         const onChange = () => setIsFs(Boolean(document.fullscreenElement))
 
@@ -83,6 +82,23 @@ export function PosHeader() {
                     startContent={<Plus className='size-4' />}
                 >
                     Add Product
+                </Button>
+                <Button
+                    isIconOnly
+                    aria-label='Toggle cart'
+                    className='bg-background border md:hidden'
+                    size='sm'
+                    startContent={<ShoppingCart className='size-4' />}
+                    onPress={() => setShowCart(!showCart)}
+                />
+                <Button
+                    aria-label='Toggle cart'
+                    className='bg-background hidden border md:flex'
+                    size='sm'
+                    startContent={<ShoppingCart className='size-4' />}
+                    onPress={() => setShowCart(!showCart)}
+                >
+                    Cart {getTotalItems()}
                 </Button>
                 {/* <ExportStocks /> */}
                 <AddProduct mode='add' isOpen={isOpen} onClose={onClose} />

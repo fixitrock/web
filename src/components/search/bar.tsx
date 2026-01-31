@@ -1,8 +1,9 @@
 'use client'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Badge, Button, Tab, Tabs } from '@heroui/react'
 import { ArrowLeft, SearchIcon, ShoppingCart, X } from 'lucide-react'
 
+import AnimatedSearch from '@/ui/farmer/search'
 import { Command, CommandInput, CommandList } from '@/ui/command'
 import { useSearchStore } from '@/zustand/store'
 import { User as UserType } from '@/app/login/types'
@@ -16,11 +17,6 @@ import { Downloads, Download } from './download'
 import { Orders } from './orders'
 import { Transactions } from './transactions'
 import { useCartStore } from '@/zustand/store/cart'
-import useScroll from '@/hooks/useScroll'
-import { SearchModal } from './modal'
-import { useAnimation } from 'motion/react'
-import { Bottom } from '@/lib/FramerMotionVariants'
-
 export function SearchBar({
     user,
     children,
@@ -50,104 +46,32 @@ export function SearchBar({
 
     const { showCart, setShowCart, getTotalItems } = useCartStore()
 
-    const inputContent = (
-        <CommandInput
-            endContent={
-                <>
-                    <Download />
-                    {user && getTotalItems() > 0 && (
-                        <Badge
-                            color='danger'
-                            content={getTotalItems()}
-                            isInvisible={getTotalItems() === 0}
-                            shape='circle'
-                            size='sm'
-                        >
-                            <Button
-                                isIconOnly
-                                className='bg-default/20'
-                                radius='full'
-                                size='sm'
-                                startContent={<ShoppingCart size={18} />}
-                                variant='light'
-                                onPress={() => setShowCart(!showCart)}
-                            />
-                        </Badge>
-                    )}
-                    {query ? (
-                        <Button
-                            isIconOnly
-                            className='bg-default/20'
-                            radius='full'
-                            size='sm'
-                            startContent={<X size={18} />}
-                            variant='light'
-                            onPress={() => setQuery('')}
-                        />
-                    ) : (
-                        children
-                    )}
-                </>
-            }
-            placeholder={heading() || (user ? HeyYou(user?.name) : 'What do you need?')}
-            startContent={
-                <Button
-                    isIconOnly
-                    className={`${page ? 'bg-default/20' : 'data-[hover=true]:bg-transparent'}`}
-                    radius='full'
-                    size='sm'
-                    startContent={page ? <ArrowLeft size={18} /> : <SearchIcon size={18} />}
-                    variant={page ? 'flat' : 'light'}
-                    onPress={() => {
-                        if (page) {
-                            setPage(null)
-                            bounce()
-                        }
-                    }}
-                />
-            }
-            value={query}
-            onFocus={() => setOpen(true)}
-            onValueChange={(value) => setQuery(value)}
-        />
-    )
-
-    const { scrollY, direction } = useScroll()
-    const isHidden = scrollY > 0 && direction === 'down'
-    const controls = useAnimation()
-
-    useEffect(() => {
-        const animate = async () => await controls.start(isHidden ? 'hidden' : 'visible')
-
-        animate()
-
-        return () => controls.stop()
-    }, [isHidden, controls])
-
     return (
-        <Command ref={ref} loop shouldFilter={shouldFilter} onKeyDown={onKeyDown}>
-            <SearchModal
+         <Command
                 ref={ref}
-                open={open}
-                setOpen={setOpen}
-                trigger={inputContent}
-                animate={controls}
-                variants={Bottom}
-                initial={isHidden && !open ? 'hidden' : 'visible'}
-                content={
-                    <CommandList>
-                        {tab === 'actions' && <QuickAction command={command} />}
-                        {tab === 'space' && <Space />}
-                        {tab === 'orders' && user && <Orders />}
-                        {tab === 'transactions' && user && <Transactions balance={balance} />}
-                        {tab === 'downloads' && <Downloads />}
-                    </CommandList>
-                }
-                footer={
+                loop
+                shouldFilter={shouldFilter}
+                onKeyDown={onKeyDown}
+            >
+        <AnimatedSearch open={open} setOpen={setOpen} ref={ref}>
+            <div className={
+                    open
+                        ? 'bg-background h-full md:h-[50vh] rounded-lg md:border overflow-hidden flex flex-col'
+                        : 'bg-background/80 rounded-xl border backdrop-blur'
+                }>
+                {open && (
                     <>
+                        <CommandList>
+                            {tab === 'actions' && <QuickAction command={command} />}
+                            {tab === 'space' && <Space />}
+                            {tab === 'orders' && user && <Orders />}
+                            {tab === 'transactions' && user && <Transactions balance={balance} />}
+                            {tab === 'downloads' && <Downloads />}
+                        </CommandList>
+
                         <Tabs
                             classNames={{
-                                tabList: 'relative w-full rounded-none border-b p-0',
+                                tabList: 'relative w-full rounded-none border-y p-0',
                                 cursor: 'w-full',
                                 tab: 'h-10 max-w-fit px-2 data-[focus-visible=true]:outline-0',
                             }}
@@ -173,10 +97,70 @@ export function SearchBar({
                                 />
                             ))}
                         </Tabs>
-                        {inputContent}
                     </>
-                }
-            />
+                )}
+                <CommandInput
+                    className={open ? 'border-b md:border-b-0' : ''}
+                    endContent={
+                        <>
+                            <Download />
+                            {user && getTotalItems() > 0 && (
+                                <Badge
+                                    color='danger'
+                                    content={getTotalItems()}
+                                    isInvisible={getTotalItems() === 0}
+                                    shape='circle'
+                                    size='sm'
+                                >
+                                    <Button
+                                        isIconOnly
+                                        className='bg-default/20'
+                                        radius='full'
+                                        size='sm'
+                                        startContent={<ShoppingCart size={18} />}
+                                        variant='light'
+                                        onPress={() => setShowCart(!showCart)}
+                                    />
+                                </Badge>
+                            )}
+                            {query ? (
+                                <Button
+                                    isIconOnly
+                                    className='bg-default/20'
+                                    radius='full'
+                                    size='sm'
+                                    startContent={<X size={18} />}
+                                    variant='light'
+                                    onPress={() => setQuery('')}
+                                />
+                            ) : (
+                                children
+                            )}
+                        </>
+                    }
+                    placeholder={heading() || (user ? HeyYou(user?.name) : 'What do you need?')}
+                    startContent={
+                        <Button
+                            isIconOnly
+                            className={`${page ? 'bg-default/20' : 'data-[hover=true]:bg-transparent'}`}
+                            radius='full'
+                            size='sm'
+                            startContent={page ? <ArrowLeft size={18} /> : <SearchIcon size={18} />}
+                            variant={page ? 'flat' : 'light'}
+                            onPress={() => {
+                                if (page) {
+                                    setPage(null)
+                                    bounce()
+                                }
+                            }}
+                        />
+                    }
+                    value={query}
+                    onFocus={() => setOpen(true)}
+                    onValueChange={(value) => setQuery(value)}
+                />
+            </div>
+        </AnimatedSearch>
         </Command>
     )
 }

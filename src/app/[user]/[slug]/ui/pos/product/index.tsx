@@ -66,7 +66,7 @@ export function PosProduct() {
             {showCategoryEmpty && <PosEmptyState type='category' value={category} />}
 
             <ScrollShadow hideScrollBar size={60}>
-                <div className='grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-2 overflow-y-auto md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'>
+                <div className='grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2 overflow-y-auto md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'>
                     {isLoading && (
                         <>
                             {Array.from({ length: 18 }).map((_, i) => (

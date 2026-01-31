@@ -7,7 +7,7 @@ export default async function Page() {
     const { user, navigation } = await userSession()
 
     return (
-        <main className='m-auto flex h-[calc(100vh-78px)] flex-col items-center justify-center'>
+        <main className='m-auto flex h-[calc(100svh-78px)] flex-col items-center justify-center'>
             <div className='flex w-full max-w-xl flex-col items-center gap-4 px-3 sm:px-2 md:gap-6'>
                 <h1 className='text-foreground text-center text-2xl font-extrabold sm:text-3xl sm:text-nowrap md:text-5xl'>
                     {user ? (

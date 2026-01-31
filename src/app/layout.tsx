@@ -27,7 +27,7 @@ export default async function RootLayout({
                     <ErrorBoundary>
                         <Providers>
                             <ThemeMetaTag />
-                            <div className='bg-background relative flex min-h-screen flex-col'>
+                            <div className='relative flex min-h-svh flex-col'>
                                 <div className='flex-1 overflow-clip'>{children}</div>
                                 {modal}
                                 <Suspense>

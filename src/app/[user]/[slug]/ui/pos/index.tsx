@@ -31,7 +31,7 @@ export function Pos() {
     }
 
     return (
-        <main className='flex h-[calc(100vh-78px)] flex-col gap-2 p-2 2xl:px-[10%]'>
+        <main className='flex h-[calc(100svh-78px)] flex-col gap-2 p-2 2xl:px-[10%]'>
             <PosHeader />
             <div className='relative flex flex-1 gap-2 overflow-hidden'>
                 <AnimatePresence initial={false} mode={isDesktop ? 'sync' : 'popLayout'}>

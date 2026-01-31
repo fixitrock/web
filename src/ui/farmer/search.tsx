@@ -13,9 +13,10 @@ interface AnimatedSearchProps {
     children: React.ReactNode
     open: boolean
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
+    ref: React.RefObject<HTMLDivElement>
 }
 
-export default function AnimatedSearch({ children, open, setOpen }: AnimatedSearchProps) {
+export default function AnimatedSearch({ children, open, setOpen, ref }: AnimatedSearchProps) {
     const { scrollY, direction } = useScroll()
     const isHidden = scrollY > 0 && direction === 'down'
     const controls = useAnimation()
@@ -49,7 +50,7 @@ export default function AnimatedSearch({ children, open, setOpen }: AnimatedSear
                     transition={{ type: 'spring', stiffness: 350, damping: 35 }}
                     variants={Bottom}
                 >
-                    <Modal open={open} setOpen={setOpen}>
+                    <Modal open={open} setOpen={setOpen} ref={ref}>
                         {children}
                     </Modal>
                 </motion.div>
@@ -58,12 +59,13 @@ export default function AnimatedSearch({ children, open, setOpen }: AnimatedSear
     )
 }
 
-export function Modal({ children, open, setOpen }: AnimatedSearchProps) {
+export function Modal({ children, open, setOpen, ref }: AnimatedSearchProps) {
     const isDesktop = useMediaQuery('(min-width: 768px)')
 
     if (isDesktop) {
         return (
             <div
+                ref={ref}
                 className={`z-50 transition-transform duration-300 ${open && 'fixed bottom-4 max-h-[50vh] w-[640px] translate-y-[-25vh] transform'}`}
             >
                 {children}
@@ -75,7 +77,7 @@ export function Modal({ children, open, setOpen }: AnimatedSearchProps) {
         <>
             {!open && <div className='z-50'>{children}</div>}
             <Drawer open={open} onOpenChange={setOpen}>
-                <DrawerContent className='h-[80vh]'>
+                <DrawerContent className='h-[80vh]' ref={ref}>
                     <DrawerHeader className='sr-only'>
                         <DrawerTitle />
                         <DrawerDescription />
