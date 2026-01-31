@@ -1,33 +1,13 @@
 'use client'
 
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
-
-import { Search } from '@/types/drive'
 import { getSearch } from '@/actions/drive'
+import { useQuery } from '@tanstack/react-query'
 
-export const useSearch = (query: string) => {
-    const queryClient = useQueryClient()
-    const [debouncedQuery, setDebouncedQuery] = useState(query)
-
-    useEffect(() => {
-        const handler = setTimeout(() => setDebouncedQuery(query), 300)
-
-        return () => clearTimeout(handler)
-    }, [query])
-
-    useEffect(() => {
-        if (query && query !== debouncedQuery) {
-            queryClient.invalidateQueries({ queryKey: ['search', query] })
-        }
-    }, [query, debouncedQuery, queryClient])
-
-    const result = useQuery<Search>({
-        queryKey: ['search', debouncedQuery],
-        queryFn: () => getSearch(debouncedQuery),
-        enabled: !!debouncedQuery,
-        refetchOnWindowFocus: false,
+export function useSearch(query: string) {
+    return useQuery({
+        queryKey: ['Space', query],
+        queryFn: () => getSearch(query),
+        enabled: query.trim().length >= 2,
+        retry: false,
     })
-
-    return { ...result, debouncedQuery }
 }

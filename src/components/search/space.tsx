@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import { Skeleton } from '@heroui/react'
 import { useRouter } from 'nextjs-toploader/app'
 
@@ -11,14 +10,15 @@ import { formatBytes, formatDateTime, path } from '@/lib/utils'
 import { Thumbnail } from '@/ui'
 import { Icon } from '@/lib'
 import { useSearchStore } from '@/zustand/store'
+import { useDebounce } from '@/hooks'
 
 export function Space() {
     const { query, onSelect, setOpen } = useSearchStore()
+    const debouncedQuery = useDebounce(query)
     const router = useRouter()
-    const { data, isLoading, debouncedQuery } = useSearch(query)
+    const { data, isLoading } = useSearch(debouncedQuery)
 
     const items = data?.value ?? []
-    const isPendingSearch = query && query !== debouncedQuery
 
     if (!query) {
         return (
@@ -38,7 +38,7 @@ export function Space() {
         )
     }
 
-    if (isLoading || isPendingSearch) {
+    if (isLoading) {
         return <Loading />
     }
     if (!isLoading && items.length === 0) {

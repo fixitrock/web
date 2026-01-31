@@ -44,6 +44,7 @@ export function QuickAction({ command }: { command: Record<string, Navigations> 
                         {group.navigationItems?.map((item) => (
                             <CommandItem
                                 key={item.id}
+                                value={`${item.title} ${item.description || ''} ${item.keywords?.join(' ') || ''}`}
                                 onSelect={() => onSelect(item, router, setTheme)}
                             >
                                 {item.icon && (

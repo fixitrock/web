@@ -59,7 +59,7 @@ function CommandInput({
 }) {
     return (
         <div
-            className={cn('flex h-10 items-center p-1.5', className)}
+            className={cn('flex h-10 w-full items-center p-1.5', className)}
             data-slot='command-input-wrapper'
         >
             <div className='flex flex-1 items-center gap-2'>

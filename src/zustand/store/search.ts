@@ -3,6 +3,7 @@ import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
 import { Navigation, Navigations } from '@/components/search/type'
+import { tabConfigs } from '@/config/tabs'
 
 interface NavigationGroup {
     heading: string
@@ -58,7 +59,7 @@ export const useSearchStore = create<SearchState>()(
                 query: string,
                 shouldFilter: boolean
             ): Navigations => {
-                if (!shouldFilter || !query) return list
+                if (shouldFilter || !query) return list
 
                 const lowerQuery = query.toLowerCase()
                 const seenIds = new Set<string>()
@@ -129,7 +130,18 @@ export const useSearchStore = create<SearchState>()(
                 setPage: (id) => set({ page: id, expandedOrderId: null }, false, 'setPages'),
 
                 tab: 'actions',
-                setTab: (tab) => set({ tab, expandedOrderId: null }, false, 'setTab'),
+                setTab: (tab) => {
+                    const config = tabConfigs.find((t) => t.key === tab)
+                    set(
+                        {
+                            tab,
+                            expandedOrderId: null,
+                            shouldFilter: config ? config.shouldFilter : get().shouldFilter,
+                        },
+                        false,
+                        'setTab'
+                    )
+                },
 
                 onSelect: (item, router, setTheme) => {
                     if (item.action?.type === 'tab' && item.action.value)
@@ -265,7 +277,6 @@ export const useOpen = () => {
     useEffect(() => {
         useSearchStore.setState({ open, setOpen })
     }, [open, setOpen])
-
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const handleKeyDown = (event: KeyboardEvent) => {
@@ -285,20 +296,6 @@ export const useOpen = () => {
             }
         }
     }, [])
-
-    useEffect(() => {
-        if (open && typeof window !== 'undefined') {
-            document.documentElement.style.overflow = 'hidden'
-            const isScrollable =
-                document.documentElement.scrollHeight > document.documentElement.clientHeight
-
-            document.documentElement.style.paddingRight = isScrollable ? '11px' : '0px'
-        } else {
-            document.documentElement.style.overflow = ''
-            document.documentElement.style.paddingRight = ''
-        }
-    }, [open])
-
     return {
         open,
         setOpen,
