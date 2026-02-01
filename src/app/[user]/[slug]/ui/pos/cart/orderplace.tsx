@@ -68,8 +68,6 @@ export function OrderPlace() {
         },
         [selectedPaymentMethod, setNote]
     )
-
-    // Place Order
     const handlePlaceOrder = useCallback(async () => {
         if (!selectedCustomer || !selectedPaymentMethod) {
             addToast({
@@ -144,26 +142,30 @@ export function OrderPlace() {
             const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`
 
             addToast({
-                title: `Send Receipt #${last4Digits} to ${selectedCustomer.name}`,
-                // endContent: (
-                //     <Button
-                //         size='sm'
-                //         variant='light'
-                //         className='border'
-                //         onPress={() => {
-                //             openWhatsApp(whatsappUrl)
-                //         }}
-                //     >
-                //         Send
-                //     </Button>
-                // ),
+                title: `Order #${last4Digits}`,
+                description: `Send receipt to ${selectedCustomer.name}`,
+                endContent: (
+                    <Button
+                        size='sm'
+                        color="success"
+                        variant='flat'
+                        className='font-bold ml-2'
+                        onPress={() => openWhatsApp(whatsappUrl)}
+                    >
+                        SEND
+                    </Button>
+                ),
                 icon: <WhatsAppIcon />,
                 color: 'success',
                 shouldShowTimeoutProgress: true,
+                shadow: 'none',
                 timeout: 5000,
             })
+
             if (selectedReceiptOption === 'whatsapp') {
-                openWhatsApp(whatsappUrl)
+                setTimeout(() => {
+                    openWhatsApp(whatsappUrl)
+                }, 2000)
             }
 
             clearAll()
@@ -176,7 +178,15 @@ export function OrderPlace() {
                 color: 'danger',
             })
         }
-    }, [selectedCustomer, selectedPaymentMethod, order, addOrder, clearAll, onClose])
+    }, [
+        selectedCustomer,
+        selectedPaymentMethod,
+        order,
+        addOrder,
+        clearAll,
+        onClose,
+        selectedReceiptOption,
+    ])
 
     const isPlaceOrderDisabled = useMemo(
         () =>
