@@ -268,7 +268,7 @@ export function userAvatar(user: User, size?: number): string {
 
     if (!avatar) return fallbackAvatar
 
-    return user?.updated_at ? `${avatar}?t=${encodeURIComponent(user.updated_at)}` : avatar
+    return user?.updated_at ? `${avatar}?t=${user.updated_at}` : avatar
 }
 
 // Download progress utilities
