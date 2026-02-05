@@ -10,7 +10,7 @@ export type PaymentMethodType = 'cash' | 'upi' | 'card' | 'paylater'
 
 type CartItem = {
     id: string
-    product: { id: string; name: string; category: string }
+    product: { id: string; name: string; category: string; thumbnail?: string | null }
     variant: ProductVariant
     quantity: number
     price: number
@@ -69,7 +69,13 @@ type PosState = {
     getTotalItems: () => number
     getTotalPrice: () => number
     canAddItem: (
-        product: { id: string; name: string; category: string; variants: ProductVariant[] },
+        product: {
+            id: string
+            name: string
+            category: string
+            thumbnail?: string | null
+            variants: ProductVariant[]
+        },
         selectedOptions: CartItem['selectedOptions'],
         qtyToAdd?: number
     ) => boolean
@@ -165,6 +171,7 @@ export const useCartStore = create<PosState>((set, get) => ({
                         id: newItem.product.id,
                         name: newItem.product.name,
                         category: newItem.product.category,
+                        thumbnail: newItem.product.thumbnail,
                     },
                     variant: newItem.variant,
                     quantity: newItem.quantity,
@@ -290,7 +297,7 @@ export const useCartStore = create<PosState>((set, get) => ({
                 productID: item.variant.id,
                 name: item.product.name,
                 category: item.product.category,
-                image: item.selectedOptions.image || item.variant.image,
+                image: item.selectedOptions.image || item.product.thumbnail,
                 brand: item.selectedOptions.brand || item.variant.brand,
                 color: item.selectedOptions.color
                     ? { name: item.selectedOptions.color, hex: item.variant.color?.hex || '' }

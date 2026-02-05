@@ -105,17 +105,52 @@ export async function GET(
             background_color: '#ffffff',
             icons: [
                 {
-                    src: userAvatar(profile),
+                    src: userAvatar(profile, 48),
+                    sizes: '48x48',
+                    type: 'image/png',
+                },
+                {
+                    src: userAvatar(profile, 72),
+                    sizes: '72x72',
+                    type: 'image/png',
+                },
+                {
+                    src: userAvatar(profile, 96),
+                    sizes: '96x96',
+                    type: 'image/png',
+                },
+                {
+                    src: userAvatar(profile, 128),
+                    sizes: '128x128',
+                    type: 'image/png',
+                },
+                {
+                    src: userAvatar(profile, 144),
+                    sizes: '144x144',
+                    type: 'image/png',
+                },
+                {
+                    src: userAvatar(profile, 152),
+                    sizes: '152x152',
+                    type: 'image/png',
+                },
+                {
+                    src: userAvatar(profile, 192),
                     sizes: '192x192',
                     type: 'image/png',
                 },
                 {
-                    src: userAvatar(profile),
+                    src: userAvatar(profile, 256),
+                    sizes: '256x256',
+                    type: 'image/png',
+                },
+                {
+                    src: userAvatar(profile, 384),
                     sizes: '384x384',
                     type: 'image/png',
                 },
                 {
-                    src: userAvatar(profile),
+                    src: userAvatar(profile, 512),
                     sizes: '512x512',
                     type: 'image/png',
                 },

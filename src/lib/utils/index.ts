@@ -248,9 +248,10 @@ export const formatDuration = (milliseconds: number): string => {
 /**
  * Get user avatar URL with fallback based on gender and cache busting
  * @param user - User object with avatar, gender, and updated_at
+ * @param size - Optional size to request a pre-generated avatar variant
  * @returns Avatar URL string
  */
-export function userAvatar(user: User): string {
+export function userAvatar(user: User, size?: number): string {
     const fallbackAvatar =
         user?.gender === 'female'
             ? '/fallback/girl.png'
@@ -258,7 +259,12 @@ export function userAvatar(user: User): string {
               ? '/fallback/other.png'
               : '/fallback/boy.png'
 
-    const avatar = bucketUrl(user?.avatar as string)
+    const avatarPath = user?.avatar as string
+    const sizedPath =
+        size && size !== 512 && avatarPath
+            ? avatarPath.replace(/\.png$/i, `-${size}.png`)
+            : avatarPath
+    const avatar = bucketUrl(sizedPath)
 
     if (!avatar) return fallbackAvatar
 

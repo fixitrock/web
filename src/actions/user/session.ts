@@ -1,14 +1,12 @@
 'use server'
 
+import { cache } from 'react'
+
 import { createClient } from '@/supabase/server'
 import { Navigation, User } from '@/app/login/types'
 import { Navigations } from '@/components/search/type'
 
-export async function userSession(): Promise<{
-    user: User | null
-    navigation: Navigation[]
-    command: Record<string, Navigations> | null
-}> {
+const getSession = cache(async () => {
     const supabase = await createClient()
 
     const { data, error } = await supabase.rpc('session')
@@ -39,4 +37,12 @@ export async function userSession(): Promise<{
     }
 
     return { user, navigation, command }
+})
+
+export async function userSession(): Promise<{
+    user: User | null
+    navigation: Navigation[]
+    command: Record<string, Navigations> | null
+}> {
+    return getSession()
 }

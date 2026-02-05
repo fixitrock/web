@@ -3,6 +3,7 @@
 import { z } from 'zod'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import sharp from 'sharp'
 
 import { createClient } from '@/supabase/server'
 import { logWarning } from '@/lib/utils'
@@ -66,6 +67,8 @@ export async function updateUser(formData: FormData) {
         throw new Error('Failed to update user')
     }
 }
+const AVATAR_SIZES = [48, 72, 96, 128, 144, 152, 192, 256, 384, 512] as const
+
 export async function uploadUserImage(file: File, type: 'avatar' | 'cover') {
     const session = await userSession()
     const user = session.user
@@ -76,20 +79,45 @@ export async function uploadUserImage(file: File, type: 'avatar' | 'cover') {
 
     try {
         const arrayBuffer = await file.arrayBuffer()
-        const bytes = new Uint8Array(arrayBuffer)
+        const inputBuffer = Buffer.from(arrayBuffer)
         const fileName = `${type}.png`
         const storagePath = `@${user.username}/${fileName}`
         const tablePath = `/@${user.username}/${fileName}`
 
-        // Upload to Cloudflare R2
-        await R2.send(
-            new PutObjectCommand({
-                Bucket: process.env.R2_BUCKET_NAME!,
-                Key: storagePath,
-                Body: bytes,
-                ContentType: 'image/png',
+        if (type === 'avatar') {
+            const base = sharp(inputBuffer).rotate()
+            const uploads = AVATAR_SIZES.map(async (size) => {
+                const pngBuffer = await base
+                    .clone()
+                    .resize(size, size, { fit: 'cover' })
+                    .png()
+                    .toBuffer()
+                const key = size === 512 ? storagePath : `@${user.username}/avatar-${size}.png`
+
+                return R2.send(
+                    new PutObjectCommand({
+                        Bucket: process.env.R2_BUCKET_NAME!,
+                        Key: key,
+                        Body: pngBuffer,
+                        ContentType: 'image/png',
+                    })
+                )
             })
-        )
+
+            await Promise.all(uploads)
+        } else {
+            const coverPng = await sharp(inputBuffer).rotate().png().toBuffer()
+
+            // Upload to Cloudflare R2
+            await R2.send(
+                new PutObjectCommand({
+                    Bucket: process.env.R2_BUCKET_NAME!,
+                    Key: storagePath,
+                    Body: coverPng,
+                    ContentType: 'image/png',
+                })
+            )
+        }
 
         // Update user table
         const updateData = type === 'avatar' ? { avatar: tablePath } : { cover: tablePath }
@@ -135,12 +163,27 @@ export async function deleteUserImage(type: 'avatar' | 'cover') {
         const tablePath = type === 'avatar' ? { avatar: null } : { cover: null }
 
         // Delete from Cloudflare R2
-        await R2.send(
-            new DeleteObjectCommand({
-                Bucket: process.env.R2_BUCKET_NAME!,
-                Key: storagePath,
+        if (type === 'avatar') {
+            const deletes = AVATAR_SIZES.map((size) => {
+                const key = size === 512 ? storagePath : `@${user.username}/avatar-${size}.png`
+
+                return R2.send(
+                    new DeleteObjectCommand({
+                        Bucket: process.env.R2_BUCKET_NAME!,
+                        Key: key,
+                    })
+                )
             })
-        )
+
+            await Promise.all(deletes)
+        } else {
+            await R2.send(
+                new DeleteObjectCommand({
+                    Bucket: process.env.R2_BUCKET_NAME!,
+                    Key: storagePath,
+                })
+            )
+        }
 
         // Remove from table
         const { error: updateError } = await supabase
