@@ -47,120 +47,121 @@ export function SearchBar({
     const { showCart, setShowCart, getTotalItems } = useCartStore()
 
     return (
-         <Command
-                ref={ref}
-                loop
-                shouldFilter={shouldFilter}
-                onKeyDown={onKeyDown}
-            >
-        <AnimatedSearch open={open} setOpen={setOpen} ref={ref}>
-            <div className={
-                    open
-                        ? 'bg-background h-full md:h-[50vh] rounded-lg md:border overflow-hidden flex flex-col'
-                        : 'bg-background/80 rounded-xl border backdrop-blur'
-                }>
-                {open && (
-                    <>
-                        <CommandList>
-                            {tab === 'actions' && <QuickAction command={command} />}
-                            {tab === 'space' && <Space />}
-                            {tab === 'orders' && user && <Orders />}
-                            {tab === 'transactions' && user && <Transactions balance={balance} />}
-                            {tab === 'downloads' && <Downloads />}
-                        </CommandList>
-
-                        <Tabs
-                            classNames={{
-                                tabList: 'relative w-full rounded-none border-y p-0',
-                                cursor: 'w-full',
-                                tab: 'h-10 max-w-fit px-2 data-[focus-visible=true]:outline-0',
-                            }}
-                            selectedKey={tab}
-                            size='sm'
-                            variant='underlined'
-                            onSelectionChange={(key) => {
-                                const selectedTab = tabs(user).find((t) => t.key === key)
-
-                                if (!selectedTab) return
-                                setTab(key as string)
-                            }}
-                        >
-                            {tabs(user).map((tab) => (
-                                <Tab
-                                    key={tab.key}
-                                    title={
-                                        <div className='flex items-center space-x-1'>
-                                            <tab.icon />
-                                            <span>{tab.title}</span>
-                                        </div>
-                                    }
-                                />
-                            ))}
-                        </Tabs>
-                    </>
-                )}
-                <CommandInput
-                    className={open ? 'border-b md:border-b-0' : ''}
-                    endContent={
+        <Command ref={ref} loop shouldFilter={shouldFilter} onKeyDown={onKeyDown}>
+            <AnimatedSearch open={open} setOpen={setOpen} ref={ref}>
+                <div
+                    className={
+                        open
+                            ? 'bg-background flex h-full flex-col overflow-hidden rounded-lg md:h-[50vh] md:border'
+                            : 'bg-background/80 rounded-xl border backdrop-blur'
+                    }
+                >
+                    {open && (
                         <>
-                            <Download />
-                            {user && getTotalItems() > 0 && (
-                                <Badge
-                                    color='danger'
-                                    content={getTotalItems()}
-                                    isInvisible={getTotalItems() === 0}
-                                    shape='circle'
-                                    size='sm'
-                                >
+                            <CommandList>
+                                {tab === 'actions' && <QuickAction command={command} />}
+                                {tab === 'space' && <Space />}
+                                {tab === 'orders' && user && <Orders />}
+                                {tab === 'transactions' && user && (
+                                    <Transactions balance={balance} />
+                                )}
+                                {tab === 'downloads' && <Downloads />}
+                            </CommandList>
+
+                            <Tabs
+                                classNames={{
+                                    tabList: 'relative w-full rounded-none border-y p-0',
+                                    cursor: 'w-full',
+                                    tab: 'h-10 max-w-fit px-2 data-[focus-visible=true]:outline-0',
+                                }}
+                                selectedKey={tab}
+                                size='sm'
+                                variant='underlined'
+                                onSelectionChange={(key) => {
+                                    const selectedTab = tabs(user).find((t) => t.key === key)
+
+                                    if (!selectedTab) return
+                                    setTab(key as string)
+                                }}
+                            >
+                                {tabs(user).map((tab) => (
+                                    <Tab
+                                        key={tab.key}
+                                        title={
+                                            <div className='flex items-center space-x-1'>
+                                                <tab.icon />
+                                                <span>{tab.title}</span>
+                                            </div>
+                                        }
+                                    />
+                                ))}
+                            </Tabs>
+                        </>
+                    )}
+                    <CommandInput
+                        className={open ? 'border-b md:border-b-0' : ''}
+                        endContent={
+                            <>
+                                <Download />
+                                {user && getTotalItems() > 0 && (
+                                    <Badge
+                                        color='danger'
+                                        content={getTotalItems()}
+                                        isInvisible={getTotalItems() === 0}
+                                        shape='circle'
+                                        size='sm'
+                                    >
+                                        <Button
+                                            isIconOnly
+                                            className='bg-default/20'
+                                            radius='full'
+                                            size='sm'
+                                            startContent={<ShoppingCart size={18} />}
+                                            variant='light'
+                                            onPress={() => setShowCart(!showCart)}
+                                        />
+                                    </Badge>
+                                )}
+                                {query ? (
                                     <Button
                                         isIconOnly
                                         className='bg-default/20'
                                         radius='full'
                                         size='sm'
-                                        startContent={<ShoppingCart size={18} />}
+                                        startContent={<X size={18} />}
                                         variant='light'
-                                        onPress={() => setShowCart(!showCart)}
+                                        onPress={() => setQuery('')}
                                     />
-                                </Badge>
-                            )}
-                            {query ? (
-                                <Button
-                                    isIconOnly
-                                    className='bg-default/20'
-                                    radius='full'
-                                    size='sm'
-                                    startContent={<X size={18} />}
-                                    variant='light'
-                                    onPress={() => setQuery('')}
-                                />
-                            ) : (
-                                children
-                            )}
-                        </>
-                    }
-                    placeholder={heading() || (user ? HeyYou(user?.name) : 'What do you need?')}
-                    startContent={
-                        <Button
-                            isIconOnly
-                            className={`${page ? 'bg-default/20' : 'data-[hover=true]:bg-transparent'}`}
-                            radius='full'
-                            size='sm'
-                            startContent={page ? <ArrowLeft size={18} /> : <SearchIcon size={18} />}
-                            variant={page ? 'flat' : 'light'}
-                            onPress={() => {
-                                if (page) {
-                                    setPage(null)
-                                    bounce()
+                                ) : (
+                                    children
+                                )}
+                            </>
+                        }
+                        placeholder={heading() || (user ? HeyYou(user?.name) : 'What do you need?')}
+                        startContent={
+                            <Button
+                                isIconOnly
+                                className={`${page ? 'bg-default/20' : 'data-[hover=true]:bg-transparent'}`}
+                                radius='full'
+                                size='sm'
+                                startContent={
+                                    page ? <ArrowLeft size={18} /> : <SearchIcon size={18} />
                                 }
-                            }}
-                        />
-                    }
-                    value={query}
-                    onFocus={() => setOpen(true)}
-                    onValueChange={(value) => setQuery(value)}
-                />
-            </div>
-        </AnimatedSearch>
+                                variant={page ? 'flat' : 'light'}
+                                onPress={() => {
+                                    if (page) {
+                                        setPage(null)
+                                        bounce()
+                                    }
+                                }}
+                            />
+                        }
+                        value={query}
+                        onFocus={() => setOpen(true)}
+                        onValueChange={(value) => setQuery(value)}
+                    />
+                </div>
+            </AnimatedSearch>
         </Command>
     )
 }

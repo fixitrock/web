@@ -79,7 +79,6 @@ export default function Profile({ user, can }: ProfileProps) {
                                 : fallback.user + user.name + '.svg?text=' + user.name
                         }
                         fill
-                        quality={100}
                         className='object-cover'
                         sizes='100vw'
                     />
@@ -127,7 +126,6 @@ export default function Profile({ user, can }: ProfileProps) {
                                     fill
                                     className='rounded-full object-cover'
                                     sizes='(max-width: 768px) 112px, 144px'
-                                    quality={100}
                                 />
                             </div>
                             {can.view.profile && (

@@ -29,7 +29,6 @@ const TransactionRow = memo(
                 <Image
                     width={35}
                     height={35}
-                    quality={100}
                     src={avatarSrc}
                     alt={name}
                     className='aspect-square rounded-full object-cover'

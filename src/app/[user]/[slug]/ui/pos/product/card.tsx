@@ -156,43 +156,49 @@ function ProductModal({ product, isOpen, onOpenChange }: ProductModalProps) {
             onOpenChange={onOpenChange}
         >
             <ModalContent>
-                <ModalHeader className='flex items-center border-b p-3'>
-                    <div className='flex flex-col'>
-                        <h2 className='line-clamp-1'>{product.name}</h2>
-                        <p className='text-muted-foreground text-xs'>{product.category}</p>
-                        {product.compatibility && (
-                            <p className='text-muted-foreground text-xs'>{product.compatibility}</p>
-                        )}
-                    </div>
-                    <div className='ml-auto flex items-center gap-1.5'>
-                        {type === 'wholesale' && (
-                            <>
-                                {reveal && formatPrice(active?.purchase_price || 0)}
-                                <Button
-                                    isIconOnly
-                                    radius='full'
-                                    size='sm'
-                                    startContent={reveal ? <Eye size={16} /> : <EyeOff size={16} />}
-                                    variant='light'
-                                    onMouseDown={toggleReveal}
-                                    onMouseLeave={() => setReveal(false)}
-                                    onMouseUp={() => setReveal(false)}
-                                    onTouchEnd={() => setReveal(false)}
-                                    onTouchStart={toggleReveal}
-                                />
-                            </>
-                        )}
+                <ModalHeader className='flex flex-col border-b p-3'>
+                    <div className='flex items-center'>
+                        <div className='flex flex-col'>
+                            <h2 className='line-clamp-1'>{product.name}</h2>
+                            <p className='text-muted-foreground text-xs'>{product.category}</p>
+                        </div>
+                        <div className='ml-auto flex items-center gap-1.5'>
+                            {type === 'wholesale' && (
+                                <>
+                                    {reveal && formatPrice(active?.purchase_price || 0)}
+                                    <Button
+                                        isIconOnly
+                                        radius='full'
+                                        size='sm'
+                                        startContent={
+                                            reveal ? <Eye size={16} /> : <EyeOff size={16} />
+                                        }
+                                        variant='light'
+                                        onMouseDown={toggleReveal}
+                                        onMouseLeave={() => setReveal(false)}
+                                        onMouseUp={() => setReveal(false)}
+                                        onTouchEnd={() => setReveal(false)}
+                                        onTouchStart={toggleReveal}
+                                    />
+                                </>
+                            )}
 
-                        <Button
-                            isIconOnly
-                            className='border'
-                            radius='full'
-                            size='sm'
-                            startContent={<XIcon className='h-4 w-4' />}
-                            variant='light'
-                            onPress={() => onOpenChange?.(false)}
-                        />
+                            <Button
+                                isIconOnly
+                                className='border'
+                                radius='full'
+                                size='sm'
+                                startContent={<XIcon className='h-4 w-4' />}
+                                variant='light'
+                                onPress={() => onOpenChange?.(false)}
+                            />
+                        </div>
                     </div>
+                    {product.compatibility && (
+                        <p className='text-muted-foreground mt-0.5 text-xs'>
+                            {product.compatibility}
+                        </p>
+                    )}
                 </ModalHeader>
                 <ModalBody className='p-3 select-none'>
                     {allBrands.length > 0 && (

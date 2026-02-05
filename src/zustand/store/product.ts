@@ -178,7 +178,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
         }),
 
     validate: () => {
-        const { form } = get()
+        const { form, mode } = get()
         const errors: Record<string, string> = {}
 
         if (!form.name?.trim()) errors.name = 'Product name is required.'
@@ -186,8 +186,17 @@ export const useProductStore = create<ProductState>((set, get) => ({
 
         form.variants?.forEach((v, i) => {
             if (!v.brand?.trim()) errors[`variant-${i}-brand`] = 'Brand is required.'
-            if (v.quantity === undefined || v.quantity <= 0)
-                errors[`variant-${i}-quantity`] = 'Quantity must be greater than 0.'
+
+            const isInvalidQuantity =
+                mode === 'add'
+                    ? v.quantity === undefined || v.quantity <= 0
+                    : v.quantity === undefined || v.quantity < 0
+
+            if (isInvalidQuantity)
+                errors[`variant-${i}-quantity`] =
+                    mode === 'add'
+                        ? 'Quantity must be greater than 0.'
+                        : 'Quantity cannot be negative.'
             // if (v.price === undefined || v.price <= 0)
             //     errors[`variant-${i}-price`] = 'Price must be greater than 0.'
         })

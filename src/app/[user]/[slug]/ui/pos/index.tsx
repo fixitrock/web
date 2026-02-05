@@ -12,8 +12,6 @@ export function Pos() {
 
     const showProduct = isDesktop || !showCart
     const showCartContent = showCart
-
-    // Animation Variants
     const productVariants = {
         initial: isDesktop ? { opacity: 0, scale: 0.98 } : { x: -20, opacity: 0 },
         animate: { opacity: 1, scale: 1, x: 0 },

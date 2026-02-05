@@ -29,6 +29,7 @@ async function loadAssets(): Promise<FontOptions[]> {
     }
 }
 
+export const revalidate = 3600
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const slug = searchParams.get('slug')
@@ -169,6 +170,7 @@ export async function GET(request: Request) {
             fonts,
             headers: {
                 'Content-Disposition': `filename=Rock Star.webp`,
+                'Cache-Control': 'public, max-age=3600, s-maxage=3600',
             },
         }
     )

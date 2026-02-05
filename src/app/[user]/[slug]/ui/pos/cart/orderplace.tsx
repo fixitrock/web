@@ -147,9 +147,9 @@ export function OrderPlace() {
                 endContent: (
                     <Button
                         size='sm'
-                        color="success"
+                        color='success'
                         variant='flat'
-                        className='font-bold ml-2'
+                        className='ml-2 font-bold'
                         onPress={() => openWhatsApp(whatsappUrl)}
                     >
                         SEND

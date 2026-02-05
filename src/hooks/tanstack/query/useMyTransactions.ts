@@ -22,5 +22,6 @@ export function useMyTransactions(search: string = '') {
                 hasMore: data.pages.at(-1)?.hasMore ?? false,
             }
         },
+        staleTime: 60 * 1000,
     })
 }
