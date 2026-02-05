@@ -5,7 +5,11 @@ import type { Product } from '@/types/product'
 import { uploadFilesDirectly } from './upload'
 
 export async function prepareProduct(product: Product): Promise<Product> {
-    const allNewFiles: { variantIdx: number; file: File }[] = []
+    const allNewFiles: { variantIdx: number | 'thumbnail'; file: File }[] = []
+
+    if (product.thumbnail instanceof File) {
+        allNewFiles.push({ variantIdx: 'thumbnail', file: product.thumbnail })
+    }
 
     product.variants.forEach((variant, idx) => {
         const newFiles = variant.image?.filter((i): i is File => i instanceof File) ?? []
@@ -25,6 +29,12 @@ export async function prepareProduct(product: Product): Promise<Product> {
         }))
     )
 
+    let updatedThumbnail = product.thumbnail as string | undefined
+    const thumbnailUpload = uploadUrls.find((_, i) => allNewFiles[i].variantIdx === 'thumbnail')
+    if (thumbnailUpload) {
+        updatedThumbnail = thumbnailUpload.path
+    }
+
     const updatedVariants = product.variants.map((variant, idx) => {
         const existingUrls = variant.image?.filter((i): i is string => typeof i === 'string') ?? []
         const uploadedPaths = uploadUrls
@@ -33,5 +43,5 @@ export async function prepareProduct(product: Product): Promise<Product> {
         return { ...variant, image: [...existingUrls, ...uploadedPaths] }
     })
 
-    return { ...product, variants: updatedVariants }
+    return { ...product, thumbnail: updatedThumbnail, variants: updatedVariants }
 }

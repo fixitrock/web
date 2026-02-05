@@ -130,24 +130,18 @@ export const getStockStatus = (qty: number) => {
 }
 
 export const getProductImage = (product: Product): string | undefined => {
-    if (!product.variants?.[0]?.image || product.variants[0].image.length === 0) {
-        if (product.category) {
-            return (
-                bucketUrl(
-                    '/assets/categories/' +
-                        product.category.toLowerCase().replace(/\s+/g, '-') +
-                        '.png'
-                ) ?? undefined
-            )
-        }
-        return undefined
+    const { thumbnail, category } = product
+
+    if (typeof thumbnail === 'string') return bucketUrl(thumbnail) ?? undefined
+    if (typeof URL !== 'undefined' && thumbnail instanceof File) {
+        return URL.createObjectURL(thumbnail)
     }
 
-    const firstImage = product.variants[0].image[0]
-    if (typeof firstImage === 'string') {
-        return bucketUrl(firstImage) ?? undefined
-    }
-    return undefined
+    if (!category) return undefined
+
+    const categorySlug = category.toLowerCase().replace(/\s+/g, '-')
+
+    return bucketUrl(`/assets/categories/${categorySlug}.png`) ?? undefined
 }
 
 export function formatDateTime(dateTimeString?: string | null | undefined): string {

@@ -6,6 +6,7 @@ export type Product = {
     description: string
     compatibility: string
     category: string
+    thumbnail?: string | File
     created_at?: string
     updated_at?: string
     deleted_at?: string | null

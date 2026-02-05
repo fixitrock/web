@@ -47,6 +47,9 @@ export const updateProduct = withErrorHandling(async (data: Product) => {
     const oldImages = new Set<string>()
     const newImages = new Set<string>()
 
+    if (oldProduct?.thumbnail) oldImages.add(oldProduct.thumbnail)
+    if (data.thumbnail && typeof data.thumbnail === 'string') newImages.add(data.thumbnail)
+
     oldVariants.forEach((v: any) => {
         v.image?.forEach((img: unknown) => {
             if (typeof img === 'string') oldImages.add(img)

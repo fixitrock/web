@@ -20,7 +20,16 @@ import {
 } from '@heroui/react'
 import { toast } from 'sonner'
 import { Accordion as AccordionPrimitive } from 'radix-ui'
-import { CirclePlus, GalleryHorizontalEnd, Plus, PlusIcon, Settings2, X, Copy } from 'lucide-react'
+import {
+    CirclePlus,
+    GalleryHorizontalEnd,
+    Plus,
+    PlusIcon,
+    Settings2,
+    X,
+    Copy,
+    ImagePlus,
+} from 'lucide-react'
 import { LuBadgeIndianRupee } from 'react-icons/lu'
 import { Delete } from '@/ui/icons'
 import type { Product, ProductVariant } from '@/types/product'
@@ -108,14 +117,14 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
         <Modal
             hideCloseButton
             scrollBehavior='inside'
-            size='xl'
+            size='2xl'
             placement='center'
-            className='bg-background max-h-[50vh] border shadow-none md:max-h-[80vh]'
+            className='bg-background max-h-[50vh] overflow-hidden border shadow-none md:max-h-[80vh]'
             isOpen={isOpen}
             onClose={onClose}
         >
             <ModalContent>
-                <ModalHeader className='flex items-center justify-between border-b p-2 select-none'>
+                <ModalHeader className='flex items-center justify-between border-b p-3 select-none'>
                     <p className='flex items-center gap-2 text-lg font-semibold'>
                         {Icon} {Title}
                     </p>
@@ -133,80 +142,139 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
 
                 <ModalBody className='p-0'>
                     <ScrollShadow className='flex flex-col gap-3 px-3 py-2' hideScrollBar>
-                        <div className='grid gap-4 md:grid-cols-2'>
-                            <Input
-                                label='Product Name'
-                                placeholder='e.g., Redmi K20 Pro'
-                                labelPlacement='outside-top'
-                                isRequired
-                                isInvalid={!!errors.name}
-                                errorMessage={errors.name}
-                                classNames={{
-                                    inputWrapper: inputWrapperStyle,
-                                }}
-                                size='sm'
-                                description='Enter product name'
-                                value={form.name}
-                                onChange={(e) => setForm({ name: e.target.value })}
-                            />
-
-                            <Autocomplete
-                                description='Select a category'
-                                size='sm'
-                                isLoading={catLoading}
-                                defaultItems={cat?.categories || []}
-                                popoverProps={{
-                                    classNames: {
-                                        content:
-                                            'bg-background/80 backdrop-blur border shadow-none',
-                                    },
-                                }}
-                                selectedKey={form.category}
-                                onSelectionChange={(key) =>
-                                    setForm({ category: key?.toString() ?? '' })
-                                }
-                                label='Category'
-                                placeholder='Choose category'
-                                isRequired
-                                isInvalid={!!errors.category}
-                                errorMessage={errors.category}
-                                labelPlacement='outside-top'
-                                allowsCustomValue
-                                inputProps={{
-                                    classNames: {
+                        <div className='flex flex-col gap-3 md:flex-row'>
+                            <div className='bg-background/60 flex w-full flex-col gap-2 rounded-xl border p-3 md:p-4'>
+                                <Input
+                                    label='Product Name'
+                                    placeholder='e.g., Redmi K20 Pro'
+                                    labelPlacement='outside-top'
+                                    isRequired
+                                    isInvalid={!!errors.name}
+                                    errorMessage={errors.name}
+                                    classNames={{
                                         inputWrapper: inputWrapperStyle,
-                                    },
-                                }}
-                                defaultFilter={(textValue, inputValue) => {
-                                    const lowerTextValue = textValue.toLowerCase()
-                                    const lowerInputValue = inputValue.toLowerCase()
-                                    const category = (cat?.categories || []).find(
-                                        (c) => c.name === textValue
-                                    )
-                                    if (lowerTextValue.includes(lowerInputValue)) return true
-                                    if (
-                                        category?.keywords?.some((keyword) =>
-                                            keyword.toLowerCase().includes(lowerInputValue)
-                                        )
-                                    )
-                                        return true
-                                    return false
-                                }}
-                            >
-                                {(c) => <AutocompleteItem key={c.name}>{c.name}</AutocompleteItem>}
-                            </Autocomplete>
-                        </div>
+                                    }}
+                                    size='sm'
+                                    description='Enter product name'
+                                    value={form.name}
+                                    onChange={(e) => setForm({ name: e.target.value })}
+                                />
 
-                        <Input
-                            label='Compatibility'
-                            placeholder='e.g., K20 - K20 Pro - 9T - 9T Pro'
-                            labelPlacement='outside-top'
-                            value={form.compatibility!}
-                            onChange={(e) => setForm({ compatibility: e.target.value })}
+                                <Autocomplete
+                                    description='Select a category'
+                                    size='sm'
+                                    isLoading={catLoading}
+                                    defaultItems={cat?.categories || []}
+                                    popoverProps={{
+                                        classNames: {
+                                            content:
+                                                'bg-background/80 backdrop-blur border shadow-none',
+                                        },
+                                    }}
+                                    selectedKey={form.category}
+                                    onSelectionChange={(key) =>
+                                        setForm({ category: key?.toString() ?? '' })
+                                    }
+                                    label='Category'
+                                    placeholder='Choose category'
+                                    isRequired
+                                    isInvalid={!!errors.category}
+                                    errorMessage={errors.category}
+                                    labelPlacement='outside-top'
+                                    allowsCustomValue
+                                    inputProps={{
+                                        classNames: {
+                                            inputWrapper: inputWrapperStyle,
+                                        },
+                                    }}
+                                    defaultFilter={(textValue, inputValue) => {
+                                        const lowerTextValue = textValue.toLowerCase()
+                                        const lowerInputValue = inputValue.toLowerCase()
+                                        const category = (cat?.categories || []).find(
+                                            (c) => c.name === textValue
+                                        )
+                                        if (lowerTextValue.includes(lowerInputValue)) return true
+                                        if (
+                                            category?.keywords?.some((keyword) =>
+                                                keyword.toLowerCase().includes(lowerInputValue)
+                                            )
+                                        )
+                                            return true
+                                        return false
+                                    }}
+                                >
+                                    {(c) => (
+                                        <AutocompleteItem key={c.name}>{c.name}</AutocompleteItem>
+                                    )}
+                                </Autocomplete>
+                            </div>
+                            <div className='shrink-0 md:size-[200px]'>
+                                {form.thumbnail ? (
+                                    <div className='group relative'>
+                                        <Image
+                                            src={
+                                                typeof form.thumbnail === 'string'
+                                                    ? bucketUrl(form.thumbnail)
+                                                    : URL.createObjectURL(form.thumbnail)
+                                            }
+                                            alt='Thumbnail'
+                                            className='aspect-square rounded-lg border object-cover'
+                                            classNames={{ wrapper: 'aspect-square object-cover' }}
+                                        />
+                                        <Button
+                                            isIconOnly
+                                            color='danger'
+                                            className='absolute -top-1 -right-1 z-30 h-6 w-6 min-w-0 rounded-full p-0 shadow-md'
+                                            onPress={() => {
+                                                setForm({ thumbnail: '' })
+                                            }}
+                                        >
+                                            <X className='size-4' />
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <Button
+                                        as='label'
+                                        className='bg-background/60 hover:border-foreground/40 flex aspect-square size-full min-h-0 min-w-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 text-center transition'
+                                        variant='light'
+                                    >
+                                        <div className='flex flex-col items-center gap-2'>
+                                            <div className='bg-default-100 flex size-11 items-center justify-center rounded-full border'>
+                                                <ImagePlus className='text-default-500' size={20} />
+                                            </div>
+                                            <div className='flex flex-col items-center'>
+                                                <p className='text-sm font-medium'>Thumbnail</p>
+                                                <p className='text-muted-foreground text-[11px]'>
+                                                    Main product image
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <input
+                                            type='file'
+                                            accept='image/*'
+                                            capture='environment'
+                                            multiple
+                                            hidden
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0]
+                                                if (file) setForm({ thumbnail: file })
+                                            }}
+                                        />
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+                        <Textarea
                             classNames={{
                                 inputWrapper: inputWrapperStyle,
                             }}
+                            labelPlacement='outside-top'
+                            label='Compatibility'
+                            placeholder='e.g., K20 - K20 Pro - 9T - 9T Pro'
                             size='sm'
+                            value={form.compatibility!}
+                            onChange={(e) => setForm({ compatibility: e.target.value })}
+                            minRows={1}
                             description='Supported models or devices'
                         />
 
@@ -223,7 +291,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                         />
 
                         {form.variants && form.variants.length <= 1 ? (
-                            <div>
+                            <div className='bg-background/60 rounded-xl border p-3 md:p-4'>
                                 <VariantForm
                                     key={'single'}
                                     index={0}
@@ -231,12 +299,12 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                                     updateVariant={updateVariant}
                                 />
 
-                                <div className='flex items-center'>
+                                <div className='mt-2 flex items-center'>
                                     <div className='bg-default/20 h-px flex-1' />
                                     <Button
                                         size='sm'
                                         variant='flat'
-                                        className='rounded-full px-4 font-medium'
+                                        className='rounded-full px-4 font-medium shadow-sm'
                                         startContent={<Plus size={16} />}
                                         onPress={() =>
                                             addVariant({
@@ -269,7 +337,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                                     <AccordionItem
                                         key={`variant-${idx}`}
                                         value={`variant-${idx}`}
-                                        className='bg-background rounded-md border px-4 py-1 outline-none last:border-b'
+                                        className='bg-background rounded-xl border px-3 py-1 outline-none last:border-b md:px-4'
                                     >
                                         <AccordionPrimitive.Header className='flex items-center'>
                                             <AccordionPrimitive.Trigger className='flex flex-1 items-center gap-4 rounded-md py-2 text-left text-sm text-[15px] leading-6 font-semibold transition-all outline-none focus-visible:ring-0 [&>svg]:-order-1 [&>svg>path:last-child]:origin-center [&>svg>path:last-child]:transition-all [&>svg>path:last-child]:duration-200 [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg>path:last-child]:rotate-90 [&[data-state=open]>svg>path:last-child]:opacity-0'>
@@ -277,7 +345,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                                                 {v?.color ? (
                                                     <span className='flex items-center gap-2'>
                                                         <span
-                                                            className='inline-block size-4 rounded-full border'
+                                                            className='inline-block size-4 rounded-full border shadow-sm'
                                                             style={{ backgroundColor: v.color.hex }}
                                                         />
                                                         {v.color.name}
@@ -339,7 +407,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                                                 />
                                             )}
                                         </AccordionPrimitive.Header>
-                                        <AccordionContent className='pb-2'>
+                                        <AccordionContent className='pb-3'>
                                             <VariantForm
                                                 index={idx}
                                                 variant={v}
@@ -353,7 +421,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                     </ScrollShadow>
                 </ModalBody>
 
-                <ModalFooter className='flex-row-reverse border-t p-2'>
+                <ModalFooter className='flex-row-reverse border-t p-3'>
                     <Button
                         className='w-full'
                         color='primary'
@@ -475,7 +543,7 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                         />
                     </div>
 
-                    <div className='grid grid-cols-2 gap-4 md:grid-cols-4'>
+                    <div className='mt-1 grid grid-cols-2 gap-4 md:grid-cols-4'>
                         {['purchase_price', 'wholesale_price', 'price', 'mrp'].map((field) => (
                             <Input
                                 classNames={{
@@ -606,7 +674,7 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                 </AccordionTrigger>
 
                 <AccordionContent className='px-2'>
-                    <div className='flex flex-wrap items-center gap-1.5'>
+                    <div className='flex flex-wrap items-center gap-2'>
                         {(variant.image ?? []).map((fileOrUrl, i) => {
                             const src =
                                 typeof fileOrUrl === 'string'
@@ -617,12 +685,12 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                                     <Image
                                         src={src}
                                         alt={`Image ${i + 1}`}
-                                        className='size-20 border object-cover'
+                                        className='size-20 rounded-lg border object-cover'
                                         classNames={{ wrapper: 'size-20 object-cover' }}
                                     />
                                     <Button
                                         isIconOnly
-                                        className='absolute -top-0.5 -right-0.5 z-30 h-5 w-5 min-w-0 rounded-full p-0'
+                                        className='absolute -top-1 -right-1 z-30 h-6 w-6 min-w-0 rounded-full p-0 shadow-md'
                                         onPress={() => {
                                             const updatedImages = [...(variant.image ?? [])]
                                             updatedImages.splice(i, 1)
@@ -638,7 +706,7 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                         {(variant.image?.length ?? 0) < 3 && (
                             <Button
                                 as='label'
-                                className='aspect-square size-20 cursor-pointer border-2 border-dashed'
+                                className='bg-background/60 flex size-20 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed'
                                 variant='light'
                             >
                                 <Icon icon='flat-color-icons:plus' width='48' height='48' />

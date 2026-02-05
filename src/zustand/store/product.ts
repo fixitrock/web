@@ -31,6 +31,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
         description: '',
         compatibility: '',
         category: '',
+        thumbnail: '',
         variants: [
             {
                 id: '',
@@ -55,6 +56,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
                 editingProduct: product,
                 form: {
                     ...product,
+                    thumbnail: product.thumbnail ?? '',
                     variants: product.variants ?? [],
                 },
                 errors: {},
@@ -69,6 +71,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
                     description: '',
                     compatibility: '',
                     category: '',
+                    thumbnail: '',
                     variants: [
                         {
                             id: '',
@@ -108,6 +111,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
                 description: '',
                 compatibility: '',
                 category: '',
+                thumbnail: '',
                 variants: [
                     {
                         id: '',
