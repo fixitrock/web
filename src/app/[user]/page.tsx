@@ -101,6 +101,30 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
     if (user.role === 2 || user.role === 3) {
         metadata.manifest = `/manifest/${user.username}`
+        metadata.icons = {
+            apple: [
+                {
+                    url: userAvatar(user, 120),
+                    sizes: '120x120',
+                    type: 'image/png',
+                },
+                {
+                    url: userAvatar(user, 180),
+                    sizes: '180x180',
+                    type: 'image/png',
+                },
+                {
+                    url: userAvatar(user, 152),
+                    sizes: '152x152',
+                    type: 'image/png',
+                },
+                {
+                    url: userAvatar(user, 167),
+                    sizes: '167x167',
+                    type: 'image/png',
+                },
+            ],
+        }
         metadata.appleWebApp = {
             capable: true,
             statusBarStyle: 'default',

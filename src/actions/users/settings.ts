@@ -67,7 +67,7 @@ export async function updateUser(formData: FormData) {
         throw new Error('Failed to update user')
     }
 }
-const AVATAR_SIZES = [48, 72, 96, 128, 144, 152, 192, 256, 384, 512] as const
+const AVATAR_SIZES = [48, 72, 96, 120, 128, 144, 152, 167, 180, 192, 256, 384, 512] as const
 
 export async function uploadUserImage(file: File, type: 'avatar' | 'cover') {
     const session = await userSession()
