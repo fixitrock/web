@@ -208,7 +208,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                                     )}
                                 </Autocomplete>
                             </div>
-                            <div className='shrink-0 md:size-[200px]'>
+                            <div className='shrink-0 md:size-50'>
                                 {form.thumbnail ? (
                                     <div className='group relative'>
                                         <Image
@@ -291,7 +291,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                         />
 
                         {form.variants && form.variants.length <= 1 ? (
-                            <div className='bg-background/60 rounded-xl border p-3 md:p-4'>
+                            <div>
                                 <VariantForm
                                     key={'single'}
                                     index={0}
@@ -299,12 +299,12 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                                     updateVariant={updateVariant}
                                 />
 
-                                <div className='mt-2 flex items-center'>
+                                <div className='flex items-center'>
                                     <div className='bg-default/20 h-px flex-1' />
                                     <Button
                                         size='sm'
                                         variant='flat'
-                                        className='rounded-full px-4 font-medium shadow-sm'
+                                        className='rounded-full px-4 font-medium'
                                         startContent={<Plus size={16} />}
                                         onPress={() =>
                                             addVariant({

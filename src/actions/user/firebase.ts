@@ -2,10 +2,53 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { headers } from 'next/headers'
+import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID } from 'node:crypto'
 
 import { adminAuth } from '@/firebase/admin'
 import { createLoginSession } from '@/actions/user/login'
 import { User } from '@/app/login/types'
+
+const LOGIN_SECRET_KEY = process.env.RET
+
+function getSecretKey() {
+    if (!LOGIN_SECRET_KEY) {
+        throw new Error('Missing RET environment variable for login secret encryption.')
+    }
+
+    return createHash('sha256').update(LOGIN_SECRET_KEY).digest()
+}
+
+function encryptLoginSecret(secret: string) {
+    const key = getSecretKey()
+    const iv = randomBytes(12)
+    const cipher = createCipheriv('aes-256-gcm', key, iv)
+    const encrypted = Buffer.concat([cipher.update(secret, 'utf8'), cipher.final()])
+    const tag = cipher.getAuthTag()
+
+    return `${iv.toString('base64')}.${tag.toString('base64')}.${encrypted.toString('base64')}`
+}
+
+function decryptLoginSecret(payload?: string | null) {
+    if (!payload) return null
+
+    const parts = payload.split('.')
+    if (parts.length !== 3) return null
+
+    try {
+        const [ivBase64, tagBase64, encryptedBase64] = parts
+        const key = getSecretKey()
+        const iv = Buffer.from(ivBase64, 'base64')
+        const tag = Buffer.from(tagBase64, 'base64')
+        const encrypted = Buffer.from(encryptedBase64, 'base64')
+        const decipher = createDecipheriv('aes-256-gcm', key, iv)
+        decipher.setAuthTag(tag)
+        const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()])
+
+        return decrypted.toString('utf8')
+    } catch {
+        return null
+    }
+}
 
 export async function verifyFirebaseLogin(
     idToken: string
@@ -81,25 +124,46 @@ export async function verifyFirebaseLogin(
             }
         }
 
-        // 5. Mint Session (Force Password Strategy)
+        // 5. Mint Session (Stable Password Strategy)
         if (!userId) return { error: 'User identification failed.' }
 
-        const tempPassword = crypto.randomUUID() + '-temp'
+        const { data: authUserData, error: authUserError } =
+            await supabaseAdmin.auth.admin.getUserById(userId)
+        if (authUserError || !authUserData?.user) {
+            return { error: 'User lookup failed.' }
+        }
 
-        // Set temp password AND confirm phone (since we verified via Firebase)
-        const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-            password: tempPassword,
-            phone_confirm: true,
-        })
-        if (updateError) {
-            return { error: 'Login preparation failed.' }
+        const existingMetadata = authUserData.user.user_metadata ?? {}
+        const existingEncryptedSecret =
+            typeof existingMetadata.login_secret === 'string'
+                ? (existingMetadata.login_secret as string)
+                : null
+        let loginSecret = decryptLoginSecret(existingEncryptedSecret)
+
+        if (!loginSecret) {
+            if (!LOGIN_SECRET_KEY) {
+                return { error: 'Server configuration error.' }
+            }
+
+            loginSecret = `${randomUUID()}-login`
+            const encryptedSecret = encryptLoginSecret(loginSecret)
+
+            // Set password once and persist encrypted secret for future logins
+            const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+                password: loginSecret,
+                phone_confirm: true,
+                user_metadata: { ...existingMetadata, login_secret: encryptedSecret },
+            })
+            if (updateError) {
+                return { error: 'Login preparation failed.' }
+            }
         }
 
         // Sign In
         const { data: signInData, error: signInError } =
             await supabaseAdmin.auth.signInWithPassword({
                 phone: phone, // Try E.164 first
-                password: tempPassword,
+                password: loginSecret,
             })
 
         if (signInError || !signInData.session) {
@@ -107,7 +171,7 @@ export async function verifyFirebaseLogin(
             const { data: retryData, error: retryError } =
                 await supabaseAdmin.auth.signInWithPassword({
                     phone: phoneClean,
-                    password: tempPassword,
+                    password: loginSecret,
                 })
 
             if (retryError || !retryData.session) {
