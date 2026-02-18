@@ -1,12 +1,16 @@
 [phases.setup]
-nixPkgs = ['bun']
-aptPkgs = ['build-essential']
+nixPkgs = ["nodejs_24"]
 
 [phases.install]
-cmds = ["bun install"]
+cmds = [
+  "corepack enable",
+  "corepack prepare pnpm@latest --activate",
+  "pnpm install --frozen-lockfile"
+]
 
 [phases.build]
-cmds = ["bun run build"]
+cmds = ["pnpm build"]
 
 [start]
-cmd = "bun run start"
+cmd = "pnpm start"
+

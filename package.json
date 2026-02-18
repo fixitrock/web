@@ -4,10 +4,10 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "bun --bun next dev",
+        "dev": "next dev",
         "build": "next build",
-        "changelog": "bun scripts/auto-changelog.js",
-        "start": "bun --bun next start",
+        "changelog": "node scripts/auto-changelog.js",
+        "start": "next start",
         "lint": "eslint . --fix"
     },
     "dependencies": {
