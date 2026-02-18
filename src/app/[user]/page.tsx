@@ -102,6 +102,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
     if (user.role === 2 || user.role === 3) {
         metadata.manifest = `/manifest/${user.username}`
         metadata.icons = {
+            icon: '/favicon.ico',
+            shortcut: '/favicon.ico',
             apple: [
                 {
                     url: userAvatar(user, 120),
