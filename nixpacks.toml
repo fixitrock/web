@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs_24"]
+nixPkgs = ["nodejs-20_x"]
 
 [phases.install]
 cmds = [
@@ -13,4 +13,3 @@ cmds = ["pnpm build"]
 
 [start]
 cmd = "pnpm start"
-
