@@ -1,9 +1,0 @@
-packages:
-  - '.'
-
-onlyBuiltDependencies:
-  - '@firebase/util'
-  - '@heroui/shared-utils'
-  - protobufjs
-  - sharp
-  - unrs-resolver
