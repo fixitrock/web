@@ -81,6 +81,7 @@ export const createOrder = withErrorHandling(async ({ order }: CreateOrderInput)
     }
 
     const orderId = orderResult.id
+    const share = orderResult.share ?? null
 
     const orderProductsData = order.products.map((product) => ({
         order_id: orderId,
@@ -109,7 +110,7 @@ export const createOrder = withErrorHandling(async ({ order }: CreateOrderInput)
     await revalidateSellerTop(sellerData.username)
     await revalidateSellerProducts(sellerData.username)
 
-    return { success: true, orderId }
+    return { success: true, orderId, share }
 })
 
 export const userTransactions = withErrorHandling(async (userPhone: number) => {

@@ -260,7 +260,7 @@ _Please find the detailed invoice attached (if sent manually) or contact us for 
                 </CardHeader>
                 <Divider />
                 <CardBody className='overflow-hidden p-0'>
-                    <ScrollShadow className='max-h-[400px] w-full'>
+                    <ScrollShadow className='max-h-100 w-full'>
                         <Table
                             removeWrapper
                             aria-label='Order items table'
@@ -309,7 +309,7 @@ _Please find the detailed invoice attached (if sent manually) or contact us for 
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <div className='flex max-w-[150px] flex-wrap gap-1'>
+                                            <div className='flex max-w-37.5 flex-wrap gap-1'>
                                                 {product.brand && (
                                                     <Chip
                                                         size='sm'

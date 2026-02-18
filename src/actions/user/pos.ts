@@ -1,7 +1,5 @@
 'use server'
 
-import type { Products } from '@/types/product'
-
 import { cache } from 'react'
 
 import { createClient } from '@/supabase/server'

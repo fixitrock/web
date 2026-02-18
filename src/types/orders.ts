@@ -8,6 +8,7 @@ export type Address = {
 
 export type Order = {
     id?: string
+    share?: string | null
     userName: string
     userPhone: string
     userAddress: Address

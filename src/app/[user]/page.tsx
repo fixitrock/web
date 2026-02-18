@@ -83,7 +83,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
         ''
 
     const metadata: Metadata = {
-        title,
+        title: { absolute: title },
         description,
         openGraph: {
             title,

@@ -44,7 +44,7 @@ export default function AnimatedSearch({ children, open, setOpen, ref }: Animate
             <AnimatePresence>
                 <motion.div
                     animate={controls}
-                    className={`fixed bottom-4 z-50 w-[95%] md:w-[640px]`}
+                    className={`fixed bottom-4 z-50 w-[95%] md:w-160`}
                     exit='hidden'
                     initial={isHidden && !open ? 'hidden' : 'visible'}
                     transition={{ type: 'spring', stiffness: 350, damping: 35 }}
@@ -66,7 +66,7 @@ export function Modal({ children, open, setOpen, ref }: AnimatedSearchProps) {
         return (
             <div
                 ref={ref}
-                className={`z-50 transition-transform duration-300 ${open && 'fixed bottom-4 max-h-[50vh] w-[640px] translate-y-[-25vh] transform'}`}
+                className={`z-50 transition-transform duration-300 ${open && 'translate-y-[-25vh] transform'}`}
             >
                 {children}
             </div>

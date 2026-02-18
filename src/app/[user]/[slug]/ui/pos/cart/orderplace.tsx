@@ -134,7 +134,9 @@ export function OrderPlace() {
                 `*${sym.money} Total:* *${formatPrice(orderData.totalAmount)}*`,
                 `*${sym.card} Payment:* ${selectedPaymentMethod.toUpperCase()}`,
                 `_Thank you for your purchase! ${sym.greet}_`,
-            ].join('\n')
+            ]
+                .filter(Boolean)
+                .join('\n')
 
             const phone = selectedCustomer.phone.replace(/\D/g, '')
             const cleanPhone = phone.startsWith('91') ? phone : `91${phone}`
