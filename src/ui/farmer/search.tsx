@@ -66,7 +66,7 @@ export function Modal({ children, open, setOpen, ref }: AnimatedSearchProps) {
         return (
             <div
                 ref={ref}
-                className={`z-50 transition-transform duration-300 ${open && 'translate-y-[-25vh] transform'}`}
+                className={`z-50 transition-transform duration-300 ${open && 'translate-y-[-25svh] transform'}`}
             >
                 {children}
             </div>
@@ -77,7 +77,7 @@ export function Modal({ children, open, setOpen, ref }: AnimatedSearchProps) {
         <>
             {!open && <div className='z-50'>{children}</div>}
             <Drawer open={open} onOpenChange={setOpen}>
-                <DrawerContent className='h-[80vh]' ref={ref}>
+                <DrawerContent className='h-[80svh]' ref={ref}>
                     <DrawerHeader className='sr-only'>
                         <DrawerTitle />
                         <DrawerDescription />
