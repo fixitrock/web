@@ -18,6 +18,7 @@ import { usePosStore } from '@/zustand/store'
 import { ActiveTabs } from '@/app/[user]/[slug]/ui/pos/product/card'
 import NumberFlow from '@number-flow/react'
 import { useMediaQuery } from '@/hooks'
+import { RichTextContent } from '@/ui/rich-text-content'
 
 interface ProductModalProps {
     product: Product
@@ -136,7 +137,7 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
                                 <h3 className='text-muted-foreground mb-1 text-sm font-medium'>
                                     Description
                                 </h3>
-                                <p className='text-sm whitespace-pre-line'>{product.description}</p>
+                                <RichTextContent content={product.description} />
                             </div>
                         )}
                     </div>

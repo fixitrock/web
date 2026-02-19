@@ -41,6 +41,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Icon } from '@iconify/react'
 import { bucketUrl } from '@/supabase/bucket'
 import { prepareProduct } from '@/hooks/cloudflare'
+import { RichTextEditor } from '@/ui/rich-text-editor'
 
 interface AddModalProps {
     mode: 'add' | 'update'
@@ -278,17 +279,17 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                             description='Supported models or devices'
                         />
 
-                        <Textarea
-                            classNames={{
-                                inputWrapper: inputWrapperStyle,
-                            }}
-                            labelPlacement='outside-top'
-                            label='Description'
-                            placeholder='e.g., Features, specs, and highlights'
-                            size='sm'
-                            value={form.description!}
-                            onChange={(e) => setForm({ description: e.target.value })}
-                        />
+                        <div className='flex flex-col gap-1'>
+                            <label className='text-sm font-medium'>Description</label>
+                            <RichTextEditor
+                                value={form.description || ''}
+                                placeholder='Describe key features, highlights, warranty, and more'
+                                onChange={(value) => setForm({ description: value })}
+                            />
+                            <p className='text-muted-foreground text-xs'>
+                                Supports headings, lists, links, and inline text formatting.
+                            </p>
+                        </div>
 
                         {form.variants && form.variants.length <= 1 ? (
                             <div>
