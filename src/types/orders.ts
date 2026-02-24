@@ -9,6 +9,7 @@ export type Address = {
 export type Order = {
     id?: string
     share?: string | null
+    user_id: string
     userName: string
     userPhone: string
     userAddress: Address
@@ -54,6 +55,7 @@ export type OrderProduct = {
 
 export type Transaction = {
     id: string
+    user_id: string
     userPhone: string
     sellerID: string
     orderID?: string | null

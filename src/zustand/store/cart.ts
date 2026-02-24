@@ -283,9 +283,10 @@ export const useCartStore = create<PosState>((set, get) => ({
     order: () => {
         const state = get()
 
-        if (!state.selectedCustomer || !state.selectedPaymentMethod) return null
+        if (!state.selectedCustomer?.id || !state.selectedPaymentMethod) return null
 
         return {
+            user_id: String(state.selectedCustomer.id),
             userName: state.selectedCustomer.name || '',
             userPhone: state.selectedCustomer.phone || '',
             userAddress: state.selectedCustomer.address || {},

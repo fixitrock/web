@@ -55,6 +55,7 @@ export const createOrder = withErrorHandling(async ({ order }: CreateOrderInput)
     }
 
     const orderData = {
+        user_id: order.user_id,
         userName: order.userName,
         userPhone: order.userPhone,
         userAddress: order.userAddress || {},
