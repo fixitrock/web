@@ -26,7 +26,7 @@ export async function verifyOtp(
     const { data: profile } = await supabase
         .from('users')
         .select('*')
-        .eq('id', data.user.id)
+        .eq('auth_id', data.user.id)
         .single()
 
     if (profile) {

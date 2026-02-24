@@ -77,12 +77,12 @@ export function StepOtp({
 
                 setLoading(false)
 
-                if (res.user) {
+                if (res.user?.username) {
                     window.location.href = `/@${res.user.username}`
                 } else if (res.error) {
                     setError(res.error)
                 } else {
-                    // Success but no profile -> New User
+                    // Verified but profile is incomplete
                     setStep('details')
                 }
             } else {
@@ -90,7 +90,7 @@ export function StepOtp({
 
                 setLoading(false)
                 if (res.error) setError(res.error)
-                else if (res.user) {
+                else if (res.user?.username) {
                     window.location.href = `/@${res.user.username}`
                 } else {
                     setStep('details')

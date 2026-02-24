@@ -15,6 +15,7 @@ export const CustomerSchema = z.object({
     address: z.object(Address).optional().nullable(),
     avatar: z.string().optional(),
     gender: z.string().optional(),
+    active: z.boolean().optional(),
 })
 
 export type CustomerInput = z.infer<typeof CustomerSchema>

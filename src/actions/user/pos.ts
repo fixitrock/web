@@ -13,55 +13,24 @@ async function userID() {
     return id ?? null
 }
 
-async function userTable(phone: string) {
+export async function searchCustomer(query: string) {
+    if (!query) return []
+
     const supabase = await createClient()
+    const clean = query.replace(/\D/g, '')
+
+    if (!clean) return []
+    const phone = clean.startsWith('91') ? clean : `91${clean}`
 
     const { data, error } = await supabase
         .from('users')
         .select('id, phone, name, address, avatar, gender')
         .eq('phone', phone)
-        .limit(1)
-        .single()
+        .maybeSingle()
 
-    if (error) {
-        return null
-    }
+    if (error || !data) return []
 
-    return data
-}
-
-async function customerTable(phone: string) {
-    const supabase = await createClient()
-
-    const { data, error } = await supabase
-        .from('customers')
-        .select('*')
-        .eq('phone', phone)
-        .limit(1)
-        .single()
-
-    if (error) {
-        return null
-    }
-
-    return data
-}
-
-export async function searchCustomer(query: string) {
-    const formattedQuery = query.startsWith('91') ? query : `91${query}`
-    const userData = await userTable(formattedQuery)
-
-    if (userData) {
-        return [userData]
-    }
-
-    const customerData = await customerTable(formattedQuery)
-
-    if (customerData) {
-        return [customerData]
-    }
-
-    return []
+    return [data]
 }
 
 export async function addCustomer(customer: CustomerInput) {
@@ -72,8 +41,8 @@ export async function addCustomer(customer: CustomerInput) {
 
     const supabase = await createClient()
     const { data, error } = await supabase
-        .from('customers')
-        .insert([{ ...validated, phone: formattedPhone }])
+        .from('users')
+        .insert([{ ...validated, phone: formattedPhone, active: false }])
         .select()
 
     if (error) throw error

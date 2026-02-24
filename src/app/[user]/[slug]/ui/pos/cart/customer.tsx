@@ -16,7 +16,7 @@ import {
 } from '@heroui/react'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Loader, UserRound, XIcon } from 'lucide-react'
+import { Loader, XIcon } from 'lucide-react'
 
 import { useCustomerSearch, useAddCustomer } from '@/hooks/tanstack/query'
 import { useDebounce } from '@/hooks'
@@ -338,12 +338,12 @@ export function Customer() {
                                 <User
                                     key={user.id}
                                     avatarProps={{
-                                        src: userAvatar(user),
+                                        src: userAvatar(user as any),
                                         fallback: user.name?.charAt(0) || '',
                                         className: 'size-10',
                                     }}
                                     classNames={{
-                                        base: 'focus:bg-default/25 hover:bg-default/25 flex justify-start px-2',
+                                        base: 'focus:bg-default/25 hover:bg-default/25 flex justify-start px-2 py-1',
                                         name: 'text-md flex items-center gap-1',
                                     }}
                                     description={user.phone.slice(2)}
@@ -352,32 +352,22 @@ export function Customer() {
                                 />
                             ))
                         ) : (
-                            <div className='bg-muted/20 flex flex-col items-center justify-center gap-4 rounded-xl border border-dashed p-6 text-center'>
-                                <div className='bg-muted/40 rounded-full p-4'>
-                                    <UserRound className='text-muted-foreground size-7' />
-                                </div>
-
-                                <div className='flex flex-col gap-1'>
-                                    <p className='text-sm font-semibold tracking-tight'>
-                                        No Customer Found
-                                    </p>
-                                    <p className='text-muted-foreground max-w-[220px] text-xs'>
-                                        No customer found. Add one below to continue.
-                                    </p>
-                                </div>
-
-                                <Button
-                                    className='background-foreground border'
-                                    size='sm'
-                                    variant='light'
-                                    onPress={() => {
-                                        onOpen()
-                                        setOpen(false)
-                                    }}
-                                >
-                                    Add Customer
-                                </Button>
-                            </div>
+                            <User
+                                avatarProps={{
+                                    showFallback: true,
+                                    className: 'size-10',
+                                }}
+                                classNames={{
+                                    base: 'focus:bg-default/25 hover:bg-default/25 flex justify-start px-2 py-1',
+                                    name: 'text-md flex items-center gap-1',
+                                }}
+                                name='Create New Customer'
+                                description='Click to add a new customer.'
+                                onClick={() => {
+                                    onOpen()
+                                    setOpen(false)
+                                }}
+                            />
                         )}
                     </motion.div>
                 )}
