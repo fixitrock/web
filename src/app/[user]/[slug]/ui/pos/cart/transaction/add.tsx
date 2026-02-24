@@ -147,7 +147,12 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
                         // value={transaction.amount.toString()}
                         onChange={(e) => setTransactionAmount(type, Number(e.target.value))}
                     />
-                    <PaymentMode />
+                    <PaymentMode
+                        selectedKey={transaction.mode}
+                        onSelectionChange={(mode) =>
+                            setTransactionMode(type, mode as PaymentMethodType)
+                        }
+                    />
                     <Input
                         className='w-full rounded-[1px]'
                         placeholder='Enter Note (optional)'
@@ -160,8 +165,10 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
                         className={`w-full rounded-md text-white ${
                             type === 'debit' ? 'bg-red-500' : 'bg-green-500'
                         }`}
+                        isLoading={addTransaction.isPending}
+                        onPress={handlePlaceTransaction}
                     >
-                        Save
+                        {addTransaction.isPending ? 'Saving...' : 'Save'}
                     </Button>
                 </DrawerFooter>
             </DrawerContent>
