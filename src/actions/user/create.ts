@@ -39,8 +39,6 @@ export async function createUser(profile: Partial<User>): Promise<{ user?: User;
                 .from('users')
                 .update({
                     auth_id: id,
-                    active: true,
-                    verified: true,
                     ...profile,
                 })
                 .eq('id', existingUser.id)
