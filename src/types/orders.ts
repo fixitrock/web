@@ -21,7 +21,7 @@ export type Order = {
     sellerAddress?: Address
     totalAmount: number
     paid: number
-    mode?: 'cash' | 'upi' | 'card' | 'payLater' | null
+    mode?: 'cash' | 'upi' | 'card' | 'paylater' | null
     note?: string | null
     createdAt?: string
     updatedAt?: string
@@ -128,11 +128,25 @@ export type MyOrderItem = {
     name: string
     phone: string
     username: string | null
+    sellerID?: string | null
+    sellerId?: string | null
+    seller_id?: string | null
+    sellerUsername?: string | null
+    sellerUserName?: string | null
+    seller_username?: string | null
+    isSeller?: boolean | null
+    is_seller?: boolean | null
+    canReturn?: boolean | null
+    can_return?: boolean | null
+    role?: 'seller' | 'buyer' | string | null
     products: MyOrderProduct[]
 }
 
 export type MyOrderProduct = {
-    id: number
+    id: string | number
+    productId?: string | null
+    productID?: string | null
+    product_id?: string | null
     name: string
     category: string | null
     price: number

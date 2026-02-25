@@ -69,7 +69,7 @@ export function OrderPlace() {
         [selectedPaymentMethod, setNote]
     )
     const handlePlaceOrder = useCallback(async () => {
-        if (!selectedCustomer || !selectedPaymentMethod) {
+        if (!selectedCustomer?.id || !selectedPaymentMethod) {
             addToast({
                 title: 'Error',
                 description: 'Please select a customer and payment method',
@@ -193,7 +193,7 @@ export function OrderPlace() {
     const isPlaceOrderDisabled = useMemo(
         () =>
             getTotalItems() === 0 ||
-            !selectedCustomer ||
+            !selectedCustomer?.id ||
             !selectedPaymentMethod ||
             !isValidAmount ||
             addOrder.isPending,
@@ -213,7 +213,7 @@ export function OrderPlace() {
                 fullWidth
                 aria-label='Place Order'
                 color='primary'
-                isDisabled={getTotalItems() === 0 || !selectedCustomer}
+                isDisabled={getTotalItems() === 0 || !selectedCustomer?.id}
                 radius='full'
                 size='sm'
                 onPress={onOpen}

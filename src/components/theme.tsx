@@ -9,6 +9,7 @@ import { useMounted } from '@/hooks'
 function ThemeSwitcher() {
     const { theme, setTheme } = useTheme()
     const { mounted } = useMounted()
+    const selectedTheme = mounted ? theme : undefined
 
     useHotkeys('d', () => setTheme('dark'), [setTheme])
     useHotkeys('l', () => setTheme('light'), [setTheme])
@@ -26,9 +27,9 @@ function ThemeSwitcher() {
                 cursor: 'dark:bg-default/20 border-[0.5px] shadow-none',
             }}
             radius='full'
-            selectedKey={theme ?? undefined}
+            selectedKey={selectedTheme}
             size='sm'
-            data-selected={theme ?? undefined}
+            data-selected={selectedTheme}
             variant='light'
             onSelectionChange={(key) => setTheme(String(key))}
         >
