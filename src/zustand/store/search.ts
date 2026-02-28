@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
@@ -13,9 +13,9 @@ interface NavigationGroup {
 type SearchState = {
     query: string
     setQuery: (value: string) => void
-
-    open: boolean
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>
+    isOpen: boolean
+    onOpen: () => void
+    onClose: () => void
 
     ref: React.RefObject<HTMLDivElement>
     bounce: () => void
@@ -112,8 +112,9 @@ export const useSearchStore = create<SearchState>()(
                 query: '',
                 setQuery: (value) => set({ query: value }),
 
-                open: false,
-                setOpen: () => {},
+                isOpen: false,
+                onClose: () => set({ isOpen: false }),
+                onOpen: () => set({ isOpen: true }),
 
                 expandedOrderId: null,
                 setExpandedOrderId: (id) => set({ expandedOrderId: id }),
@@ -151,17 +152,17 @@ export const useSearchStore = create<SearchState>()(
                         get().bounce()
                     } else if (item.href && router) {
                         router.push(item.href)
-                        get().setOpen(false)
+                        get().onClose()
                     } else if (item.action?.type === 'theme' && setTheme) {
                         setTheme(item.action.value)
-                        get().setOpen(false)
+                        get().onClose()
                     }
                 },
 
                 onKeyDown: (event: KeyboardEvent) => {
-                    const { page, setPage, bounce, query, open } = get()
+                    const { page, setPage, bounce, query, isOpen } = get()
 
-                    if (!open) return
+                    if (!isOpen) return
 
                     switch (event.key) {
                         case 'Backspace':
@@ -270,49 +271,3 @@ export const useSearchStore = create<SearchState>()(
         { name: 'search-store' }
     )
 )
-
-export const useOpen = () => {
-    const [open, setOpen] = useState(false)
-
-    useEffect(() => {
-        useSearchStore.setState({ open, setOpen })
-    }, [open, setOpen])
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const handleKeyDown = (event: KeyboardEvent) => {
-                if (event.key === 'k' && (event.metaKey || event.ctrlKey)) {
-                    event.preventDefault()
-                    setOpen(true)
-                }
-                if (event.key === 'Escape') {
-                    setOpen(false)
-                }
-            }
-
-            document.addEventListener('keydown', handleKeyDown)
-
-            return () => {
-                document.removeEventListener('keydown', handleKeyDown)
-            }
-        }
-    }, [])
-
-    useEffect(() => {
-        if (open && typeof window !== 'undefined') {
-            document.documentElement.style.overflow = 'hidden'
-            const isScrollable =
-                document.documentElement.scrollHeight > document.documentElement.clientHeight
-
-            document.documentElement.style.paddingRight = isScrollable ? '11px' : '0px'
-        } else {
-            document.documentElement.style.overflow = ''
-            document.documentElement.style.paddingRight = ''
-        }
-    }, [open])
-
-    return {
-        open,
-        setOpen,
-    }
-}

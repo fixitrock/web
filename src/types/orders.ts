@@ -80,6 +80,7 @@ export type CreateTransactionType = {
 
 export interface ReturnData {
     orderId: string
+    returnType: 'partial' | 'full'
     items: {
         productId: string
         quantity: number
@@ -139,7 +140,7 @@ export type MyOrderItem = {
     canReturn?: boolean | null
     can_return?: boolean | null
     role?: 'seller' | 'buyer' | string | null
-    products: MyOrderProduct[]
+    products: OrderProduct[]
 }
 
 export type MyOrderProduct = {

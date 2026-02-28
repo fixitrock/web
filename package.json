@@ -39,6 +39,7 @@
         "@types/mdx": "^2.0.13",
         "@typescript-eslint/eslint-plugin": "^8.36.0",
         "@typescript-eslint/parser": "^8.36.0",
+        "@react-aria/utils": "3.33.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",

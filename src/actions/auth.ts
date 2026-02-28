@@ -3,7 +3,7 @@
 import { cache } from 'react'
 import { createClient } from '@/supabase/server'
 
-export type PermissionAction = 'create' | 'update' | 'delete' | 'view'
+export type PermissionAction = 'create' | 'update' | 'delete' | 'return' | 'view'
 export type CanType = Record<string, Record<string, boolean>>
 
 export const checkAuth = cache(async (username: string) => {

@@ -6,18 +6,14 @@ import { ThemeProvider } from 'next-themes'
 import NextTopLoader from 'nextjs-toploader'
 import { useRouter } from 'nextjs-toploader/app'
 import { useState } from 'react'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import { siteConfig } from '@/config/site'
-import { useOpen } from '@/zustand/store'
 import { Toaster } from '@/ui/sonner'
 
 export function Providers({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient())
     const router = useRouter()
     const useHref = (href: string) => siteConfig.domain + href
-
-    useOpen()
 
     return (
         <ThemeProvider

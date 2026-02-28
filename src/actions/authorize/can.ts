@@ -11,6 +11,11 @@ export const can = {
         product: 'delete:product',
         order: 'delete:order',
     },
+    return: {
+        order: 'return:order',
+    },
 } as const
 
-export type PermissionKey = (typeof can)[keyof typeof can][keyof (typeof can)['create']]
+type Values<T> = T[keyof T]
+
+export type PermissionKey = Values<Values<typeof can>>

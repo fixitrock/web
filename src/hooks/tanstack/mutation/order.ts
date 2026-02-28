@@ -59,6 +59,7 @@ export function useReturnOrder() {
         onSuccess: () => {
             toast.success('Return processed successfully')
             queryClient.invalidateQueries({ queryKey: ['sellerOrders'] })
+            queryClient.invalidateQueries({ queryKey: ['myOrders'] })
             queryClient.invalidateQueries({ queryKey: ['userTransactions'] })
             queryClient.invalidateQueries({ queryKey: ['RecentOrders'] })
         },

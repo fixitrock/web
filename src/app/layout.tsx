@@ -22,12 +22,12 @@ export default async function RootLayout({
 }>) {
     return (
         <html suppressHydrationWarning lang='en'>
-            <body className={cn('bg-background min-h-svh font-sans antialiased', fontVariables)}>
+            <body className={cn('bg-background min-h-dvh font-sans antialiased', fontVariables)}>
                 <AuthProvider>
                     <ErrorBoundary>
                         <Providers>
                             <ThemeMetaTag />
-                            <div className='relative flex min-h-svh flex-col'>
+                            <div className='relative flex min-h-dvh flex-col'>
                                 <div className='flex-1 overflow-clip'>{children}</div>
                                 {modal}
                                 <Suspense>

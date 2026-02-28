@@ -1,14 +1,17 @@
 'use client'
 
 import { Package, Printer, Share2, Download, RotateCcw } from 'lucide-react'
-import { Skeleton, Button, Divider } from '@heroui/react'
+import { Skeleton, Button, Divider, Snippet } from '@heroui/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CommandEmpty, CommandGroup, CommandItem, CommandShortcut } from '@/ui/command'
 import { useMyOrders } from '@/hooks/tanstack/query'
 import { useSearchStore } from '@/zustand/store'
 import { useDebounce } from '@/hooks'
 import { formatPrice, formatPhone } from '@/lib/utils'
-import { MyOrderItem } from '@/types/orders'
+import { MyOrderItem, Order } from '@/types/orders'
+import { useOrderStore } from '@/zustand/store/orders'
+import { ReturnOrder } from '@/app/[user]/[slug]/ui/orders/return'
+import { useMemo } from 'react'
 
 export function Orders() {
     const { query, expandedOrderId, setExpandedOrderId } = useSearchStore()
@@ -20,7 +23,19 @@ export function Orders() {
         setExpandedOrderId(expandedOrderId === id ? null : id)
     }
 
-    const allOrders = data?.pages.flatMap((page) => page.orders) ?? []
+    const allOrders = useMemo(() => {
+        const orders = data?.pages.flatMap((page) => page.orders) ?? []
+        const seenIds = new Set<string>()
+
+        return orders.filter((order) => {
+            if (seenIds.has(order.id)) {
+                return false
+            }
+
+            seenIds.add(order.id)
+            return true
+        })
+    }, [data])
 
     return (
         <CommandGroup heading='Order History'>
@@ -31,7 +46,7 @@ export function Orders() {
                             <Package className='text-muted-foreground size-6' />
                         </div>
                         <h3 className='text-sm font-medium'>No orders found</h3>
-                        <p className='text-muted-foreground mt-1 max-w-[220px] text-xs'>
+                        <p className='text-muted-foreground mt-1 max-w-55 text-xs'>
                             {query
                                 ? 'Try adjusting your search.'
                                 : 'Orders will appear once you place or receive orders.'}
@@ -43,7 +58,7 @@ export function Orders() {
             {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                     <CommandItem key={i} value={`skeleton-${i}`}>
-                        <Skeleton className='h-[38px] w-[56px] rounded-md' />
+                        <Skeleton className='h-9.5 w-14 rounded-md' />
                         <div className='flex w-full flex-1 flex-col gap-1 truncate'>
                             <Skeleton className='h-4 w-32 rounded' />
                             <Skeleton className='h-3 w-24 rounded' />
@@ -89,6 +104,7 @@ export function Orders() {
                     )}
                 </div>
             )}
+            <ReturnOrder />
         </CommandGroup>
     )
 }
@@ -102,6 +118,8 @@ function ExpandableOrderItem({
     isExpanded: boolean
     onToggle: () => void
 }) {
+    const { openReturn } = useOrderStore()
+
     const products = order.products ?? []
     const firstProduct = products[0]
     const extraCount = products.length > 1 ? products.length - 1 : 0
@@ -121,10 +139,24 @@ function ExpandableOrderItem({
                         )}
                     </p>
 
-                    <p className='text-muted-foreground truncate text-[10px]'>
-                        {order.name}
-                        {order.phone && ` • ${formatPhone(order.phone)}`}
-                    </p>
+                    <div className='text-muted-foreground flex items-center gap-1 text-[10px]'>
+                        <p className='min-w-0 truncate'>{order.name}</p> •
+                        {order.phone && (
+                            <Snippet
+                                symbol=''
+                                size='sm'
+                                variant='flat'
+                                classNames={{
+                                    copyButton: 'size-5 min-w-auto',
+                                    base: 'gap-0.5',
+                                }}
+                                codeString={order.phone}
+                                className='text-muted-foreground bg-transparent p-0 text-[10px]'
+                            >
+                                {formatPhone(order.phone)}
+                            </Snippet>
+                        )}
+                    </div>
 
                     <span className='text-muted-foreground text-[9px]'>
                         {formatTimestamp(order.createdAt)}
@@ -148,41 +180,68 @@ function ExpandableOrderItem({
                         <div className='flex flex-col gap-3 rounded-xl border p-3'>
                             {/* Products List */}
                             <div className='flex flex-col gap-2'>
-                                {products.map((item, idx) => (
-                                    <div key={idx} className='flex flex-col gap-1'>
-                                        <div className='flex items-center justify-between'>
-                                            <div className='flex flex-col'>
-                                                <span className='text-xs font-semibold'>
-                                                    {item.name}
-                                                </span>
-                                                <div className='flex items-center gap-2'>
-                                                    {item.category && (
-                                                        <span className='text-muted-foreground text-[10px]'>
-                                                            {item.category}
-                                                        </span>
-                                                    )}
-                                                    {item.returnedQuantity > 0 && (
-                                                        <span className='text-danger flex items-center gap-0.5 text-[9px] leading-none font-bold uppercase'>
-                                                            <RotateCcw className='size-2' />
-                                                            {item.returnedQuantity} Returned
-                                                        </span>
+                                {products.map((item, idx) => {
+                                    const metadata = [
+                                        item.brand,
+                                        item.category,
+                                        item.color?.name,
+                                        item.storage,
+                                    ].filter(
+                                        (value): value is string =>
+                                            typeof value === 'string' && value.length > 0
+                                    )
+
+                                    const metadataLabel = metadata.join(' \u2022 ')
+                                    const identifier = getProductIdentifier(item.serial)
+
+                                    return (
+                                        <div key={idx} className='flex flex-col gap-1'>
+                                            <div className='flex items-center justify-between'>
+                                                <div className='flex flex-col'>
+                                                    <span className='text-xs font-semibold'>
+                                                        {item.name}
+                                                    </span>
+                                                    <div className='flex items-center gap-2'>
+                                                        {metadataLabel && (
+                                                            <span className='text-muted-foreground text-[10px]'>
+                                                                {metadataLabel}
+                                                            </span>
+                                                        )}
+
+                                                        {item.returnedQuantity > 0 && (
+                                                            <span className='text-danger flex items-center gap-0.5 text-[9px] leading-none font-bold uppercase'>
+                                                                <RotateCcw className='size-2' />
+                                                                {item.returnedQuantity} Returned
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    {identifier && (
+                                                        <div className='bg-default/5 mt-1 inline-flex max-w-fit items-center gap-1 rounded-full border border-dashed px-2 py-0.5'>
+                                                            <span className='text-muted-foreground text-[9px] font-semibold tracking-wider uppercase'>
+                                                                {identifier.label}
+                                                            </span>
+                                                            <span className='text-default-700 font-mono text-[10px]'>
+                                                                {maskIdentifier(identifier.value)}
+                                                            </span>
+                                                        </div>
                                                     )}
                                                 </div>
+
+                                                <div className='flex items-center gap-3'>
+                                                    <span className='text-muted-foreground text-[10px]'>
+                                                        {item.quantity} × {formatPrice(item.price)}
+                                                    </span>
+                                                    <span className='text-xs font-bold'>
+                                                        {formatPrice(item.price * item.quantity)}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div className='flex items-center gap-3'>
-                                                <span className='text-muted-foreground text-[10px]'>
-                                                    {item.quantity} × {formatPrice(item.price)}
-                                                </span>
-                                                <span className='text-xs font-bold'>
-                                                    {formatPrice(item.price * item.quantity)}
-                                                </span>
-                                            </div>
+                                            {idx < products.length - 1 && (
+                                                <Divider className='bg-default/10' />
+                                            )}
                                         </div>
-                                        {idx < products.length - 1 && (
-                                            <Divider className='bg-default/10' />
-                                        )}
-                                    </div>
-                                ))}
+                                    )
+                                })}
                             </div>
 
                             {/* Divider & Total */}
@@ -224,15 +283,18 @@ function ExpandableOrderItem({
                                         startContent={<Download className='size-4' />}
                                     />
                                 </div>
-                                <Button
-                                    size='sm'
-                                    isIconOnly
-                                    color='danger'
-                                    variant='flat'
-                                    radius='full'
-                                    className='bg-background size-7 min-w-0 shrink-0 border'
-                                    startContent={<RotateCcw className='size-4' />}
-                                />
+                                {order.canReturn && (
+                                    <Button
+                                        size='sm'
+                                        isIconOnly
+                                        color='danger'
+                                        variant='flat'
+                                        radius='full'
+                                        className='bg-background size-7 min-w-0 shrink-0 border'
+                                        startContent={<RotateCcw className='size-4' />}
+                                        onPress={() => openReturn(order as unknown as Order)}
+                                    />
+                                )}
                             </div>
                         </div>
                     </motion.div>
@@ -255,4 +317,32 @@ function formatTimestamp(dateString: string) {
     })
 
     return `${day} ${month} ${year} • ${time}`
+}
+
+function getProductIdentifier(serials?: string[]) {
+    const rawIdentifier = serials?.find(
+        (value): value is string => typeof value === 'string' && value.trim().length > 0
+    )
+
+    if (!rawIdentifier) {
+        return null
+    }
+
+    const compactValue = rawIdentifier.replace(/[\s-]/g, '')
+    const isIMEI = /^\d{14,16}$/.test(compactValue)
+
+    return {
+        label: isIMEI ? 'IMEI' : 'Serial',
+        value: rawIdentifier,
+    }
+}
+
+function maskIdentifier(value: string) {
+    const trimmedValue = value.trim()
+
+    if (trimmedValue.length <= 1) {
+        return trimmedValue
+    }
+
+    return `${'*'.repeat(trimmedValue.length - 1)}${trimmedValue.slice(-4)}`
 }

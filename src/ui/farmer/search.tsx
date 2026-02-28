@@ -1,90 +1,90 @@
 'use client'
 
-import { AnimatePresence, motion, useAnimation } from 'motion/react'
-import { useEffect } from 'react'
-
 import { useMediaQuery } from '@/hooks/useMediaQuery'
-import useScroll from '@/hooks/useScroll'
-import { Bottom } from '@/lib/FramerMotionVariants'
-
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '../drawer'
+import { Modal, ModalContent } from '@heroui/react'
+import { useSearchStore } from '@/zustand/store'
 
 interface AnimatedSearchProps {
     children: React.ReactNode
-    open: boolean
-    setOpen: React.Dispatch<React.SetStateAction<boolean>>
-    ref: React.RefObject<HTMLDivElement>
 }
 
-export default function AnimatedSearch({ children, open, setOpen, ref }: AnimatedSearchProps) {
-    const { scrollY, direction } = useScroll()
-    const isHidden = scrollY > 0 && direction === 'down'
-    const controls = useAnimation()
+const BLUR_CLASSES =
+    'supports-backdrop-filter:backdrop-blur-xs supports-backdrop-filter:backdrop-saturate-150'
+const SHELL_CLASSES = `${BLUR_CLASSES} dark:bg-[#1C1C1E]/75`
 
-    useEffect(() => {
-        const animate = async () => await controls.start(isHidden ? 'hidden' : 'visible')
+export default function AnimatedSearch({ children }: AnimatedSearchProps) {
+    const isOpen = useSearchStore((s) => s.isOpen)
 
-        animate()
-
-        return () => controls.stop()
-    }, [isHidden, controls])
-
-    return (
-        <div className='flex flex-col items-center justify-center'>
-            <div
-                key={open ? 'focused' : 'unfocused'}
-                className={`${open && 'fixed inset-0 z-50 backdrop-blur-[1px]'}`}
-                onClick={() => setOpen(false)}
-                onKeyDown={(e) => {
-                    if (e.key === 'Escape') {
-                        setOpen(false)
-                    }
-                }}
-            />
-            <AnimatePresence>
-                <motion.div
-                    animate={controls}
-                    className={`fixed bottom-4 z-50 w-[95%] md:w-160`}
-                    exit='hidden'
-                    initial={isHidden && !open ? 'hidden' : 'visible'}
-                    transition={{ type: 'spring', stiffness: 350, damping: 35 }}
-                    variants={Bottom}
-                >
-                    <Modal open={open} setOpen={setOpen} ref={ref}>
-                        {children}
-                    </Modal>
-                </motion.div>
-            </AnimatePresence>
-        </div>
-    )
-}
-
-export function Modal({ children, open, setOpen, ref }: AnimatedSearchProps) {
-    const isDesktop = useMediaQuery('(min-width: 768px)')
-
-    if (isDesktop) {
+    if (!isOpen) {
         return (
             <div
-                ref={ref}
-                className={`z-50 transition-transform duration-300 ${open && 'translate-y-[-25svh] transform'}`}
+                className={`fixed bottom-4 left-1/2 z-50 w-[95%] -translate-x-1/2 rounded-[20px] border bg-white/80 md:w-160 ${SHELL_CLASSES}`}
             >
                 {children}
             </div>
         )
     }
 
+    return <ModalContentWrapper>{children}</ModalContentWrapper>
+}
+
+function ModalContentWrapper({ children }: AnimatedSearchProps) {
+    const { isOpen, onClose, ref } = useSearchStore()
+    const isDesktop = useMediaQuery('(min-width: 768px)')
+
+    if (isDesktop) {
+        return (
+            <Modal
+                ref={ref}
+                hideCloseButton
+                backdrop='opaque'
+                classNames={{
+                    base: [
+                        'mt-[20dvh] flex h-[50vh] max-h-[calc(100%_-_10px)] max-w-160 flex-col',
+                        'p-0.5',
+                        `rounded-[18px] border bg-white md:w-160 ${SHELL_CLASSES}`,
+                    ],
+                }}
+                isOpen={isOpen}
+                shadow='none'
+                motionProps={{
+                    transition: { type: 'spring', stiffness: 350, damping: 35 },
+                    variants: {
+                        enter: {
+                            y: 0,
+                            opacity: 1,
+                            transition: {
+                                duration: 0.3,
+                                ease: 'easeOut',
+                            },
+                        },
+                        exit: {
+                            y: '50dvh',
+                            opacity: 0,
+                            transition: {
+                                duration: 0.25,
+                                ease: 'easeInOut',
+                            },
+                        },
+                    },
+                }}
+                onClose={onClose}
+            >
+                <ModalContent>{children}</ModalContent>
+            </Modal>
+        )
+    }
+
     return (
-        <>
-            {!open && <div className='z-50'>{children}</div>}
-            <Drawer open={open} onOpenChange={setOpen}>
-                <DrawerContent className='h-[80svh]' ref={ref}>
-                    <DrawerHeader className='sr-only'>
-                        <DrawerTitle />
-                        <DrawerDescription />
-                    </DrawerHeader>
-                    {children}
-                </DrawerContent>
-            </Drawer>
-        </>
+        <Drawer open={isOpen} onClose={onClose}>
+            <DrawerContent className={`h-[50dvh] ${SHELL_CLASSES}`} ref={ref}>
+                <DrawerHeader className='sr-only'>
+                    <DrawerTitle />
+                    <DrawerDescription />
+                </DrawerHeader>
+                {children}
+            </DrawerContent>
+        </Drawer>
     )
 }

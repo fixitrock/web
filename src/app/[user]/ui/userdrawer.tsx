@@ -7,12 +7,12 @@ import { useState } from 'react'
 
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import {
-    Drawer,
     DrawerContent,
     DrawerDescription,
     DrawerHeader,
     DrawerTitle,
     DrawerFooter,
+    DrawerNested,
 } from '@/ui/drawer'
 import { Navigation as Type, User as UserType } from '@/app/login/types'
 import { Navigation } from '@/app/login/ui/navigation'
@@ -70,9 +70,13 @@ export default function UserDrawer({
                 )}
             </Button>
 
-            <Drawer direction={isDesktop ? 'right' : 'bottom'} open={open} onOpenChange={setOpen}>
+            <DrawerNested
+                direction={isDesktop ? 'right' : 'bottom'}
+                open={open}
+                onOpenChange={setOpen}
+            >
                 <DrawerContent
-                    className='data-[vaul-drawer-direction=right]:sm:max-w-[280px]'
+                    className='data-[vaul-drawer-direction=right]:sm:max-w-70'
                     hideCloseButton={isDesktop ? true : false}
                     showbar={isDesktop ? false : true}
                 >
@@ -92,7 +96,7 @@ export default function UserDrawer({
                         </p>
                     </DrawerFooter>
                 </DrawerContent>
-            </Drawer>
+            </DrawerNested>
         </>
     )
 }

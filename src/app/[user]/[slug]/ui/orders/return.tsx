@@ -1,65 +1,144 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
     Button,
     Modal,
     ModalBody,
     ModalContent,
-    ModalHeader,
     ModalFooter,
+    ModalHeader,
     Image,
     Textarea,
 } from '@heroui/react'
 import { useOrderStore } from '@/zustand/store/orders'
-import { useIsMobile } from '@/hooks/use-mobile'
 import {
-    Drawer,
-    DrawerContent,
-    DrawerHeader,
-    DrawerTitle,
     DrawerBody,
-    DrawerFooter,
     DrawerClose,
+    DrawerContent,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerNested,
+    DrawerTitle,
 } from '@/ui/drawer'
 import { Label } from '@/ui/label'
 import { Badge } from '@/ui/badge'
 import { Alert, AlertDescription } from '@/ui/alert'
 import { AlertCircle, Minus, Plus, RotateCcw } from 'lucide-react'
-import { ReturnData } from '@/types/orders'
+import { MyOrderItem, Order, ReturnData } from '@/types/orders'
 import { useReturnOrder } from '@/hooks/tanstack/mutation/order'
 import { bucketUrl } from '@/supabase/bucket'
 import { fallback } from '@/config/site'
 import { inputWrapperStyle } from '@/config/style'
+import { useMediaQuery } from '@/hooks'
+
+type ReturnOrderSource = Order | MyOrderItem
+
+type ReturnableProduct = {
+    productId: string
+    image: string | null
+    name: string
+    brand: string | null
+    price: number
+    quantity: number
+    returnedQuantity: number
+}
+
+function formatCurrency(amount: number) {
+    return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        minimumFractionDigits: 0,
+    }).format(amount)
+}
+
+function normalizeProducts(order: ReturnOrderSource): ReturnableProduct[] {
+    return order.products
+        .map((product, index) => {
+            const fallbackId = String(product.id ?? `${order.id ?? 'order'}-${index}`)
+            const productId =
+                product.productID ||
+                ('productId' in product ? product.productId : null) ||
+                ('product_id' in product ? product.product_id : null) ||
+                fallbackId
+
+            if (!productId) {
+                return null
+            }
+
+            return {
+                productId,
+                image: 'image' in product ? (product.image ?? null) : null,
+                name: product.name,
+                brand: 'brand' in product ? (product.brand ?? null) : null,
+                price: product.price,
+                quantity: product.quantity,
+                returnedQuantity: product.returnedQuantity || 0,
+            }
+        })
+        .filter((product): product is ReturnableProduct => product !== null)
+}
 
 export function ReturnOrder() {
     const { selectedOrder, isReturnOpen, closeReturn } = useOrderStore()
-    const isMobile = useIsMobile()
+    const isDesktop = useMediaQuery('(min-width: 768px)')
     const { mutate: processReturn, isPending } = useReturnOrder()
+
+    const currentOrder = selectedOrder as unknown as ReturnOrderSource | null
+    const products = useMemo(
+        () => (currentOrder ? normalizeProducts(currentOrder) : []),
+        [currentOrder]
+    )
 
     const [selectedItems, setSelectedItems] = useState<Map<string, number>>(new Map())
     const [reason, setReason] = useState('')
     const [error, setError] = useState('')
 
+    const resetState = () => {
+        setSelectedItems(new Map())
+        setReason('')
+        setError('')
+    }
+
+    useEffect(() => {
+        resetState()
+    }, [currentOrder?.id])
+
+    const handleClose = () => {
+        resetState()
+        closeReturn()
+    }
+
     const handleQuantityChange = (productId: string, delta: number, maxQty: number) => {
         setSelectedItems((prev) => {
-            const newMap = new Map(prev)
-            const current = newMap.get(productId) || 0
-            const newValue = Math.max(0, Math.min(maxQty, current + delta))
+            const next = new Map(prev)
+            const current = next.get(productId) || 0
+            const value = Math.max(0, Math.min(maxQty, current + delta))
 
-            if (newValue === 0) {
-                newMap.delete(productId)
+            if (value === 0) {
+                next.delete(productId)
             } else {
-                newMap.set(productId, newValue)
+                next.set(productId, value)
             }
 
-            return newMap
+            return next
         })
         setError('')
     }
 
+    const calculateRefundAmount = () => {
+        return Array.from(selectedItems.entries()).reduce((sum, [productId, qty]) => {
+            const product = products.find((p) => p.productId === productId)
+            return sum + (product ? product.price * qty : 0)
+        }, 0)
+    }
+
     const handleConfirm = () => {
-        if (!selectedOrder) return
+        const orderId = currentOrder?.id
+        if (!orderId) {
+            setError('Unable to process return for this order')
+            return
+        }
 
         if (selectedItems.size === 0) {
             setError('Please select at least one item to return')
@@ -71,74 +150,80 @@ export function ReturnOrder() {
             return
         }
 
-        const returnData: ReturnData = {
-            orderId: selectedOrder.id!,
-            items: Array.from(selectedItems.entries()).map(([productId, quantity]) => {
-                const product = selectedOrder.products.find((p) => p.productID === productId)!
+        const items = Array.from(selectedItems.entries())
+            .map(([productId, quantity]) => {
+                const product = products.find((p) => p.productId === productId)
+                if (!product) {
+                    return null
+                }
+
                 return {
                     productId,
                     quantity,
                     maxQuantity: product.quantity - product.returnedQuantity,
                 }
-            }),
+            })
+            .filter(
+                (
+                    item
+                ): item is {
+                    productId: string
+                    quantity: number
+                    maxQuantity: number
+                } => item !== null
+            )
+
+        if (items.length === 0) {
+            setError('Please select at least one valid item to return')
+            return
+        }
+
+        const returnableProducts = products.filter(
+            (product) => product.quantity - product.returnedQuantity > 0
+        )
+        const isFullReturn =
+            returnableProducts.length > 0 &&
+            returnableProducts.every(
+                (product) =>
+                    (selectedItems.get(product.productId) || 0) ===
+                    product.quantity - product.returnedQuantity
+            )
+
+        const returnData: ReturnData = {
+            orderId,
+            returnType: isFullReturn ? 'full' : 'partial',
+            items,
             reason: reason.trim(),
         }
 
         processReturn(returnData, {
-            onSuccess: () => {
-                handleClose()
-            },
+            onSuccess: handleClose,
         })
     }
 
-    const handleClose = () => {
-        setSelectedItems(new Map())
-        setReason('')
-        setError('')
-        closeReturn()
-    }
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency: 'INR',
-            minimumFractionDigits: 0,
-        }).format(amount)
-    }
-
-    const calculateRefundAmount = () => {
-        if (!selectedOrder) return 0
-
-        return Array.from(selectedItems.entries()).reduce((sum, [productId, qty]) => {
-            const product = selectedOrder.products.find((p) => p.productID === productId)
-            return sum + (product ? product.price * qty : 0)
-        }, 0)
-    }
-
-    if (!selectedOrder) return null
+    if (!isReturnOpen || !currentOrder) return null
 
     const content = (
         <div className='space-y-6'>
-            {/* Items Selection */}
             <div className='space-y-3'>
                 <div className='flex items-center justify-between'>
                     <Label className='text-foreground/80 text-sm font-medium'>Order Items</Label>
                     <span className='text-muted-foreground text-xs'>
-                        Order ID: #{selectedOrder.id}
+                        Order ID: #{currentOrder.id}
                     </span>
                 </div>
 
-                <div className='scrollbar-hide max-h-[50vh] space-y-3 overflow-y-auto pr-2'>
-                    {selectedOrder.products.map((product) => {
+                <div className='space-y-2'>
+                    {products.map((product) => {
                         const returnedQty = product.returnedQuantity || 0
                         const totalQty = product.quantity
                         const remainingQty = totalQty - returnedQty
                         const isFullyReturned = remainingQty === 0
-                        const selectedQty = selectedItems.get(product.productID) || 0
+                        const selectedQty = selectedItems.get(product.productId) || 0
 
                         return (
                             <div
-                                key={product.productID}
+                                key={product.productId}
                                 className={`group relative flex flex-col gap-3 rounded-xl border p-3 transition-all duration-200 ${
                                     isFullyReturned
                                         ? 'bg-default/10 border-transparent opacity-80'
@@ -147,7 +232,6 @@ export function ReturnOrder() {
                             >
                                 <div className='flex items-start justify-between gap-3'>
                                     <div className='flex min-w-0 flex-1 items-start gap-3'>
-                                        {/* Product Image Placeholder or Image */}
                                         <Image
                                             src={
                                                 product.image
@@ -160,13 +244,11 @@ export function ReturnOrder() {
                                             height={48}
                                         />
                                         <div className='min-w-0 flex-1'>
-                                            <div className='flex items-start justify-between gap-2'>
-                                                <p
-                                                    className={`truncate text-sm leading-tight font-medium ${isFullyReturned ? 'text-muted-foreground' : 'text-foreground'}`}
-                                                >
-                                                    {product.name}
-                                                </p>
-                                            </div>
+                                            <p
+                                                className={`truncate text-sm leading-tight font-medium ${isFullyReturned ? 'text-muted-foreground' : 'text-foreground'}`}
+                                            >
+                                                {product.name}
+                                            </p>
 
                                             <div className='mt-1.5 flex flex-wrap gap-1.5'>
                                                 {isFullyReturned ? (
@@ -213,7 +295,6 @@ export function ReturnOrder() {
                                         </div>
                                     </div>
 
-                                    {/* Quantity Controls */}
                                     {!isFullyReturned && (
                                         <div className='flex flex-col items-end gap-1'>
                                             <div className='bg-background flex items-center gap-1 rounded-lg border p-0.5 shadow-sm'>
@@ -224,7 +305,7 @@ export function ReturnOrder() {
                                                     className='text-default-500 data-[hover=true]:bg-default-100 h-7 w-7'
                                                     onPress={() =>
                                                         handleQuantityChange(
-                                                            product.productID,
+                                                            product.productId,
                                                             -1,
                                                             remainingQty
                                                         )
@@ -243,7 +324,7 @@ export function ReturnOrder() {
                                                     className='text-default-500 data-[hover=true]:bg-default-100 h-7 w-7'
                                                     onPress={() =>
                                                         handleQuantityChange(
-                                                            product.productID,
+                                                            product.productId,
                                                             1,
                                                             remainingQty
                                                         )
@@ -265,7 +346,6 @@ export function ReturnOrder() {
                 </div>
             </div>
 
-            {/* Return Reason */}
             <Textarea
                 label='Return Reason'
                 labelPlacement='outside-top'
@@ -276,12 +356,9 @@ export function ReturnOrder() {
                 id='reason'
                 placeholder='Please provide a detailed reason for the return...'
                 value={reason}
-                onChange={(e) => {
-                    setReason(e.target.value)
-                }}
+                onChange={(e) => setReason(e.target.value)}
             />
 
-            {/* Refund Amount Summary */}
             <div className='bg-muted/30 rounded-xl border p-4'>
                 <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-2'>
@@ -296,7 +373,6 @@ export function ReturnOrder() {
                 </div>
             </div>
 
-            {/* Error Message */}
             {error && (
                 <Alert variant='destructive' className='animate-in fade-in slide-in-from-top-1'>
                     <AlertCircle className='h-4 w-4' />
@@ -306,69 +382,73 @@ export function ReturnOrder() {
         </div>
     )
 
-    if (isMobile) {
+    if (isDesktop) {
         return (
-            <Drawer open={isReturnOpen} onOpenChange={(open) => !open && handleClose()}>
-                <DrawerContent>
-                    <DrawerHeader className='border-b text-left'>
-                        <DrawerTitle>Return Order</DrawerTitle>
-                    </DrawerHeader>
-                    <DrawerBody className='px-4'>{content}</DrawerBody>
-                    <DrawerFooter className='border-t pt-4'>
+            <Modal
+                isOpen={isReturnOpen}
+                onClose={handleClose}
+                size='2xl'
+                scrollBehavior='inside'
+                classNames={{
+                    base: 'bg-background overflow-hidden border shadow-xl',
+                    header: 'border-b',
+                    footer: 'bg-muted/10 border-t',
+                }}
+            >
+                <ModalContent>
+                    <ModalHeader className='flex flex-col gap-1'>Return Order</ModalHeader>
+                    <ModalBody className='py-6'>{content}</ModalBody>
+                    <ModalFooter>
+                        <Button
+                            className='bg-default/40'
+                            onPress={handleClose}
+                            isDisabled={isPending}
+                        >
+                            Cancel
+                        </Button>
                         <Button
                             color='warning'
-                            className='shadow-warning/20 font-medium shadow-lg'
-                            fullWidth
+                            className='font-medium text-white'
                             onPress={handleConfirm}
                             isLoading={isPending}
                         >
-                            Process Return
+                            Submit Return
                         </Button>
-                        <DrawerClose asChild>
-                            <Button
-                                variant='bordered'
-                                fullWidth
-                                onPress={handleClose}
-                                isDisabled={isPending}
-                            >
-                                Cancel
-                            </Button>
-                        </DrawerClose>
-                    </DrawerFooter>
-                </DrawerContent>
-            </Drawer>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         )
     }
 
     return (
-        <Modal
-            isOpen={isReturnOpen}
-            onClose={handleClose}
-            size='2xl'
-            scrollBehavior='inside'
-            classNames={{
-                base: 'bg-background border shadow-xl',
-                header: 'border-b',
-                footer: 'bg-muted/10 border-t',
-            }}
-        >
-            <ModalContent>
-                <ModalHeader className='flex flex-col gap-1'>Return Order</ModalHeader>
-                <ModalBody className='py-6'>{content}</ModalBody>
-                <ModalFooter>
-                    <Button variant='light' onPress={handleClose} isDisabled={isPending}>
-                        Cancel
-                    </Button>
+        <DrawerNested open={isReturnOpen} onOpenChange={(open) => !open && handleClose()}>
+            <DrawerContent className='h-[70dvh]'>
+                <DrawerHeader className='border-b text-left'>
+                    <DrawerTitle>Return Order</DrawerTitle>
+                </DrawerHeader>
+                <DrawerBody className='px-4'>{content}</DrawerBody>
+                <DrawerFooter className='border-t'>
                     <Button
                         color='warning'
-                        className='shadow-warning/20 font-medium shadow-lg'
+                        className='text-white'
+                        fullWidth
                         onPress={handleConfirm}
                         isLoading={isPending}
                     >
-                        Process Return
+                        Submit Return
                     </Button>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
+                    <DrawerClose asChild>
+                        <Button
+                            className='bg-default/40'
+                            fullWidth
+                            onPress={handleClose}
+                            isDisabled={isPending}
+                        >
+                            Cancel
+                        </Button>
+                    </DrawerClose>
+                </DrawerFooter>
+            </DrawerContent>
+        </DrawerNested>
     )
 }
