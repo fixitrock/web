@@ -17,7 +17,7 @@ export function useKeyboardNavigation({
     minItemWidth = 280,
     onSelect,
 }: UseKeyboardNavigationProps) {
-    const open = useSearchStore((state) => state.open)
+    const open = useSearchStore((state) => state.isOpen)
     const [selectedIndex, setSelectedIndex] = useState<number>(-1)
     const [keyboardNav, setKeyboardNav] = useState<boolean>(false)
     const [columns, setColumns] = useState(1)

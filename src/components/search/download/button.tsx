@@ -10,7 +10,7 @@ import { useDownloadWarning } from '@/hooks/useDownloadWarning'
 export function Download() {
     useDownloadWarning()
     const { badge, hasDownloads } = useDownloadStore()
-    const { open, setOpen, setTab } = useSearchStore()
+    const { onOpen, isOpen, onClose, setTab } = useSearchStore()
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
@@ -23,10 +23,10 @@ export function Download() {
             if (event.key === 'j' && (event.metaKey || event.ctrlKey)) {
                 event.preventDefault()
                 setTab('downloads')
-                if (!open) setOpen(true)
+                if (!isOpen) onOpen()
             }
             if (event.key === 'Escape') {
-                setOpen(false)
+                onClose()
             }
         }
 
@@ -35,7 +35,7 @@ export function Download() {
         return () => {
             document.removeEventListener('keydown', handleKeyDown)
         }
-    }, [open, setOpen, setTab, hasDownloads])
+    }, [isOpen, onClose, setTab, hasDownloads])
 
     if (!mounted) {
         return null
@@ -63,7 +63,7 @@ export function Download() {
                 variant='light'
                 onPress={() => {
                     setTab('downloads')
-                    if (!open) setOpen(true)
+                    if (!isOpen) onClose()
                 }}
             />
         </Badge>

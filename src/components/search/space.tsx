@@ -13,7 +13,7 @@ import { useSearchStore } from '@/zustand/store'
 import { useDebounce } from '@/hooks'
 
 export function Space() {
-    const { query, onSelect, setOpen } = useSearchStore()
+    const { query, onSelect, onClose } = useSearchStore()
     const debouncedQuery = useDebounce(query)
     const router = useRouter()
     const { data, isLoading } = useSearch(debouncedQuery)
@@ -52,7 +52,7 @@ export function Space() {
                     key={c.id}
                     onSelect={() => {
                         router.push(path(c.webUrl, !!c.file))
-                        setOpen(false)
+                        onClose()
                     }}
                 >
                     <Thumbnail name={c.name} type='List' />
