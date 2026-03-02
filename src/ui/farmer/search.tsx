@@ -15,19 +15,20 @@ const SHELL_CLASSES = `${BLUR_CLASSES} dark:bg-[#1C1C1E]/75`
 
 export default function AnimatedSearch({ children }: AnimatedSearchProps) {
     const isOpen = useSearchStore((s) => s.isOpen)
-
-    if (!isOpen) {
-        return (
-            <div
-                className={`fixed bottom-4 left-1/2 z-50 w-[95%] -translate-x-1/2 rounded-[20px] border bg-white/80 md:w-160 ${SHELL_CLASSES}`}
-            >
-                {children}
-            </div>
-        )
+    return (
+        <>
+            {!isOpen && (
+                <div
+                    className={`fixed bottom-4 left-1/2 z-50 w-[95%] -translate-x-1/2 rounded-[20px] border bg-white/80 md:w-160 ${SHELL_CLASSES}`}
+                >
+                    {children}
+                </div>
+            )}
+            <ModalContentWrapper>{children}</ModalContentWrapper>
+        </>
+    )
     }
 
-    return <ModalContentWrapper>{children}</ModalContentWrapper>
-}
 
 function ModalContentWrapper({ children }: AnimatedSearchProps) {
     const { isOpen, onClose, ref } = useSearchStore()

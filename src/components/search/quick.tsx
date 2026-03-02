@@ -19,7 +19,7 @@ import { Navigations } from './type'
 export function QuickAction({ command }: { command: Record<string, Navigations> | null }) {
     const router = useRouter()
     const { setTheme } = useTheme()
-    const { setDynamicNavigations, getNavigationGroups, onSelect } = useSearchStore()
+    const { query, setQuery, setDynamicNavigations, getNavigationGroups, onSelect } = useSearchStore()
 
     useEffect(() => {
         if (command) {
@@ -74,7 +74,40 @@ export function QuickAction({ command }: { command: Record<string, Navigations> 
                     {index < groups.length - 1 && <CommandSeparator />}
                 </React.Fragment>
             ))}
-            <CommandEmpty>No Results Found</CommandEmpty>
+            <CommandEmpty>
+                <div className='flex flex-col items-center justify-center p-6 text-center'>
+                    <div className='bg-default/10 mb-3 rounded-full border p-2.5'>
+                        <Icon base='size-5' className='size-5' icon='hugeicons:search-remove' />
+                    </div>
+                    <h3 className='text-sm font-semibold'>No matching command</h3>
+                    <p className='text-muted-foreground mt-1 max-w-64 text-xs'>
+                        Try a shorter keyword or use one of these suggestions.
+                    </p>
+
+                    <div className='mt-3 flex flex-wrap justify-center gap-1.5'>
+                        {['firmware', 'downloads', 'theme', 'support'].map((term) => (
+                            <button
+                                key={term}
+                                type='button'
+                                onClick={() => setQuery(term)}
+                                className='bg-default/8 hover:bg-default/15 rounded-full border px-2.5 py-1 text-[10px] font-semibold tracking-wide uppercase transition-colors'
+                            >
+                                {term}
+                            </button>
+                        ))}
+                    </div>
+
+                    {query.trim().length > 0 && (
+                        <button
+                            type='button'
+                            onClick={() => setQuery('')}
+                            className='text-primary mt-3 text-xs font-medium underline-offset-2 hover:underline'
+                        >
+                            Clear search
+                        </button>
+                    )}
+                </div>
+            </CommandEmpty>
         </>
     )
 }

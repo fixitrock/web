@@ -4,6 +4,7 @@ import { devtools } from 'zustand/middleware'
 
 import { Navigation, Navigations } from '@/components/search/type'
 import { tabConfigs } from '@/config/tabs'
+import { HeyYou } from '@/lib/utils'
 
 interface NavigationGroup {
     heading: string
@@ -47,6 +48,9 @@ type SearchState = {
 
     expandedOrderId: string | null
     setExpandedOrderId: (id: string | null) => void
+
+    greeting: string
+    refreshGreeting: (name?: string | null) => void
 }
 
 export const useSearchStore = create<SearchState>()(
@@ -118,6 +122,16 @@ export const useSearchStore = create<SearchState>()(
 
                 expandedOrderId: null,
                 setExpandedOrderId: (id) => set({ expandedOrderId: id }),
+
+                greeting: HeyYou(),
+                refreshGreeting: (name) =>
+                    set(
+                        (state) => ({
+                            greeting: HeyYou(name, state.greeting),
+                        }),
+                        false,
+                        'refreshGreeting'
+                    ),
 
                 bounce: () => {
                     if (ref.current) {

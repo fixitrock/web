@@ -78,7 +78,7 @@ export function Transactions({ balance }: { balance: { get: number; give: number
             <Balance balance={balance} />
 
             {isLoading ? (
-                <TransactionSkeleton length={5} />
+                <TransactionSkeleton length={8} />
             ) : (
                 <>
                     {transactions.map((t: TransactionItem) => (

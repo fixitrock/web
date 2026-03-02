@@ -150,7 +150,7 @@ function ExpandableOrderItem({
                                     copyButton: 'size-5 min-w-auto',
                                     base: 'gap-0.5',
                                 }}
-                                codeString={order.phone}
+                                codeString={formatPhone(order.phone)}
                                 className='text-muted-foreground bg-transparent p-0 text-[10px]'
                             >
                                 {formatPhone(order.phone)}

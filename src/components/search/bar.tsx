@@ -7,7 +7,6 @@ import AnimatedSearch from '@/ui/farmer/search'
 import { Command, CommandInput, CommandList } from '@/ui/command'
 import { useSearchStore } from '@/zustand/store'
 import { User as UserType } from '@/app/login/types'
-import { HeyYou } from '@/lib/utils'
 import { tabs } from '@/config/tabs'
 import { isAppleDevice, isWebKit } from '@react-aria/utils'
 
@@ -44,25 +43,36 @@ export function SearchBar({
         shouldFilter,
         ref,
         heading,
+        greeting,
+        refreshGreeting,
     } = useSearchStore()
 
     const { showCart, setShowCart, getTotalItems } = useCartStore()
-      useEffect(() => {
-          const onKeyDown = (e: KeyboardEvent) => {
-              const hotkey = isAppleDevice() ? 'metaKey' : 'ctrlKey'
+    useEffect(() => {
+        refreshGreeting(user?.name)
+    }, [refreshGreeting, user?.name])
 
-              if (e?.key?.toLowerCase() === 'k' && e[hotkey]) {
-                  e.preventDefault()
-                  isOpen ? onClose() : onOpen()
-              }
-          }
+    useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            const hotkey = isAppleDevice() ? 'metaKey' : 'ctrlKey'
 
-          document.addEventListener('keydown', onKeyDown)
+            if (e?.key?.toLowerCase() === 'k' && e[hotkey]) {
+                e.preventDefault()
+                if (isOpen) {
+                    onClose()
+                } else {
+                    refreshGreeting(user?.name)
+                    onOpen()
+                }
+            }
+        }
 
-          return () => {
-              document.removeEventListener('keydown', onKeyDown)
-          }
-      }, [isOpen])
+        document.addEventListener('keydown', onKeyDown)
+
+        return () => {
+            document.removeEventListener('keydown', onKeyDown)
+        }
+    }, [isOpen, onClose, onOpen, refreshGreeting, user?.name])
 
     return (
         <AnimatedSearch>
@@ -113,7 +123,7 @@ export function SearchBar({
                             )}
                         </>
                     }
-                    placeholder={heading() || (user ? HeyYou(user?.name) : 'What do you need?')}
+                    placeholder={heading() || greeting}
                     startContent={
                         <Button
                             isIconOnly
@@ -131,7 +141,12 @@ export function SearchBar({
                         />
                     }
                     value={query}
-                    onClick={() => onOpen()}
+                    onClick={() => {
+                        if (!isOpen) {
+                            refreshGreeting(user?.name)
+                            onOpen()
+                        }
+                    }}
                     onValueChange={(value) => setQuery(value)}
                 />
                 {isOpen && (
