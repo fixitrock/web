@@ -45,7 +45,10 @@ export function SearchBar({
         heading,
         greeting,
         refreshGreeting,
+        selectedTransaction,
+        setSelectedTransaction,
     } = useSearchStore()
+    const hasBackNavigation = Boolean(page || selectedTransaction)
 
     const { showCart, setShowCart, getTotalItems } = useCartStore()
     useEffect(() => {
@@ -127,12 +130,20 @@ export function SearchBar({
                     startContent={
                         <Button
                             isIconOnly
-                            className={`${page ? 'bg-default/20' : 'data-[hover=true]:bg-transparent'}`}
+                            className={`${hasBackNavigation ? 'bg-default/20' : 'data-[hover=true]:bg-transparent'}`}
                             radius='full'
                             size='sm'
-                            startContent={page ? <ArrowLeft size={18} /> : <SearchIcon size={18} />}
-                            variant={page ? 'flat' : 'light'}
+                            startContent={
+                                hasBackNavigation ? <ArrowLeft size={18} /> : <SearchIcon size={18} />
+                            }
+                            variant={hasBackNavigation ? 'flat' : 'light'}
                             onPress={() => {
+                                if (selectedTransaction) {
+                                    setSelectedTransaction(null)
+                                    bounce()
+                                    return
+                                }
+
                                 if (page) {
                                     setPage(null)
                                     bounce()

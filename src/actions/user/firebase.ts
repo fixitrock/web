@@ -70,9 +70,12 @@ export async function verifyFirebaseLogin(
         const decodedToken = await adminAuth.verifyIdToken(idToken)
         const phone = decodedToken.phone_number
 
-        if (!phone) return { error: 'No phone number found in Firebase token.' }
+        if (!phone) {
+            return { error: 'No phone number found in Firebase token.' }
+        }
 
-        let userId: string | undefined
+        let profileId: string | undefined
+        let authUserId: string | undefined
 
         // 2. Fast Lookup: Check public.users directly (O(1))
         // Handles "9199..." vs "+9199..." format mismatch
@@ -80,16 +83,17 @@ export async function verifyFirebaseLogin(
 
         const { data: existingProfile } = await supabaseAdmin
             .from('users')
-            .select('id')
+            .select('id, auth_id')
             .or(`phone.eq.${phone},phone.eq.${phoneClean}`)
             .maybeSingle()
 
         if (existingProfile) {
-            userId = existingProfile.id
+            profileId = existingProfile.id
+            authUserId = existingProfile.auth_id ?? undefined
         }
 
-        // 3. If not in public records, try Creating Auth User (New User Path)
-        if (!userId) {
+        // 3. Ensure we have an auth user id (from profile.auth_id or by creating/recovering auth user)
+        if (!authUserId) {
             const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser(
                 {
                     phone: phone,
@@ -98,7 +102,7 @@ export async function verifyFirebaseLogin(
             )
 
             if (newUser.user) {
-                userId = newUser.user.id
+                authUserId = newUser.user.id
             } else if (
                 createError?.code === 'phone_exists' ||
                 createError?.message?.includes('registered')
@@ -115,7 +119,7 @@ export async function verifyFirebaseLogin(
                 )
 
                 if (zombie) {
-                    userId = zombie.id
+                    authUserId = zombie.id
                 } else {
                     return { error: 'Account stuck in invalid state. Please contact support.' }
                 }
@@ -124,11 +128,17 @@ export async function verifyFirebaseLogin(
             }
         }
 
+        if (profileId && authUserId && !existingProfile?.auth_id) {
+            await supabaseAdmin.from('users').update({ auth_id: authUserId }).eq('id', profileId)
+        }
+
         // 5. Mint Session (Stable Password Strategy)
-        if (!userId) return { error: 'User identification failed.' }
+        if (!authUserId) {
+            return { error: 'User identification failed.' }
+        }
 
         const { data: authUserData, error: authUserError } =
-            await supabaseAdmin.auth.admin.getUserById(userId)
+            await supabaseAdmin.auth.admin.getUserById(authUserId)
         if (authUserError || !authUserData?.user) {
             return { error: 'User lookup failed.' }
         }
@@ -149,11 +159,14 @@ export async function verifyFirebaseLogin(
             const encryptedSecret = encryptLoginSecret(loginSecret)
 
             // Set password once and persist encrypted secret for future logins
-            const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-                password: loginSecret,
-                phone_confirm: true,
-                user_metadata: { ...existingMetadata, login_secret: encryptedSecret },
-            })
+            const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+                authUserId,
+                {
+                    password: loginSecret,
+                    phone_confirm: true,
+                    user_metadata: { ...existingMetadata, login_secret: encryptedSecret },
+                }
+            )
             if (updateError) {
                 return { error: 'Login preparation failed.' }
             }
@@ -187,24 +200,37 @@ export async function verifyFirebaseLogin(
             refresh_token: signInData.session!.refresh_token,
         })
 
+        // Fetch full profile for return and session logging
+        let userProfile: User | null = null
+        if (profileId) {
+            const { data } = await supabaseAdmin
+                .from('users')
+                .select('*')
+                .eq('id', profileId)
+                .maybeSingle()
+            userProfile = (data as User | null) ?? null
+        } else {
+            const { data } = await supabaseAdmin
+                .from('users')
+                .select('*')
+                .eq('auth_id', authUserId)
+                .maybeSingle()
+            userProfile = (data as User | null) ?? null
+            profileId = userProfile?.id
+        }
+
         // 7. Log & Return
         const headersList = await headers()
         const userAgent = headersList.get('user-agent') || 'Unknown'
 
+        const sessionUserId = profileId ?? authUserId
         await createLoginSession(
-            userId,
+            sessionUserId,
             signInData.session!.access_token,
             userAgent,
             'firebase_otp',
             'success'
         )
-
-        // Fetch full profile for return
-        const { data: userProfile } = await supabaseAdmin
-            .from('users')
-            .select('*')
-            .eq('id', userId)
-            .single()
 
         return { user: userProfile || undefined }
     } catch (error: any) {

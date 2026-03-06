@@ -5,6 +5,7 @@ import { devtools } from 'zustand/middleware'
 import { Navigation, Navigations } from '@/components/search/type'
 import { tabConfigs } from '@/config/tabs'
 import { HeyYou } from '@/lib/utils'
+import { TransactionItem } from '@/types/transaction'
 
 interface NavigationGroup {
     heading: string
@@ -48,6 +49,9 @@ type SearchState = {
 
     expandedOrderId: string | null
     setExpandedOrderId: (id: string | null) => void
+
+    selectedTransaction: TransactionItem | null
+    setSelectedTransaction: (transaction: TransactionItem | null) => void
 
     greeting: string
     refreshGreeting: (name?: string | null) => void
@@ -117,11 +121,15 @@ export const useSearchStore = create<SearchState>()(
                 setQuery: (value) => set({ query: value }),
 
                 isOpen: false,
-                onClose: () => set({ isOpen: false }),
+                onClose: () => set({ isOpen: false, selectedTransaction: null }),
                 onOpen: () => set({ isOpen: true }),
 
                 expandedOrderId: null,
                 setExpandedOrderId: (id) => set({ expandedOrderId: id }),
+
+                selectedTransaction: null,
+                setSelectedTransaction: (transaction) =>
+                    set({ selectedTransaction: transaction }, false, 'setSelectedTransaction'),
 
                 greeting: HeyYou(),
                 refreshGreeting: (name) =>
@@ -151,6 +159,7 @@ export const useSearchStore = create<SearchState>()(
                         {
                             tab,
                             expandedOrderId: null,
+                            selectedTransaction: null,
                             shouldFilter: config ? config.shouldFilter : get().shouldFilter,
                         },
                         false,
@@ -174,13 +183,28 @@ export const useSearchStore = create<SearchState>()(
                 },
 
                 onKeyDown: (event: KeyboardEvent) => {
-                    const { page, setPage, bounce, query, isOpen } = get()
+                    const {
+                        page,
+                        setPage,
+                        bounce,
+                        query,
+                        isOpen,
+                        selectedTransaction,
+                        setSelectedTransaction,
+                    } = get()
 
                     if (!isOpen) return
 
                     switch (event.key) {
                         case 'Backspace':
                         case 'ArrowLeft':
+                            if (selectedTransaction && query === '') {
+                                event.preventDefault()
+                                setSelectedTransaction(null)
+                                bounce()
+                                return
+                            }
+
                             if (page && query === '') {
                                 event.preventDefault()
                                 setPage(null)
@@ -200,7 +224,7 @@ export const useSearchStore = create<SearchState>()(
                     set({ dynamicNavigations: { ...lists } })
                 },
 
-                isPageMode: () => get().page !== null,
+                isPageMode: () => get().page !== null || get().selectedTransaction !== null,
 
                 getCurrentPageItems: () => {
                     const { page, dynamicNavigations } = get()

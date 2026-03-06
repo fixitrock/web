@@ -39,10 +39,11 @@ function ModalContentWrapper({ children }: AnimatedSearchProps) {
             <Modal
                 ref={ref}
                 hideCloseButton
+                placement='top-center'
                 backdrop='opaque'
                 classNames={{
                     base: [
-                        'mt-[20dvh] flex h-[50vh] max-h-[calc(100%_-_10px)] max-w-160 flex-col',
+                        'flex h-[70dvh] max-h-[calc(100%_-_10px)] max-w-160 flex-col md:h-[60dvh]',
                         'p-0.5',
                         `rounded-[18px] border bg-white md:w-160 ${SHELL_CLASSES}`,
                     ],
@@ -79,7 +80,7 @@ function ModalContentWrapper({ children }: AnimatedSearchProps) {
 
     return (
         <Drawer open={isOpen} onClose={onClose}>
-            <DrawerContent className={`h-[50dvh] ${SHELL_CLASSES}`} ref={ref}>
+            <DrawerContent className={`h-[70dvh] ${SHELL_CLASSES}`} ref={ref}>
                 <DrawerHeader className='sr-only'>
                     <DrawerTitle />
                     <DrawerDescription />

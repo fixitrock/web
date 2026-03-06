@@ -12,20 +12,29 @@ import { Balance } from './balance'
 import { fallback } from '@/config/site'
 import { balanceColor, formatDateTime, formatPrice, normalizeName } from '@/lib/utils'
 import { bucketUrl } from '@/supabase/bucket'
-import { useMyTransactions } from '@/hooks/tanstack/query'
+import { useMyTransaction } from '@/hooks/tanstack/query'
 import { useSearchStore } from '@/zustand/store'
 import { useDebounce } from '@/hooks/useDebounce'
 import { TransactionItem } from '@/types/transaction'
+import { TransactionHistory } from './history'
 
 const TransactionRow = memo(
-    ({ transaction, view }: { transaction: TransactionItem; view: 'seller' | 'user' }) => {
+    ({
+        transaction,
+        view,
+        onOpen,
+    }: {
+        transaction: TransactionItem
+        view: 'seller' | 'user'
+        onOpen: (transaction: TransactionItem) => void
+    }) => {
         const { name, avatar, updated_at, balance, phone } = transaction
 
         const avatarSrc =
             bucketUrl(avatar) || `${fallback.user}${normalizeName(name)}.svg?text=${name.charAt(0)}`
 
         return (
-            <CommandItem key={phone}>
+            <CommandItem key={transaction.id} onSelect={() => onOpen(transaction)}>
                 <Image
                     width={35}
                     height={35}
@@ -34,14 +43,14 @@ const TransactionRow = memo(
                     className='aspect-square rounded-full object-cover'
                 />
                 <div className='flex flex-1 flex-col'>
-                    <p className='text-medium truncate font-medium'>{name}</p>
+                    <p className='text-medium truncate font-semibold'>{name}</p>
                     <p className='text-muted-foreground truncate text-[10px]'>
                         {formatDateTime(updated_at)}
                     </p>
                 </div>
 
                 <CommandShortcut
-                    className={`text-lg font-semibold tracking-normal ${balanceColor(balance, view)}`}
+                    className={`text-lg font-bold tracking-normal ${balanceColor(balance, view)}`}
                 >
                     {formatPrice(balance)}
                 </CommandShortcut>
@@ -53,14 +62,19 @@ const TransactionRow = memo(
 TransactionRow.displayName = 'TransactionRow'
 
 export function Transactions({ balance }: { balance: { get: number; give: number } }) {
-    const { query } = useSearchStore()
+    const { query, selectedTransaction, setSelectedTransaction } = useSearchStore()
+
     const debouncedQuery = useDebounce(query)
 
     const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isError } =
-        useMyTransactions(debouncedQuery)
+        useMyTransaction(debouncedQuery)
 
     const transactions = data?.transactions ?? []
     const view = data?.view ?? 'user'
+
+    if (selectedTransaction) {
+        return <TransactionHistory user={selectedTransaction} view={view} />
+    }
 
     if (isError) {
         return (
@@ -76,15 +90,18 @@ export function Transactions({ balance }: { balance: { get: number; give: number
     return (
         <div className='flex flex-col gap-2 p-1.5'>
             <Balance balance={balance} />
-
             {isLoading ? (
                 <TransactionSkeleton length={8} />
             ) : (
                 <>
                     {transactions.map((t: TransactionItem) => (
-                        <TransactionRow key={t.phone} transaction={t} view={view} />
+                        <TransactionRow
+                            key={t.id}
+                            transaction={t}
+                            view={view}
+                            onOpen={(transaction) => setSelectedTransaction(transaction)}
+                        />
                     ))}
-
                     {hasNextPage && (
                         <div className='flex items-center justify-center'>
                             <Button
