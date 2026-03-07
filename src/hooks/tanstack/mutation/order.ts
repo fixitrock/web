@@ -20,6 +20,9 @@ export function useOrder() {
             queryClient.invalidateQueries({ queryKey: ['sellerOrders'] })
             queryClient.invalidateQueries({ queryKey: ['userTransactions'] })
             queryClient.invalidateQueries({ queryKey: ['RecentOrders'] })
+            queryClient.invalidateQueries({ queryKey: ['myOrders'] })
+            queryClient.invalidateQueries({ queryKey: ['transaction'] })
+            queryClient.invalidateQueries({ queryKey: ['transactions'] })
         },
     })
 
@@ -39,6 +42,8 @@ export function useTransactions() {
             queryClient.invalidateQueries({ queryKey: ['userTransactions'] })
             queryClient.invalidateQueries({ queryKey: ['sellerOrders'] })
             queryClient.invalidateQueries({ queryKey: ['RecentOrders'] })
+            queryClient.invalidateQueries({ queryKey: ['transaction'] })
+            queryClient.invalidateQueries({ queryKey: ['transactions'] })
         },
     })
 
@@ -62,6 +67,8 @@ export function useReturnOrder() {
             queryClient.invalidateQueries({ queryKey: ['myOrders'] })
             queryClient.invalidateQueries({ queryKey: ['userTransactions'] })
             queryClient.invalidateQueries({ queryKey: ['RecentOrders'] })
+            queryClient.invalidateQueries({ queryKey: ['transaction'] })
+            queryClient.invalidateQueries({ queryKey: ['transactions'] })
         },
         onError: (error) => {
             toast.error(error.message || 'Failed to process return')

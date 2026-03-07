@@ -134,7 +134,11 @@ export function SearchBar({
                             radius='full'
                             size='sm'
                             startContent={
-                                hasBackNavigation ? <ArrowLeft size={18} /> : <SearchIcon size={18} />
+                                hasBackNavigation ? (
+                                    <ArrowLeft size={18} />
+                                ) : (
+                                    <SearchIcon size={18} />
+                                )
                             }
                             variant={hasBackNavigation ? 'flat' : 'light'}
                             onPress={() => {
@@ -169,6 +173,7 @@ export function SearchBar({
                             {tab === 'transactions' && user && <Transactions balance={balance} />}
                             {tab === 'downloads' && <Downloads />}
                         </CommandList>
+
                         <Tabs
                             classNames={{
                                 base: 'p-1 px-1.5',

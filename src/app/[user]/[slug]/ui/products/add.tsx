@@ -42,6 +42,7 @@ import { Icon } from '@iconify/react'
 import { bucketUrl } from '@/supabase/bucket'
 import { prepareProduct } from '@/hooks/cloudflare'
 import { RichTextEditor } from '@/ui/rich-text-editor'
+import { useMediaQuery } from '@/hooks'
 
 interface AddModalProps {
     mode: 'add' | 'update'
@@ -51,6 +52,8 @@ interface AddModalProps {
 
 export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
     const { data: cat, isLoading: catLoading } = useCategories()
+        const isDesktop = useMediaQuery('(min-width: 768px)')
+    
     const {
         form,
         errors,
@@ -114,13 +117,19 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
     const Title = mode === 'add' ? 'Add Product' : 'Edit Product'
     const Submit = mode === 'add' ? 'Add Product' : 'Update Product'
     const Icon = mode === 'add' ? <CirclePlus size={20} /> : <Settings2 size={20} />
+
     return (
         <Modal
             hideCloseButton
             scrollBehavior='inside'
-            size='2xl'
-            placement='center'
-            className='bg-background max-h-[50vh] overflow-hidden border shadow-none md:max-h-[80vh]'
+            classNames={{
+                base: [
+                    'flex h-[80dvh] max-h-[calc(100%_-_10px)] max-w-2xl flex-col',
+                    'p-0.5',
+                    `bg-background rounded-[18px] border`,
+                    `${isDesktop ? '' : 'h-full'}`,
+                ],
+            }}
             isOpen={isOpen}
             onClose={onClose}
         >
@@ -143,7 +152,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
 
                 <ModalBody className='p-0'>
                     <ScrollShadow className='flex flex-col gap-3 px-3 py-2' hideScrollBar>
-                        <div className='flex flex-col gap-3 md:flex-row'>
+                        <div className='flex flex-col-reverse gap-3 md:flex-row'>
                             <div className='bg-background/60 flex w-full flex-col gap-2 rounded-xl border p-3 md:p-4'>
                                 <Input
                                     label='Product Name'
@@ -219,8 +228,11 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                                                     : URL.createObjectURL(form.thumbnail)
                                             }
                                             alt='Thumbnail'
-                                            className='aspect-square rounded-lg border object-cover'
-                                            classNames={{ wrapper: 'aspect-square object-cover' }}
+                                            className='aspect-video rounded-lg border object-contain md:aspect-square md:object-cover'
+                                            classNames={{
+                                                wrapper:
+                                                    'aspect-video object-contain md:aspect-square md:object-cover',
+                                            }}
                                         />
                                         <Button
                                             isIconOnly
@@ -236,7 +248,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                                 ) : (
                                     <Button
                                         as='label'
-                                        className='bg-background/60 hover:border-foreground/40 flex aspect-square size-full min-h-0 min-w-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 text-center transition'
+                                        className='bg-background/60 hover:border-foreground/40 flex aspect-video size-full min-h-0 min-w-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 text-center transition md:aspect-square'
                                         variant='light'
                                     >
                                         <div className='flex flex-col items-center gap-2'>

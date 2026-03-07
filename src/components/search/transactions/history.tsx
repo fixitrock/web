@@ -11,6 +11,7 @@ import { NoTransactionMessage, TransactionCard, TransactionSkeleton } from './ca
 import { useMyTransactions } from '@/hooks/tanstack/query'
 import NumberFlow from '@number-flow/react'
 import { Button } from '@heroui/react'
+import { AddTransaction } from './add'
 
 export function TransactionHistory({
     user,
@@ -131,6 +132,13 @@ export function TransactionHistory({
                     >
                         {isFetchingNextPage ? 'Loading . . .' : 'Show More'}
                     </Button>
+                </div>
+            )}
+
+            {data?.seller && (
+                <div className='sticky bottom-1.5 flex items-center justify-end gap-2 px-4 md:gap-3'>
+                    <AddTransaction type='debit' />
+                    <AddTransaction type='credit' />
                 </div>
             )}
         </div>
