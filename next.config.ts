@@ -1,8 +1,10 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-    // cacheComponents: true,
+    output: 'standalone',
+
     transpilePackages: ['next-mdx-remote'],
+
     images: {
         remotePatterns: [
             {
@@ -11,6 +13,7 @@ const nextConfig: NextConfig = {
             },
         ],
     },
+
     experimental: {
         serverActions: {
             bodySizeLimit: '10mb',
@@ -26,6 +29,7 @@ const nextConfig: NextConfig = {
             'usehooks-ts',
         ],
     },
+
     turbopack: {
         rules: {
             '*.svg': {
@@ -34,6 +38,7 @@ const nextConfig: NextConfig = {
             },
         },
     },
+
     async redirects() {
         return [
             {
