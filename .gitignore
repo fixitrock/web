@@ -64,6 +64,7 @@ src/app/test/page.tsx
 migrations/
 migrations/
 src/app/(app)/test/page.tsx
-apps/web/src/app/(app)/test
+apps/web/src/app/(app)/test/
+apps/web/src/app/(app)/test/page.tsx
 docs/
 apps/web/src/app/(app)/test
