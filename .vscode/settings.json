@@ -12,5 +12,6 @@
     "prettier.bracketSpacing": true,
     "prettier.endOfLine": "auto",
     "prettier.arrowParens": "always",
-    "prettier.trailingComma": "all"
+    "prettier.trailingComma": "all",
+    "git.ignoreLimitWarning": true
 }
