@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-node_modules/
+/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -11,27 +11,18 @@ node_modules/
 !.yarn/versions
 
 # testing
-coverage/
+/coverage
 
 # next.js
-.next/
+/.next/
 /out/
 
 # production
-build/
-dist/
-
-# turbo
-.turbo/
+/build
 
 # misc
 .DS_Store
 *.pem
-Thumbs.db
-
-# logs
-logs/
-*.log
 
 # debug
 npm-debug.log*
@@ -41,17 +32,12 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-!.env.example
 
 # vercel
-.vercel/
+.vercel
 
 # typescript
 *.tsbuildinfo
-
-# IDE
-.vscode/
-.idea/
 
 bun.lockb
 src/app/token/page.tsx
@@ -60,11 +46,14 @@ src/app/token
 /src/app/token/page.tsx
 /src/app/token/
 /src/app/token
+bun.lock
 src/app/test/page.tsx
 migrations/
 migrations/
 src/app/(app)/test/page.tsx
-apps/web/src/app/(app)/test/
-apps/web/src/app/(app)/test/page.tsx
 docs/
-apps/web/src/app/(app)/test
+scripts/auto-changelog.js
+scripts/auto-changelog.js
+
+
+pnpm-lock.yaml
