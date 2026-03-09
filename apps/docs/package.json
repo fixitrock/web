@@ -8,7 +8,7 @@
     "build": "mintlify validate",
     "start": "mintlify start -p ${PORT:-8000} -H 0.0.0.0",
     "lint": "eslint --max-warnings 0",
-  "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@repo/ui": "workspace:*",
@@ -23,6 +23,7 @@
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "eslint": "^9.39.1",
+    "mintlify": "^4.2.417",
     "typescript": "5.9.2"
   }
 }
