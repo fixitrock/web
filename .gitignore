@@ -64,6 +64,6 @@ src/app/test/page.tsx
 migrations/
 migrations/
 src/app/(app)/test/page.tsx
+apps/web/src/app/(app)/test
 docs/
-scripts/auto-changelog.js
-scripts/auto-changelog.js
+apps/web/src/app/(app)/test
