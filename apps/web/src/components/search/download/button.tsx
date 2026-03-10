@@ -35,7 +35,7 @@ export function Download() {
         return () => {
             document.removeEventListener('keydown', handleKeyDown)
         }
-    }, [isOpen, onClose, setTab, hasDownloads])
+    }, [hasDownloads, isOpen, onClose, onOpen, setTab])
 
     if (!mounted) {
         return null
@@ -63,7 +63,7 @@ export function Download() {
                 variant='light'
                 onPress={() => {
                     setTab('downloads')
-                    if (!isOpen) onClose()
+                    if (!isOpen) onOpen()
                 }}
             />
         </Badge>

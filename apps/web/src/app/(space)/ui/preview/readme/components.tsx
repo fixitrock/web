@@ -14,11 +14,14 @@ export const OL = ({ className, ...props }: React.HTMLAttributes<HTMLOListElemen
     return <ol className={cn('ml-6 list-decimal', className)} {...props} />
 }
 
-export const LI = ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => {
+export const LI = ({ className, ...props }: React.HTMLAttributes<HTMLLIElement>) => {
     return <li className={cn('mt-2', className)} {...props} />
 }
 
-export const Blockquote = ({ className, ...props }: React.HTMLAttributes<HTMLElement>) => {
+export const Blockquote = ({
+    className,
+    ...props
+}: React.HTMLAttributes<HTMLQuoteElement>) => {
     return (
         <Card className={cn('dark:bg-default/10 rounded-lg border p-1.5', className)} shadow='none'>
             <blockquote
@@ -33,7 +36,9 @@ export const HR = ({ className, ...props }: React.HTMLAttributes<HTMLHRElement>)
     return <hr className={cn('border-border my-2 sm:my-6', className)} {...props} />
 }
 
-export const A = ({ className, ...props }: React.ComponentProps<typeof Link>) => {
+type LinkProps = Omit<React.ComponentPropsWithoutRef<typeof Link>, 'key'>
+
+export const A = ({ className, ...props }: LinkProps) => {
     return (
         <Link
             className={cn(

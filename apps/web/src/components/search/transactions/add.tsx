@@ -1,5 +1,6 @@
 'use client'
-import { Button, Input, Tabs, Tab, useDisclosure, TabsProps } from '@heroui/react'
+import { Button, Input, Tabs, Tab, useDisclosure } from '@heroui/react'
+import type { ComponentPropsWithoutRef } from 'react'
 
 import { useMediaQuery } from '@/hooks'
 import { useCartStore } from '@/zustand/store'
@@ -182,7 +183,9 @@ function formatINR(amount: number) {
 }
 const modes: PaymentMethodType[] = ['cash', 'upi', 'card']
 
-function PaymentMode({ ...tabsProps }: TabsProps) {
+type PaymentModeProps = Omit<ComponentPropsWithoutRef<typeof Tabs>, 'children' | 'key'>
+
+function PaymentMode({ ...tabsProps }: PaymentModeProps) {
     return (
         <div>
             <h3 className='text-muted-foreground mb-1 text-sm font-medium'>Payment Method</h3>

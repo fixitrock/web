@@ -14,7 +14,7 @@ type Props = {
     ssr?: boolean
 }
 
-function Icon({ icon, className, fallback, ssr = true, base }: Props) {
+function Icon({ icon, className, fallback, ssr = true, base }: Props): React.ReactNode {
     const [loaded, setLoaded] = useState(ssr ? true : false)
 
     useEffect(() => {

@@ -1,21 +1,37 @@
 'use client'
 
-import { Button, Input as Drive, InputProps as Props } from '@heroui/react'
+import { Button, Input as Drive } from '@heroui/react'
 import { Loader, Search, Undo2 } from 'lucide-react'
 import Link from 'next/link'
 import React, { useEffect, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
+
+type DriveInputProps = Omit<
+    React.ComponentPropsWithoutRef<typeof Drive>,
+    'endContent' | 'onChange' | 'startContent' | 'type' | 'value'
+>
 
 type InputProps = {
     value?: string
     hotKey?: string
     base?: string
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+    onInput?: React.FormEventHandler<HTMLInputElement>
+    onValueChange?: (value: string) => void
     end?: React.ReactNode
     href?: string
-} & Props
+} & DriveInputProps
 
-export function Input({ value = '', hotKey, end, href, onChange, ...inputProps }: InputProps) {
+export function Input({
+    value = '',
+    hotKey,
+    end,
+    href,
+    onChange,
+    onInput,
+    onValueChange,
+    ...inputProps
+}: InputProps) {
     const inputRef = useRef<HTMLInputElement>(null)
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -101,6 +117,8 @@ export function Input({ value = '', hotKey, end, href, onChange, ...inputProps }
             type='search'
             value={value}
             onChange={onChange}
+            onInput={onInput}
+            onValueChange={onValueChange}
             {...inputProps}
         />
     )

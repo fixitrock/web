@@ -7,15 +7,48 @@ import { ScrollShadow } from '@heroui/react'
 import { cn } from '@/lib/utils'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/ui/dialog'
 
-function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
-    return (
+type CommandProps = Omit<React.ComponentPropsWithoutRef<typeof CommandPrimitive>, 'key'>
+type CommandDialogProps = Omit<React.ComponentPropsWithoutRef<typeof Dialog>, 'children' | 'key'> & {
+    title?: string
+    description?: string
+    className?: string
+    showCloseButton?: boolean
+    children?: React.ReactNode
+}
+type CommandInputProps = Omit<
+    React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>,
+    'key'
+> & {
+    startContent?: React.ReactNode
+    endContent?: React.ReactNode
+}
+type CommandListProps = Omit<React.ComponentPropsWithoutRef<typeof CommandPrimitive.List>, 'key'>
+type CommandEmptyProps = Omit<React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty>, 'key'>
+type CommandLoadingProps = Omit<
+    React.ComponentPropsWithoutRef<typeof CommandPrimitive.Loading>,
+    'key'
+>
+type CommandGroupProps = Omit<React.ComponentPropsWithoutRef<typeof CommandPrimitive.Group>, 'key'>
+type CommandSeparatorProps = Omit<
+    React.ComponentPropsWithoutRef<typeof CommandPrimitive.Separator>,
+    'key'
+>
+type CommandItemProps = Omit<React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>, 'key'>
+
+const Command = React.forwardRef<HTMLDivElement, CommandProps>(
+    function Command({ className, ...props }, ref) {
+        return (
         <CommandPrimitive
+            ref={ref}
             className={cn('flex w-full flex-col outline-none', className)}
             data-slot='command'
             {...props}
         />
-    )
-}
+        )
+    }
+)
+
+Command.displayName = CommandPrimitive.displayName
 
 function CommandDialog({
     title = 'Command Palette',
@@ -24,12 +57,7 @@ function CommandDialog({
     className,
     showCloseButton = true,
     ...props
-}: React.ComponentProps<typeof Dialog> & {
-    title?: string
-    description?: string
-    className?: string
-    showCloseButton?: boolean
-}) {
+}: CommandDialogProps) {
     return (
         <Dialog {...props}>
             <DialogHeader className='sr-only'>
@@ -48,15 +76,12 @@ function CommandDialog({
     )
 }
 
-function CommandInput({
-    className,
-    startContent,
-    endContent,
-    ...props
-}: React.ComponentProps<typeof CommandPrimitive.Input> & {
-    startContent?: React.ReactNode
-    endContent?: React.ReactNode
-}) {
+const CommandInput: React.ForwardRefExoticComponent<
+    CommandInputProps & React.RefAttributes<HTMLInputElement>
+> = React.forwardRef<HTMLInputElement, CommandInputProps>(function CommandInput(
+    { className, startContent, endContent, ...props },
+    ref
+) {
     return (
         <div
             className={cn('flex w-full items-center px-2 py-1', className)}
@@ -65,6 +90,7 @@ function CommandInput({
             <div className='flex flex-1 items-center gap-2'>
                 {startContent && <div className='flex items-center'>{startContent}</div>}
                 <CommandPrimitive.Input
+                    ref={ref}
                     className='placeholder:text-foreground-500 text-medium flex w-full bg-transparent bg-clip-text font-normal outline-hidden placeholder:text-sm disabled:cursor-not-allowed disabled:opacity-50'
                     data-slot='command-input'
                     {...props}
@@ -73,39 +99,59 @@ function CommandInput({
             </div>
         </div>
     )
-}
+})
 
-function CommandList({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.List>) {
-    return (
-        <ScrollShadow isEnabled className='flex-1 outline-0' size={20}>
-            <CommandPrimitive.List
-                className={cn('flex flex-col outline-0', className)}
-                data-slot='command-list'
-                {...props}
-            />
-        </ScrollShadow>
-    )
-}
+CommandInput.displayName = CommandPrimitive.Input.displayName
 
-function CommandEmpty({ ...props }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
+const CommandList = React.forwardRef<HTMLDivElement, CommandListProps>(
+    function CommandList({ className, ...props }, ref) {
+        return (
+            <ScrollShadow isEnabled className='flex-1 outline-0' size={20}>
+                <CommandPrimitive.List
+                    ref={ref}
+                    className={cn('flex flex-col outline-0', className)}
+                    data-slot='command-list'
+                    {...props}
+                />
+            </ScrollShadow>
+        )
+    }
+)
+
+CommandList.displayName = CommandPrimitive.List.displayName
+
+const CommandEmpty = React.forwardRef<
+    HTMLDivElement,
+    CommandEmptyProps
+>(function CommandEmpty({ ...props }, ref) {
     return (
         <CommandPrimitive.Empty
+            ref={ref}
             className='py-6 text-center text-sm'
             data-slot='command-empty'
             {...props}
         />
     )
-}
+})
 
-function CommandLoading({ ...props }: React.ComponentProps<typeof CommandPrimitive.Loading>) {
-    return <CommandPrimitive.Loading data-slot='command-loading' {...props} />
-}
-function CommandGroup({
-    className,
-    ...props
-}: React.ComponentProps<typeof CommandPrimitive.Group>) {
+CommandEmpty.displayName = CommandPrimitive.Empty.displayName
+
+const CommandLoading = React.forwardRef<
+    HTMLDivElement,
+    CommandLoadingProps
+>(function CommandLoading({ ...props }, ref) {
+    return <CommandPrimitive.Loading ref={ref} data-slot='command-loading' {...props} />
+})
+
+CommandLoading.displayName = CommandPrimitive.Loading.displayName
+
+const CommandGroup = React.forwardRef<
+    HTMLDivElement,
+    CommandGroupProps
+>(function CommandGroup({ className, ...props }, ref) {
     return (
         <CommandPrimitive.Group
+            ref={ref}
             className={cn(
                 'text-foreground **:[[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:capitalize **:[[cmdk-group-heading]]:select-none',
                 className
@@ -114,24 +160,31 @@ function CommandGroup({
             {...props}
         />
     )
-}
+})
 
-function CommandSeparator({
-    className,
-    ...props
-}: React.ComponentProps<typeof CommandPrimitive.Separator>) {
+CommandGroup.displayName = CommandPrimitive.Group.displayName
+
+const CommandSeparator = React.forwardRef<
+    HTMLDivElement,
+    CommandSeparatorProps
+>(function CommandSeparator({ className, ...props }, ref) {
     return (
         <CommandPrimitive.Separator
+            ref={ref}
             className={cn('bg-border h-px', className)}
             data-slot='command-separator'
             {...props}
         />
     )
-}
+})
 
-function CommandItem({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Item>) {
-    return (
+CommandSeparator.displayName = CommandPrimitive.Separator.displayName
+
+const CommandItem = React.forwardRef<HTMLDivElement, CommandItemProps>(
+    function CommandItem({ className, ...props }, ref) {
+        return (
         <CommandPrimitive.Item
+            ref={ref}
             className={cn(
                 "data-[selected=true]:bg-default/20 data-[selected=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[selected=true]:backdrop-blur-md [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
                 className
@@ -139,8 +192,11 @@ function CommandItem({ className, ...props }: React.ComponentProps<typeof Comman
             data-slot='command-item'
             {...props}
         />
-    )
-}
+        )
+    }
+)
+
+CommandItem.displayName = CommandPrimitive.Item.displayName
 
 function CommandShortcut({ className, ...props }: React.ComponentProps<'span'>) {
     return (

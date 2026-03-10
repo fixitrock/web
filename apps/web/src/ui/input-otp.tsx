@@ -6,13 +6,15 @@ import { MinusIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
-function InputOTP({
-    className,
-    containerClassName,
-    ...props
-}: React.ComponentProps<typeof OTPInput> & {
+type BaseInputOTPProps = Omit<React.ComponentPropsWithoutRef<typeof OTPInput>, 'key'>
+type BaseChildrenInputOTPProps = Omit<BaseInputOTPProps, 'render'>
+
+type InputOTPProps = BaseChildrenInputOTPProps & {
+    children: React.ReactNode
     containerClassName?: string
-}) {
+}
+
+function InputOTP({ className, containerClassName, children, ...props }: InputOTPProps) {
     return (
         <OTPInput
             className={cn('disabled:cursor-not-allowed', className)}
@@ -20,9 +22,10 @@ function InputOTP({
                 'flex items-center gap-2 has-disabled:opacity-50',
                 containerClassName
             )}
-            data-slot='input-otp'
-            {...props}
-        />
+            {...(props as BaseChildrenInputOTPProps)}
+        >
+            {children}
+        </OTPInput>
     )
 }
 

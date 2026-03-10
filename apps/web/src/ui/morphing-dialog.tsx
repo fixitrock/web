@@ -86,7 +86,10 @@ function MorphingDialog({ children, transition, open, onOpenChange }: MorphingDi
     )
 }
 
-export type MorphingDialogTriggerProps = React.ComponentProps<typeof motion.div> & {
+export type MorphingDialogTriggerProps = Omit<
+    React.ComponentPropsWithoutRef<typeof motion.div>,
+    'children' | 'className' | 'key' | 'style'
+> & {
     children: React.ReactNode
     className?: string
     style?: React.CSSProperties

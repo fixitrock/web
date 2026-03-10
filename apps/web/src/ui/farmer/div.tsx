@@ -4,7 +4,9 @@ import React from 'react'
 
 import { AnimatedTAGProps } from '@/types/drive'
 
-const AnimatedDiv = React.forwardRef<HTMLDivElement, AnimatedTAGProps>(
+const AnimatedDiv: React.ForwardRefExoticComponent<
+    AnimatedTAGProps & React.RefAttributes<HTMLDivElement>
+> = React.forwardRef<HTMLDivElement, AnimatedTAGProps>(
     ({ variants, mobileVariants, className, children, infinity, ...motionProps }, ref) => {
         const selectedVariants =
             typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches

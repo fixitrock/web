@@ -13,7 +13,6 @@ import {
     ModalBody,
     Tabs,
     Tab,
-    TabsProps,
     addToast,
 } from '@heroui/react'
 import React, { useState } from 'react'
@@ -270,7 +269,7 @@ function ProductModal({ product, isOpen, onOpenChange }: ProductModalProps) {
 type ActiveTabsProps = {
     title: string
     items: string[]
-} & Omit<TabsProps, 'items'>
+} & Omit<React.ComponentPropsWithoutRef<typeof Tabs>, 'children' | 'items' | 'key'>
 
 export function ActiveTabs({ title, items, ...tabsProps }: ActiveTabsProps) {
     return (
