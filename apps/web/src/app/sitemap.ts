@@ -28,12 +28,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             }
         }) || []
 
-    const staticRoutes = siteConfig.suggestion.map((route) => ({
-        url: `${siteConfig.domain}${route.href}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: route.href === '/' ? 1 : 0.8,
-    }))
+    const staticRoutes = siteConfig.suggestion
+        .filter((route) => route.href.startsWith('/'))
+        .map((route) => ({
+            url: `${siteConfig.domain}${route.href}`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly' as const,
+            priority: route.href === '/' ? 1 : 0.8,
+        }))
 
     return [...userUrls, ...staticRoutes]
 }

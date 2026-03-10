@@ -1,6 +1,7 @@
 export type Navigation = {
     id: string
     title: string
+    status?: string
     description?: string
     keywords?: string[]
     shortcut?: string[]

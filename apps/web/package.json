@@ -6,7 +6,6 @@
     "scripts": {
         "dev": "next dev",
         "build": "next build",
-        "changelog": "node scripts/auto-changelog.js",
         "start": "next start -p ${PORT:-8000} -H 0.0.0.0",
         "lint": "eslint . --fix"
     },

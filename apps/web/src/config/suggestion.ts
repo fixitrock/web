@@ -42,6 +42,13 @@ export const Suggestion = [
         title: 'Help',
         children: [
             {
+                id: 'docs',
+                title: 'Docs',
+                status: '(Beta)',
+                icon: 'hugeicons:book-open-01',
+                href: 'https://docs.fixitrock.com',
+            },
+            {
                 id: 'support',
                 title: 'Contact Support',
                 icon: 'bx:support',

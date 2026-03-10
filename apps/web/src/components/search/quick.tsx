@@ -52,7 +52,14 @@ export function QuickAction({ command }: { command: Record<string, Navigations> 
                                 )}
                                 <div className='flex w-full flex-1 flex-col items-start truncate'>
                                     {item.title && (
-                                        <div className='text-sm font-medium'>{item.title}</div>
+                                        <div className='text-sm font-medium'>
+                                            {item.title}
+                                            {item.status && (
+                                                <span className='text-muted-foreground ml-1 font-normal'>
+                                                    {item.status}
+                                                </span>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
                                 {item.shortcut && (
@@ -204,6 +211,14 @@ const actions: Record<string, Navigations> = {
         },
     ],
     Support: [
+        {
+            id: 'docs',
+            title: 'Docs',
+            status: '(Beta)',
+            icon: 'hugeicons:book-open-01',
+            href: 'https://docs.fixitrock.com',
+            keywords: ['docs', 'documentation', 'guide', 'manual', 'help center'],
+        },
         {
             id: 'support',
             title: 'Contact Support',

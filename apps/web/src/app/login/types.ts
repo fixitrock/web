@@ -48,6 +48,7 @@ export type Navigation = {
     href: string
     icon: string
     title: string
+    status?: string
     description?: string
 }
 

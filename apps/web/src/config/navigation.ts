@@ -1,6 +1,7 @@
 export type Item = {
     id: string
     title: string
+    status?: string
     description?: string
     keywords?: string[]
     shortcut?: string[]
@@ -151,6 +152,13 @@ export const CommandPages = [
         title: 'Help',
         children: [
             {
+                id: 'docs',
+                title: 'Docs',
+                status: '(Beta)',
+                icon: 'hugeicons:book-open-01',
+                href: 'https://docs.fixitrock.com',
+            },
+            {
                 id: 'support',
                 title: 'Contact Support',
                 icon: 'bx:support',
@@ -163,6 +171,7 @@ export const CommandPages = [
 export type NavigationType = {
     id: string
     title: string
+    status?: string
     description?: string
     shortCut?: string
     keywords?: string[]
@@ -304,6 +313,13 @@ export const Navigations = (actions: Actions): Record<string, NavigationType[]> 
             },
         ],
         help: [
+            {
+                id: 'docs',
+                title: 'Docs',
+                status: '(Beta)',
+                icon: 'hugeicons:book-open-01',
+                href: 'https://docs.fixitrock.com',
+            },
             {
                 id: 'support',
                 title: 'Contact Support',
