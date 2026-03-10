@@ -1,0 +1,14 @@
+## Comma-separated list of file or folder names to hide in the app
+HIDDEN=
+
+## Secret API key for internal use (keep this private)
+API_SECRET_KEY=
+
+## Supabase project URL
+SUPABASE_URL=
+
+## Public anonymous key for Supabase
+SUPABASE_ANON_KEY=
+
+## Base URL of the Next.js app (default: localhost for development)
+NEXT_PUBLIC_SITE_URL=http://localhost:3000

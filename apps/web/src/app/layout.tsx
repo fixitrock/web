@@ -1,0 +1,105 @@
+import type { Metadata, Viewport } from 'next'
+
+import { UserDrawer } from '@/app/[user]/ui'
+import Footer from '@/components/footer'
+import { siteConfig } from '@/config/site'
+import { AuthProvider, Providers } from '@/provider'
+import '../styles/globals.css'
+import { cn } from '@/lib/utils'
+import { SearchBar } from '@/components/search/bar'
+import { fontVariables } from '@/lib/fonts'
+import { ErrorBoundary } from '@/components/error'
+import { getBalance, userSession } from '@/actions/user'
+import { ThemeMetaTag } from '@/components/theme-meta'
+import { Suspense } from 'react'
+
+export default async function RootLayout({
+    children,
+    modal,
+}: Readonly<{
+    children: React.ReactNode
+    modal: React.ReactNode
+}>) {
+    return (
+        <html suppressHydrationWarning lang='en'>
+            <body className={cn('bg-background min-h-dvh font-sans antialiased', fontVariables)}>
+                <AuthProvider>
+                    <ErrorBoundary>
+                        <Providers>
+                            <ThemeMetaTag />
+                            <div className='relative flex min-h-dvh flex-col'>
+                                <div className='flex-1 overflow-clip'>{children}</div>
+                                {modal}
+                                <Suspense>
+                                    <Bar />
+                                </Suspense>
+                                <Footer />
+                            </div>
+                        </Providers>
+                    </ErrorBoundary>
+                </AuthProvider>
+            </body>
+        </html>
+    )
+}
+
+async function Bar() {
+    const { user, navigation, command } = await userSession()
+    const balance = await getBalance()
+    return (
+        <SearchBar command={command} user={user} balance={balance}>
+            <UserDrawer navigation={navigation} user={user} />
+        </SearchBar>
+    )
+}
+
+export const metadata: Metadata = {
+    title: {
+        default: siteConfig.title,
+        template: `%s ~ ${siteConfig.title}`,
+    },
+    description: siteConfig.description,
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: 'default',
+        title: `${siteConfig.title}`,
+        startupImage: [
+            {
+                url: '/icons/fixitrock.png',
+                media: '(prefers-color-scheme: light)',
+            },
+            {
+                url: '/icons/fixitrock.png',
+                media: '(prefers-color-scheme: dark)',
+            },
+        ],
+    },
+    icons: {
+        icon: '/favicon.ico',
+        apple: '/icons/android-chrome-192x192.png',
+    },
+    metadataBase: new URL(siteConfig.domain),
+    manifest: '/manifest.webmanifest',
+    openGraph: {
+        title: siteConfig.title,
+        description: siteConfig.description,
+        url: new URL(siteConfig.domain),
+        siteName: siteConfig.title,
+        type: 'website',
+        images: '/space/og',
+        locale: 'en_US',
+    },
+    category: 'technology',
+}
+
+export const viewport: Viewport = {
+    themeColor: [
+        { color: '#ffffff', media: '(prefers-color-scheme: light)' },
+        { color: '#000000', media: '(prefers-color-scheme: dark)' },
+    ],
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+    viewportFit: 'cover',
+}
