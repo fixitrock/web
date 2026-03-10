@@ -1,0 +1,52 @@
+---
+title: Account and Access
+description: Learn how users enter Fix iT Rock, claim usernames, and move between public and seller routes.
+---
+
+## Login Flow
+
+The app uses `/login` as the entry point for account access.
+
+- New users complete the sign-in flow and then choose a permanent username.
+- Existing users return to their storefront or dashboard after the session is restored.
+- Seller and storefront routes rely on the username format, so naming is part of the first-run setup.
+
+## Username Rules
+
+The project treats the username as a long-term identity.
+
+- Public profile routes are served as `/@username`.
+- Seller workspace routes sit below that path, for example `/@username/products`.
+- Once shared with customers, this URL effectively becomes the seller's storefront address.
+
+## Public vs Private Areas
+
+| Area type | Examples | Access model |
+| --- | --- | --- |
+| Public product content | `/space`, `/frp`, `/space/Drivers` | Open for browsing and discovery |
+| Public seller pages | `/@username`, `/@username?tab=products` | Visible to customers |
+| Private seller operations | `/@username/products`, `/@username/orders`, `/@username/settings` | Protected by session and role checks |
+
+## Support and Commands
+
+The app already exposes a help action for WhatsApp support:
+
+- Support: `https://wa.me/919927241144`
+
+There is also a command/search layer in the product that helps users jump to:
+
+- Space
+- FRP
+- Flash Tools
+- Theme switching
+- Support
+
+## Theme and Device Fit
+
+Fix iT Rock supports:
+
+- Light theme
+- Dark theme
+- System theme
+
+The docs app keeps the same light-first neutral direction so screenshots and navigation feel consistent with the main product.

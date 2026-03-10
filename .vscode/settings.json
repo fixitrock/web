@@ -1,16 +1,7 @@
 {
-    "editor.formatOnPaste": true,
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "always"
-    },
-    "prettier.semi": false,
-    "prettier.useTabs": false,
-    "prettier.tabWidth": 4,
-    "prettier.printWidth": 100,
-    "prettier.singleQuote": true,
-    "prettier.bracketSpacing": true,
-    "prettier.endOfLine": "auto",
-    "prettier.arrowParens": "always",
-    "prettier.trailingComma": "all"
+  "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ]
 }
