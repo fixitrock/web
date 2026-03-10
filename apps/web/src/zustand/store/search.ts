@@ -52,6 +52,8 @@ type SearchState = {
 
     selectedTransaction: TransactionItem | null
     setSelectedTransaction: (transaction: TransactionItem | null) => void
+    transactionSeller: boolean
+    setTransactionSeller: (value: boolean) => void
 
     greeting: string
     refreshGreeting: (name?: string | null) => void
@@ -121,7 +123,8 @@ export const useSearchStore = create<SearchState>()(
                 setQuery: (value) => set({ query: value }),
 
                 isOpen: false,
-                onClose: () => set({ isOpen: false, selectedTransaction: null }),
+                onClose: () =>
+                    set({ isOpen: false, selectedTransaction: null, transactionSeller: false }),
                 onOpen: () => set({ isOpen: true }),
 
                 expandedOrderId: null,
@@ -129,7 +132,17 @@ export const useSearchStore = create<SearchState>()(
 
                 selectedTransaction: null,
                 setSelectedTransaction: (transaction) =>
-                    set({ selectedTransaction: transaction }, false, 'setSelectedTransaction'),
+                    set(
+                        {
+                            selectedTransaction: transaction,
+                            transactionSeller: false,
+                        },
+                        false,
+                        'setSelectedTransaction'
+                    ),
+                transactionSeller: false,
+                setTransactionSeller: (value) =>
+                    set({ transactionSeller: value }, false, 'setTransactionSeller'),
 
                 greeting: HeyYou(),
                 refreshGreeting: (name) =>
@@ -160,6 +173,7 @@ export const useSearchStore = create<SearchState>()(
                             tab,
                             expandedOrderId: null,
                             selectedTransaction: null,
+                            transactionSeller: false,
                             shouldFilter: config ? config.shouldFilter : get().shouldFilter,
                         },
                         false,

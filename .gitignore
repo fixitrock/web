@@ -40,3 +40,5 @@ next-env.d.ts
 # Misc
 .DS_Store
 *.pem
+apps/web/src/app/(app)/test/page.tsx
+apps/web/supabase/.temp/

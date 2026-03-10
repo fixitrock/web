@@ -16,6 +16,7 @@ import { Navigations } from './type'
 import { Downloads, Download } from './download'
 import { Orders } from './orders'
 import { Transactions } from './transactions'
+import { AddTransaction } from './transactions/add'
 import { useCartStore } from '@/zustand/store/cart'
 export function SearchBar({
     user,
@@ -47,10 +48,15 @@ export function SearchBar({
         refreshGreeting,
         selectedTransaction,
         setSelectedTransaction,
+        transactionSeller,
     } = useSearchStore()
     const hasBackNavigation = Boolean(page || selectedTransaction)
 
     const { showCart, setShowCart, getTotalItems } = useCartStore()
+    const showTransactionActions = Boolean(
+        isOpen && tab === 'transactions' && selectedTransaction && transactionSeller
+    )
+
     useEffect(() => {
         refreshGreeting(user?.name)
     }, [refreshGreeting, user?.name])
@@ -173,6 +179,13 @@ export function SearchBar({
                             {tab === 'transactions' && user && <Transactions balance={balance} />}
                             {tab === 'downloads' && <Downloads />}
                         </CommandList>
+
+                        {showTransactionActions && (
+                            <div className='flex items-center justify-end gap-2 px-4 pb-0.5 md:gap-3'>
+                                <AddTransaction type='debit' />
+                                <AddTransaction type='credit' />
+                            </div>
+                        )}
 
                         <Tabs
                             classNames={{

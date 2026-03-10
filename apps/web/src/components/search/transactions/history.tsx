@@ -11,7 +11,7 @@ import { NoTransactionMessage, TransactionCard, TransactionSkeleton } from './ca
 import { useMyTransactions } from '@/hooks/tanstack/query'
 import NumberFlow from '@number-flow/react'
 import { Button } from '@heroui/react'
-import { AddTransaction } from './add'
+import { useSearchStore } from '@/zustand/store'
 
 export function TransactionHistory({
     user,
@@ -20,16 +20,24 @@ export function TransactionHistory({
     user: TransactionItem
     view: 'seller' | 'user'
 }) {
-    const { data, isLoading, isError, hasNextPage, isFetchingNextPage, fetchNextPage } =
+    const { data, isLoading, isError, isFetchingNextPage, fetchNextPage } =
         useMyTransactions(user.id)
+    const { transactionSeller, setTransactionSeller } = useSearchStore()
 
     const transactions = data?.transactions ?? []
+    const hasMore = data?.hasMore ?? false
     const totalReceived = data?.summary?.totalReceived ?? 0
     const totalPaid = data?.summary?.totalPaid ?? 0
     const balance = data?.summary?.balance ?? 0
+    const isSeller = Boolean(data?.seller)
     const avatarSrc =
         bucketUrl(user.avatar) ||
         `${fallback.user}${normalizeName(user.name)}.svg?text=${user.name.charAt(0)}`
+
+    if (transactionSeller !== isSeller) {
+        setTransactionSeller(isSeller)
+    }
+
     return (
         <div className='space-y-3 p-1.5'>
             <div className='relative overflow-hidden rounded-3xl border p-3'>
@@ -120,8 +128,8 @@ export function TransactionHistory({
             <TransactionCard transactions={transactions} view={view} />
             {isLoading && <TransactionSkeleton />}
             {isError && <NoTransactionMessage />}
-            {hasNextPage && (
-                <div className='flex items-center justify-center'>
+            {hasMore && (
+                <div className='flex items-center justify-center mb-0.5'>
                     <Button
                         isLoading={isFetchingNextPage}
                         radius='full'
@@ -132,13 +140,6 @@ export function TransactionHistory({
                     >
                         {isFetchingNextPage ? 'Loading . . .' : 'Show More'}
                     </Button>
-                </div>
-            )}
-
-            {data?.seller && (
-                <div className='sticky bottom-1.5 flex items-center justify-end gap-2 px-4 md:gap-3'>
-                    <AddTransaction type='debit' />
-                    <AddTransaction type='credit' />
                 </div>
             )}
         </div>
