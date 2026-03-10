@@ -2,136 +2,100 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
-  BookOpen,
-  Boxes,
+  CircleCheckBig,
+  FolderKanban,
+  KeyRound,
   PackageSearch,
   ReceiptText,
   ShieldCheck,
-  Store,
+  ShoppingBag,
 } from 'lucide-react';
 
 const sections = [
   {
     title: 'Getting Started',
-    description: 'Understand account setup, usernames, support channels, and the main route structure.',
+    description: 'Account flow, route patterns, support channels, and the quickest way into the platform.',
     href: '/docs/getting-started',
-    icon: BookOpen,
+    icon: ShieldCheck,
   },
   {
     title: 'User Guides',
-    description: 'Browse Space, download tools, open FRP and iCloud sections, and follow receipts.',
+    description: 'Space, specialist repair files, FRP routes, receipts, and public seller storefronts.',
     href: '/docs/user',
     icon: PackageSearch,
   },
   {
     title: 'Seller Guides',
-    description: 'Set up your storefront, manage products, run POS, and track orders and activity.',
+    description: 'Catalog setup, POS, orders, settings, and day-to-day storefront operations.',
     href: '/docs/seller',
-    icon: Store,
+    icon: ShoppingBag,
   },
 ];
 
-const highlights = [
-  { label: 'User flows', value: 'Downloads, tools, receipts' },
-  { label: 'Seller flows', value: 'Products, POS, orders, teams' },
-  { label: 'Project match', value: 'Fix iT Rock branding and route names' },
+const showcase = [
+  {
+    title: 'Space access',
+    description: 'Move from firmware folders to driver packs and flash tools without hunting through the app.',
+    icon: FolderKanban,
+  },
+  {
+    title: 'OTP-ready flows',
+    description: 'Document account access, verification, and username setup in one clear path.',
+    icon: KeyRound,
+  },
+  {
+    title: 'Seller operations',
+    description: 'Explain products, POS, orders, and receipts with routes that match the live workspace.',
+    icon: ReceiptText,
+  },
 ];
 
 export default function HomePage() {
   return (
     <main className="fxr-shell">
-      <section className="mx-auto flex w-full max-w-7xl flex-col gap-10 px-6 py-16 sm:px-8 lg:px-10 lg:py-24">
-        <div className="grid items-start gap-8 lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="space-y-6">
-            <span className="fxr-kicker">Fix iT Rock Knowledge Base</span>
-            <div className="space-y-4">
-              <h1 className="max-w-4xl text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-                Docs for the people who <span className="fxr-gradient-text">download</span>,{' '}
-                <span className="fxr-gradient-text">sell</span>, and support mobile repair work.
-              </h1>
-              <p className="max-w-2xl text-base text-black/65 dark:text-white/70 sm:text-lg">
-                This docs app covers the real Fix iT Rock surface area: Space, FRP, iCloud,
-                drivers, flashing tools, storefront setup, products, POS, orders, and daily
-                seller operations.
-              </p>
+      <section className="mx-auto flex w-full max-w-7xl flex-col gap-14 px-6 py-20 sm:px-8 lg:px-10 lg:py-28">
+        <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
+          <span className="fxr-kicker">
+            <CircleCheckBig className="size-3.5 text-[var(--fxr-accent-strong)]" />
+            Documentation for users and sellers
+          </span>
+          <div className="space-y-5">
+            <div className="mx-auto flex w-fit items-center gap-3 rounded-full border bg-white/70 px-4 py-2 text-sm shadow-sm backdrop-blur dark:bg-white/5">
+              <Image
+                src="/icons/fixitrock.png"
+                alt="Fixitrock"
+                width={26}
+                height={26}
+                className="rounded-lg"
+                priority
+              />
+              <span className="font-medium">Fixitrock</span>
+              <span className="text-black/35 dark:text-white/35">Documentation</span>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/docs"
-                className="inline-flex items-center gap-2 rounded-full bg-black px-5 py-3 text-sm font-medium text-white transition hover:translate-y-[-1px] dark:bg-white dark:text-black"
-              >
-                Open Docs
-                <ArrowRight className="size-4" />
-              </Link>
-              <Link
-                href="https://fixitrock.com"
-                className="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
-              >
-                Visit Live App
-              </Link>
-            </div>
-            <div className="grid gap-3 pt-4 sm:grid-cols-3">
-              {highlights.map((item) => (
-                <div key={item.label} className="fxr-panel rounded-3xl p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-black/45 dark:text-white/45">
-                    {item.label}
-                  </p>
-                  <p className="mt-2 text-sm font-medium">{item.value}</p>
-                </div>
-              ))}
-            </div>
+            <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-7xl">
+              Clear by default.
+              <br />
+              Structured for real repair work.
+            </h1>
+            <p className="mx-auto max-w-2xl text-base text-black/60 dark:text-white/68 sm:text-lg">
+              A cleaner knowledge base for Space downloads, FRP tools, storefront setup, products,
+              POS, orders, receipts, and daily seller operations inside Fixitrock.
+            </p>
           </div>
-
-          <div className="fxr-panel relative rounded-[2rem] p-6 sm:p-8">
-            <div className="absolute right-5 top-5 rounded-full border px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-black/55 dark:text-white/55">
-              Docs App
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="rounded-3xl bg-white p-3 shadow-sm dark:bg-black">
-                <Image
-                  src="/icons/fixitrock.png"
-                  alt="Fix iT Rock"
-                  width={72}
-                  height={72}
-                  priority
-                  className="rounded-2xl"
-                />
-              </div>
-              <div>
-                <p className="text-sm uppercase tracking-[0.22em] text-black/45 dark:text-white/45">
-                  Brand
-                </p>
-                <h2 className="text-2xl font-semibold">Fix iT Rock Docs</h2>
-              </div>
-            </div>
-            <div className="mt-8 grid gap-4">
-              <div className="rounded-3xl border p-4">
-                <div className="flex items-center gap-3">
-                  <ShieldCheck className="size-5" />
-                  <p className="font-medium">Built around actual product routes</p>
-                </div>
-                <p className="mt-2 text-sm text-black/65 dark:text-white/70">
-                  `/space`, `/frp`, `/space/iCloud`, `/@username`, `/@username/products`,
-                  `/@username/pos`, `/@username/orders`, and related seller sections.
-                </p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-3xl border p-4">
-                  <Boxes className="size-5" />
-                  <p className="mt-3 font-medium">Space content</p>
-                  <p className="mt-1 text-sm text-black/65 dark:text-white/70">
-                    Firmware, drivers, flash tools, and specialist repair files.
-                  </p>
-                </div>
-                <div className="rounded-3xl border p-4">
-                  <ReceiptText className="size-5" />
-                  <p className="mt-3 font-medium">Store operations</p>
-                  <p className="mt-1 text-sm text-black/65 dark:text-white/70">
-                    Catalog management, POS, orders, settings, teams, and stock.
-                  </p>
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/docs"
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--fxr-accent-strong)] px-5 py-3 text-sm font-medium text-white transition hover:opacity-95"
+            >
+              Open documentation
+              <ArrowRight className="size-4" />
+            </Link>
+            <Link
+              href="https://fixitrock.com"
+              className="inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-medium transition hover:bg-black/5 dark:hover:bg-white/5"
+            >
+              Open live app
+            </Link>
           </div>
         </div>
 
@@ -153,6 +117,23 @@ export default function HomePage() {
                   {section.description}
                 </p>
               </Link>
+            );
+          })}
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          {showcase.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.title} className="fxr-panel rounded-[1.6rem] p-5">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-2xl border p-2">
+                    <Icon className="size-5" />
+                  </div>
+                  <h2 className="font-medium">{item.title}</h2>
+                </div>
+                <p className="mt-4 text-sm text-black/60 dark:text-white/68">{item.description}</p>
+              </div>
             );
           })}
         </div>
