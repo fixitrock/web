@@ -8,12 +8,12 @@ function BrandTitle() {
     <Link href="/" className="flex items-center gap-3 font-medium">
       <Image
         src="/icons/fixitrock.png"
-        alt="Fixitrock"
+        alt="Fix iT Rock"
         width={28}
         height={28}
         className="rounded-lg"
       />
-      <span>Fixitrock</span>
+      <span>Fix iT Rock</span>
     </Link>
   );
 }

@@ -16,28 +16,28 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_DOCS_URL || 'https://docs.fixitrock.com'),
   title: {
-    default: 'Fixitrock',
-    template: '%s | Fixitrock',
+    default: 'Fix iT Rock',
+    template: '%s | Fix iT Rock',
   },
   description:
-    'Documentation for Fixitrock users and sellers, covering Space downloads, storefront setup, products, POS, orders, and daily operations.',
-  applicationName: 'Fixitrock',
+    'Documentation for Fix iT Rock users and sellers, covering Space downloads, storefront setup, products, POS, orders, and daily operations.',
+  applicationName: 'Fix iT Rock',
   icons: {
     icon: '/favicon.ico',
     apple: '/icons/fixitrock.png',
   },
   openGraph: {
-    title: 'Fixitrock',
+    title: 'Fix iT Rock',
     description:
-      'Practical docs for customers and sellers using Fixitrock across Space, FRP, storefronts, products, and orders.',
-    siteName: 'Fixitrock',
+      'Practical docs for customers and sellers using Fix iT Rock across Space, FRP, storefronts, products, and orders.',
+    siteName: 'Fix iT Rock',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Fixitrock',
+    title: 'Fix iT Rock',
     description:
-      'Practical docs for customers and sellers using Fixitrock across Space, FRP, storefronts, products, and orders.',
+      'Practical docs for customers and sellers using Fix iT Rock across Space, FRP, storefronts, products, and orders.',
   },
 };
 

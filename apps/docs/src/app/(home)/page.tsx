@@ -56,20 +56,20 @@ export default function HomePage() {
       <section className="mx-auto flex w-full max-w-7xl flex-col gap-14 px-6 py-20 sm:px-8 lg:px-10 lg:py-28">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
           <span className="fxr-kicker">
-            <CircleCheckBig className="size-3.5 text-[var(--fxr-accent-strong)]" />
+            <CircleCheckBig className="size-3.5 text-(--fxr-accent-strong)" />
             Documentation for users and sellers
           </span>
           <div className="space-y-5">
             <div className="mx-auto flex w-fit items-center gap-3 rounded-full border bg-white/70 px-4 py-2 text-sm shadow-sm backdrop-blur dark:bg-white/5">
               <Image
                 src="/icons/fixitrock.png"
-                alt="Fixitrock"
+                alt="Fix iT Rock"
                 width={26}
                 height={26}
                 className="rounded-lg"
                 priority
               />
-              <span className="font-medium">Fixitrock</span>
+              <span className="font-medium">Fix iT Rock</span>
               <span className="text-black/35 dark:text-white/35">Documentation</span>
             </div>
             <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-7xl">
@@ -79,13 +79,13 @@ export default function HomePage() {
             </h1>
             <p className="mx-auto max-w-2xl text-base text-black/60 dark:text-white/68 sm:text-lg">
               A cleaner knowledge base for Space downloads, FRP tools, storefront setup, products,
-              POS, orders, receipts, and daily seller operations inside Fixitrock.
+              POS, orders, receipts, and daily seller operations inside Fix iT Rock.
             </p>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/docs"
-              className="inline-flex items-center gap-2 rounded-full bg-[var(--fxr-accent-strong)] px-5 py-3 text-sm font-medium text-white transition hover:opacity-95"
+              className="inline-flex items-center gap-2 rounded-full bg-(--fxr-accent-strong) px-5 py-3 text-sm font-medium text-white transition hover:opacity-95"
             >
               Open documentation
               <ArrowRight className="size-4" />
@@ -106,7 +106,7 @@ export default function HomePage() {
               <Link
                 key={section.title}
                 href={section.href}
-                className="fxr-panel group rounded-[1.75rem] p-6 transition hover:translate-y-[-2px]"
+                className="fxr-panel group rounded-[1.75rem] p-6 transition hover:-translate-y-0.5"
               >
                 <div className="flex items-center justify-between">
                   <Icon className="size-5" />
