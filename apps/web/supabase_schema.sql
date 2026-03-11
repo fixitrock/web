@@ -4768,13 +4768,14 @@ $$;
 ALTER FUNCTION "public"."user_profile"("username" "text") OWNER TO "postgres";
 
 
-CREATE OR REPLACE FUNCTION "public"."usercategories"("username" "text") RETURNS SETOF "jsonb"
+CREATE OR REPLACE FUNCTION "public"."usercategories"("username" "text") RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
 DECLARE
   v_target_user_id uuid;
   v_total_count int := 0;
-  v_rec RECORD;
+  v_categories jsonb := '[]'::jsonb;
+  v_top jsonb := '[]'::jsonb;
 BEGIN
   -- Step 1: Find seller ID
   SELECT id INTO v_target_user_id
@@ -4783,7 +4784,10 @@ BEGIN
   LIMIT 1;
 
   IF v_target_user_id IS NULL THEN
-    RETURN;
+    RETURN jsonb_build_object(
+      'categories', v_categories,
+      'top', v_top
+    );
   END IF;
 
   -- Step 2: Total count for 'All'
@@ -4791,24 +4795,51 @@ BEGIN
   FROM product p
   WHERE p.seller_id = v_target_user_id;
 
-  -- Step 3: Return "All" category first
-  RETURN NEXT jsonb_build_object('category', 'All', 'count', v_total_count);
-
-  -- Step 4: Return each category
-  FOR v_rec IN
-    SELECT p.category, COUNT(*) AS count
+  -- Step 3: Build the full category list with "All" first
+  SELECT jsonb_agg(category_item ORDER BY sort_order, sort_name)
+  INTO v_categories
+  FROM (
+    SELECT jsonb_build_object('category', 'All', 'count', v_total_count) AS category_item, 0 AS sort_order, 'All' AS sort_name
+    UNION ALL
+    SELECT
+      jsonb_build_object('category', p.category, 'count', COUNT(*)) AS category_item,
+      1 AS sort_order,
+      p.category AS sort_name
     FROM product p
     WHERE p.seller_id = v_target_user_id
     GROUP BY p.category
-    ORDER BY p.category ASC
-  LOOP
-    RETURN NEXT jsonb_build_object(
-      'category', v_rec.category,
-      'count', v_rec.count
-    );
-  END LOOP;
+  ) category_list
+  ;
 
-  RETURN;
+  -- Step 4: Build the top list with "All" first, then the top 10 categories by product count
+  SELECT COALESCE(jsonb_agg(top_item ORDER BY sort_order, sort_count DESC, sort_name ASC), '[]'::jsonb)
+  INTO v_top
+  FROM (
+    SELECT
+      jsonb_build_object('category', 'All', 'count', v_total_count) AS top_item,
+      0 AS sort_order,
+      v_total_count AS sort_count,
+      'All' AS sort_name
+    UNION ALL
+    SELECT
+      jsonb_build_object('category', ranked.category, 'count', ranked.count) AS top_item,
+      1 AS sort_order,
+      ranked.count AS sort_count,
+      ranked.category AS sort_name
+    FROM (
+      SELECT p.category, COUNT(*) AS count
+      FROM product p
+      WHERE p.seller_id = v_target_user_id
+      GROUP BY p.category
+      ORDER BY COUNT(*) DESC, p.category ASC
+      LIMIT 10
+    ) ranked
+  ) top_categories;
+
+  RETURN jsonb_build_object(
+    'categories', COALESCE(v_categories, '[]'::jsonb),
+    'top', v_top
+  );
 END;
 $$;
 
@@ -7702,10 +7733,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "service_role";
-
-
-
-
 
 
 

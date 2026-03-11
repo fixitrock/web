@@ -12,7 +12,7 @@ export function CategoryTabs({ username }: { username: string }) {
     const { data, isLoading } = useUserCategories(username)
     const { activeCategory, setActiveCategory, handleCategoryChange } = useCategoryTabsStore()
     useEffect(() => {
-        if (!isLoading && data?.categories && data?.categories.length > 0) {
+        if (!isLoading && data?.top && data?.top.length > 0) {
             const exists = data.categories.some((c) => c.category === activeCategory)
             const defaultCategory = data.categories[0]
             if (!exists) {
@@ -37,7 +37,7 @@ export function CategoryTabs({ username }: { username: string }) {
                     cursor: 'dark:bg-default/20 rounded-md border shadow-none',
                     tabList: 'gap-2 p-0 px-1',
                 }}
-                items={data?.categories}
+                items={data?.top}
                 variant='light'
                 selectedKey={activeCategory as string}
                 onSelectionChange={(key) => handleCategoryChange(String(key))}
@@ -55,7 +55,7 @@ export function CategoryTabs({ username }: { username: string }) {
                               }
                           />
                       ))
-                    : data?.categories.map((tab) => (
+                    : data?.top.map((tab) => (
                           <Tab
                               key={tab.category}
                               data-key={tab.category}

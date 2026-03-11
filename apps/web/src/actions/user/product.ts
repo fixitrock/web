@@ -114,7 +114,8 @@ export const userCategories = async (username: string) => {
     const { data, error } = await supabase.rpc('usercategories', { username })
 
     return {
-        categories: (data ?? []) as Categories,
+        categories: (data.categories ?? []) as Categories,
+        top: (data.top ?? []) as Categories,
         error,
     }
 }

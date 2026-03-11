@@ -30,7 +30,7 @@ export function ProductsTabs({ user }: { user: User }) {
 
     return (
         <div className='bg-background flex flex-col gap-2'>
-            <div className='bg-background/90 supports-backdrop-filter:bg-background/90 sticky top-[33px] z-20 flex w-full flex-col-reverse items-center justify-between gap-1.5 py-1.5 backdrop-blur sm:flex-row'>
+            <div className='bg-background/90 supports-backdrop-filter:bg-background/90 sticky top-8.25 z-20 flex w-full flex-col-reverse items-center justify-between gap-1.5 py-1.5 backdrop-blur sm:flex-row'>
                 <CategoryTabs username={user.username || ''} />
                 <div className='flex w-full items-center gap-2 sm:w-[50%] md:w-[40%] xl:w-[25%]'>
                     <Input
