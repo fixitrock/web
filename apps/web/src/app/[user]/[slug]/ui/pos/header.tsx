@@ -31,7 +31,7 @@ export function PosHeader() {
     }
 
     return (
-        <header className='flex flex-col items-center justify-between rounded-lg border px-4 py-1 md:flex-row'>
+        <header className='flex flex-col items-center justify-between rounded-2xl border px-4 py-1 md:flex-row'>
             <div className='hidden items-center gap-2 sm:flex'>
                 <CalendarClock aria-hidden='true' className='text-muted-foreground size-5' />
                 <DateTimeDisplay />

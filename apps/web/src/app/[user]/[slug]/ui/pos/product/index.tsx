@@ -27,7 +27,7 @@ export function PosProduct() {
     return (
         <section
             aria-label='Products'
-            className='flex h-full flex-col gap-2 rounded-lg border p-2'
+            className='flex h-full flex-col gap-2 rounded-2xl border p-2.5'
             data-slot='products'
         >
             <div className='flex flex-col items-center gap-2 sm:flex-row'>
@@ -40,7 +40,7 @@ export function PosProduct() {
                 <Autocomplete
                     placeholder='Select category'
                     size='sm'
-                    className='sm:max-w-[200px]'
+                    className='sm:max-w-50'
                     popoverProps={{
                         classNames: {
                             content: 'bg-background/80 backdrop-blur border shadow-none',
