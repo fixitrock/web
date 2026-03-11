@@ -181,41 +181,43 @@ export function SearchBar({
                         </CommandList>
 
                         {showTransactionActions && (
-                            <div className='flex items-center justify-end gap-2 px-4 pb-0.5 md:gap-3'>
-                                <AddTransaction type='debit' />
+                            <div className='flex items-center justify-end gap-3 px-4 pb-0.5 md:gap-3'>
                                 <AddTransaction type='credit' />
+                                <AddTransaction type='debit' />
                             </div>
                         )}
 
-                        <Tabs
-                            classNames={{
-                                base: 'p-1 px-1.5',
-                                tabList: 'bg-accent relative w-full',
-                                cursor: 'w-full',
-                                tab: 'max-w-fit px-2 data-[focus-visible=true]:outline-0',
-                            }}
-                            selectedKey={tab}
-                            radius='sm'
-                            size='sm'
-                            onSelectionChange={(key) => {
-                                const selectedTab = tabs(user).find((t) => t.key === key)
+                        {!selectedTransaction && (
+                            <Tabs
+                                classNames={{
+                                    base: 'p-1 px-1.5',
+                                    tabList: 'bg-accent relative w-full',
+                                    cursor: 'w-full',
+                                    tab: 'max-w-fit px-2 data-[focus-visible=true]:outline-0',
+                                }}
+                                selectedKey={tab}
+                                radius='sm'
+                                size='sm'
+                                onSelectionChange={(key) => {
+                                    const selectedTab = tabs(user).find((t) => t.key === key)
 
-                                if (!selectedTab) return
-                                setTab(key as string)
-                            }}
-                        >
-                            {tabs(user).map((tab) => (
-                                <Tab
-                                    key={tab.key}
-                                    title={
-                                        <div className='flex items-center space-x-1'>
-                                            <tab.icon />
-                                            <span>{tab.title}</span>
-                                        </div>
-                                    }
-                                />
-                            ))}
-                        </Tabs>
+                                    if (!selectedTab) return
+                                    setTab(key as string)
+                                }}
+                            >
+                                {tabs(user).map((tab) => (
+                                    <Tab
+                                        key={tab.key}
+                                        title={
+                                            <div className='flex items-center space-x-1'>
+                                                <tab.icon />
+                                                <span>{tab.title}</span>
+                                            </div>
+                                        }
+                                    />
+                                ))}
+                            </Tabs>
+                        )}
                     </>
                 )}
             </Command>

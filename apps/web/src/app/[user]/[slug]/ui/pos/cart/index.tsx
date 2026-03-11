@@ -1,5 +1,5 @@
 'use client'
-import { Minus, Plus, ReceiptIndianRupee, ScanBarcode, Trash } from 'lucide-react'
+import { Minus, Package2, Plus, ScanBarcode, Trash } from 'lucide-react'
 import {
     Button,
     Card,
@@ -7,8 +7,8 @@ import {
     CardFooter,
     Input,
     ScrollShadow,
-    addToast,
     Tooltip,
+    addToast,
 } from '@heroui/react'
 import NumberFlow from '@number-flow/react'
 import { useState } from 'react'
@@ -18,7 +18,6 @@ import { useCartStore } from '@/zustand/store/cart'
 
 import { Customer } from './customer'
 import { OrderPlace } from './orderplace'
-import { UserTransaction } from './transaction'
 
 export function PosCart() {
     const {
@@ -32,7 +31,6 @@ export function PosCart() {
         updateSerialNumber,
         addSerialNumber,
         removeSerialNumber,
-        // clearAll,
     } = useCartStore()
 
     const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
@@ -40,7 +38,7 @@ export function PosCart() {
     const handleQuantityChange = (id: string, newQuantity: number, maxQuantity: number) => {
         if (newQuantity > maxQuantity) {
             addToast({
-                title: `Oh bhai! ${maxQuantity} hi hain! 😮`,
+                title: `Only ${maxQuantity} unit${maxQuantity > 1 ? 's are' : ' is'} available`,
                 color: 'warning',
             })
             newQuantity = maxQuantity
@@ -48,9 +46,10 @@ export function PosCart() {
 
         if (newQuantity <= 0) {
             removeItem(id)
-        } else {
-            updateQuantity(id, newQuantity)
+            return
         }
+
+        updateQuantity(id, newQuantity)
     }
 
     const handlePriceChange = (id: string, newPrice: string) => {
@@ -71,43 +70,40 @@ export function PosCart() {
     return (
         <section
             aria-label='Cart'
-            className='flex h-full w-full flex-col rounded-lg border'
+            className='flex h-full w-full flex-col overflow-hidden rounded-2xl border border-default-200/70 bg-background'
             data-slot='cart'
         >
-            <div className='flex items-center justify-between p-2'>
-                <Button
-                    isIconOnly
-                    aria-label='User Transactions History'
-                    className='bg-default/20'
-                    data-slot='user-transaction-button'
-                    radius='full'
-                    size='sm'
-                    startContent={<ReceiptIndianRupee size={20} />}
-                    variant='light'
-                />
-
-                <div className='flex flex-col items-center'>
-                    <h2 className='line-clamp-1 text-lg font-semibold'>
-                        {selectedCustomer ? `${selectedCustomer.name}'s Order` : 'Order'}
-                    </h2>
-                    <p className='text-muted-foreground text-xs'>
-                        {selectedCustomer ? selectedCustomer.phone.slice(2) : ''}
-                    </p>
+            <div className='border-b border-default-200/70 px-3 py-2.5'>
+                <div className='flex items-start justify-between gap-3'>
+                    <div className='min-w-0 flex-1'>
+                        <div className='flex items-center gap-2'>
+                            <div className='flex h-9 w-9 items-center justify-center rounded-2xl bg-default/10 text-default-700'>
+                                <Package2 size={17} />
+                            </div>
+                            <div className='min-w-0'>
+                                <h2 className='line-clamp-1 text-base font-semibold tracking-tight'>
+                                    {selectedCustomer ? `${selectedCustomer.name}'s Cart` : 'POS Cart'}
+                                </h2>
+                                <p className='text-muted-foreground line-clamp-1 text-xs'>
+                                    {selectedCustomer
+                                        ? selectedCustomer.phone.slice(2)
+                                        : 'Search a customer to begin billing'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <UserTransaction />
             </div>
 
-            <div className='border-b p-2'>
+            <div className='border-b border-default-200/70 bg-default/5 p-3'>
                 <Customer />
             </div>
 
             <ScrollShadow hideScrollBar className='flex-1 space-y-1.5 p-2'>
                 {items.length === 0 ? (
-                    <div className='flex h-full items-center justify-center'>
-                        <p className='text-muted-foreground'>Cart is empty</p>
-                    </div>
+                    <EmptyCartState />
                 ) : (
-                    items.map((item) => (
+                   items.map((item) => (
                         <Card
                             key={item.id}
                             className='relative rounded-lg border bg-transparent shadow-none'
@@ -342,20 +338,22 @@ export function PosCart() {
                 </div>
                 <div className='flex flex-col-reverse items-center gap-2'>
                     <OrderPlace />
-                    {/* <Button
-                        fullWidth
-                        aria-label='Clear Cart'
-                        className='border-danger border'
-                        color='danger'
-                        radius='full'
-                        size='sm'
-                        variant='light'
-                        onPress={clearAll}
-                    >
-                        Clear Cart
-                    </Button> */}
                 </div>
             </div>
         </section>
+    )
+}
+
+function EmptyCartState() {
+    return (
+        <div className='flex h-full min-h-72 flex-col items-center justify-center rounded-3xl border border-dashed border-default-300 bg-default/5 px-6 text-center'>
+            <div className='flex h-14 w-14 items-center justify-center rounded-2xl bg-default/10'>
+                <Package2 className='text-default-500' size={24} />
+            </div>
+            <h3 className='mt-4 text-base font-semibold'>Cart is empty</h3>
+            <p className='text-muted-foreground mt-1 max-w-56 text-sm'>
+                Add products from the catalog to start building the order.
+            </p>
+        </div>
     )
 }

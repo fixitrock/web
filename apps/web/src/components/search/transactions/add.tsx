@@ -1,22 +1,34 @@
 'use client'
-import { Button, Input, Tabs, Tab, useDisclosure } from '@heroui/react'
-import type { ComponentPropsWithoutRef } from 'react'
+import {
+    Button,
+    Input,
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+    Tab,
+    Tabs,
+    useDisclosure,
+} from '@heroui/react'
+import type { ComponentPropsWithoutRef, KeyboardEvent as ReactKeyboardEvent } from 'react'
 
 import { useMediaQuery } from '@/hooks'
-import { useCartStore } from '@/zustand/store'
 import { useTransactions } from '@/hooks/tanstack/mutation'
-import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover'
+import { logWarning } from '@/lib/utils'
 import {
     DrawerBody,
     DrawerContent,
     DrawerDescription,
     DrawerFooter,
-    DrawerNested,
     DrawerHeader,
+    DrawerNested,
     DrawerTitle,
     DrawerTrigger,
 } from '@/ui/drawer'
-import { logWarning } from '@/lib/utils'
+import { useCartStore, useSearchStore } from '@/zustand/store'
+
+function stopSearchBarKeyHandling(event: ReactKeyboardEvent<HTMLElement>) {
+    event.stopPropagation()
+}
 
 export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
     const { isOpen, onOpenChange, onClose } = useDisclosure()
@@ -27,17 +39,20 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
         setTransactionNote,
         setTransactionMode,
         clearTransaction,
-        selectedCustomer,
     } = useCartStore()
+    const { selectedTransaction } = useSearchStore()
     const { addTransaction } = useTransactions()
+
     const transaction = transactions[type]
+    const amountValue = transaction.amount ? String(transaction.amount) : ''
+
     const handlePlaceTransaction = async () => {
-        if (!selectedCustomer) return
+        if (!selectedTransaction) return
         if (!transaction.amount || transaction.amount <= 0) return
 
         try {
             await addTransaction.mutateAsync({
-                userPhone: selectedCustomer.phone.toString(),
+                userPhone: selectedTransaction.phone.toString(),
                 amount: transaction.amount,
                 type,
                 notes: transaction.note,
@@ -50,9 +65,46 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
         }
     }
 
+    const title =
+        type === 'debit'
+            ? `You gave ${formatINR(transaction.amount)} to ${selectedTransaction?.name}`
+            : `You got ${formatINR(transaction.amount)} from ${selectedTransaction?.name}`
+
+    const amountInput = (
+        <Input
+            className='w-full rounded-[1px]'
+            placeholder='Enter Amount'
+            startContent='₹'
+            type='number'
+            value={amountValue}
+            onChange={(e) => setTransactionAmount(type, Number(e.target.value))}
+        />
+    )
+
+    const noteInput = (
+        <Input
+            className='w-full rounded-[1px]'
+            placeholder='Enter Note (optional)'
+            value={transaction.note}
+            onChange={(e) => setTransactionNote(type, e.target.value)}
+        />
+    )
+
+    const saveButton = (
+        <Button
+            className={`w-full rounded-md text-white ${
+                type === 'debit' ? 'bg-red-500' : 'bg-green-500'
+            }`}
+            isLoading={addTransaction.isPending}
+            onPress={handlePlaceTransaction}
+        >
+            {addTransaction.isPending ? 'Saving...' : 'Save'}
+        </Button>
+    )
+
     if (isDesktop) {
         return (
-            <Popover open={isOpen} onOpenChange={onOpenChange}>
+            <Popover isOpen={isOpen} shadow='none' onOpenChange={onOpenChange}>
                 <PopoverTrigger asChild>
                     <Button
                         className={`${type === 'debit' ? 'bg-red-500' : 'bg-green-500'} w-full text-white`}
@@ -60,55 +112,30 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
                         {type === 'debit' ? 'You Gave ₹' : 'You Got ₹'}
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent
-                    align={type === 'debit' ? 'start' : 'center'}
-                    className='w-78 p-0'
-                    sideOffset={12}
-                >
-                    <h1
-                        className={`line-clamp-1 truncate overflow-hidden border-b p-2 text-center font-mono text-lg font-semibold ${
-                            type === 'debit'
-                                ? 'text-red-600 dark:text-red-400'
-                                : 'text-green-600 dark:text-green-400'
-                        }`}
-                    >
-                        {type === 'debit'
-                            ? `You gave ${formatINR(transaction.amount)} to ${selectedCustomer?.name}`
-                            : `You got ${formatINR(transaction.amount)} from ${selectedCustomer?.name}`}
-                    </h1>
-
-                    <div className='my-2 space-y-3 p-2'>
-                        <Input
-                            className='w-full rounded-[1px]'
-                            placeholder='Enter Amount'
-                            startContent='₹'
-                            type='number'
-                            // value={transaction.amount.toString()}
-                            onChange={(e) => setTransactionAmount(type, Number(e.target.value))}
-                        />
-                        <PaymentMode
-                            selectedKey={transaction.mode}
-                            onSelectionChange={(mode) =>
-                                setTransactionMode(type, mode as PaymentMethodType)
-                            }
-                        />
-                        <Input
-                            className='w-full rounded-[1px]'
-                            placeholder='Enter Note (optional)'
-                            value={transaction.note}
-                            onChange={(e) => setTransactionNote(type, e.target.value)}
-                        />
-                    </div>
-                    <div className='border-t p-2'>
-                        <Button
-                            className={`w-full rounded-md text-white ${
-                                type === 'debit' ? 'bg-red-500' : 'bg-green-500'
+                <PopoverContent className='max-w-78 overflow-hidden border bg-background p-0'>
+                    <div className='w-full' onKeyDown={stopSearchBarKeyHandling}>
+                        <h1
+                            className={`line-clamp-1 truncate overflow-hidden border-b p-2 text-center font-mono text-lg font-semibold ${
+                                type === 'debit'
+                                    ? 'text-red-600 dark:text-red-400'
+                                    : 'text-green-600 dark:text-green-400'
                             }`}
-                            isLoading={addTransaction.isPending}
-                            onPress={handlePlaceTransaction}
                         >
-                            {addTransaction.isPending ? 'Saving...' : 'Save'}
-                        </Button>
+                            {title}
+                        </h1>
+
+                        <div className='my-2 space-y-3 p-2'>
+                            {amountInput}
+                            <PaymentMode
+                                selectedKey={transaction.mode}
+                                onSelectionChange={(mode) =>
+                                    setTransactionMode(type, mode as PaymentMethodType)
+                                }
+                            />
+                            {noteInput}
+                        </div>
+
+                        <div className='w-full border-t p-2'>{saveButton}</div>
                     </div>
                 </PopoverContent>
             </Popover>
@@ -125,54 +152,34 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
                     {type === 'debit' ? 'You Gave ₹' : 'You Got ₹'}
                 </Button>
             </DrawerTrigger>
-            <DrawerContent className='h-[80vh]'>
-                <DrawerHeader className='border-b p-2'>
-                    <DrawerTitle
-                        className={`line-clamp-1 truncate overflow-hidden text-center font-mono text-lg font-semibold ${
-                            type === 'debit'
-                                ? 'text-red-600 dark:text-red-400'
-                                : 'text-green-600 dark:text-green-400'
-                        }`}
-                    >
-                        {type === 'debit'
-                            ? `You gave ${formatINR(transaction.amount)} to ${selectedCustomer?.name}`
-                            : `You got ${formatINR(transaction.amount)} from ${selectedCustomer?.name}`}
-                    </DrawerTitle>
-                    <DrawerDescription aria-hidden />
-                </DrawerHeader>
-                <DrawerBody className='mt-2 space-y-3 p-2'>
-                    <Input
-                        className='w-full rounded-[1px]'
-                        placeholder='Enter Amount'
-                        startContent='₹'
-                        type='number'
-                        // value={transaction.amount.toString()}
-                        onChange={(e) => setTransactionAmount(type, Number(e.target.value))}
-                    />
-                    <PaymentMode
-                        selectedKey={transaction.mode}
-                        onSelectionChange={(mode) =>
-                            setTransactionMode(type, mode as PaymentMethodType)
-                        }
-                    />
-                    <Input
-                        className='w-full rounded-[1px]'
-                        placeholder='Enter Note (optional)'
-                        value={transaction.note}
-                        onChange={(e) => setTransactionNote(type, e.target.value)}
-                    />
-                </DrawerBody>
-                <DrawerFooter className='border-t p-2'>
-                    <Button
-                        className={`w-full rounded-md text-white ${
-                            type === 'debit' ? 'bg-red-500' : 'bg-green-500'
-                        }`}
-                        isLoading={addTransaction.isPending}
-                        onPress={handlePlaceTransaction}
-                    >
-                        {addTransaction.isPending ? 'Saving...' : 'Save'}
-                    </Button>
-                </DrawerFooter>
+            <DrawerContent>
+                <div onKeyDown={stopSearchBarKeyHandling}>
+                    <DrawerHeader className='border-b p-2'>
+                        <DrawerTitle
+                            className={`line-clamp-1 truncate overflow-hidden text-center font-mono text-lg font-semibold ${
+                                type === 'debit'
+                                    ? 'text-red-600 dark:text-red-400'
+                                    : 'text-green-600 dark:text-green-400'
+                            }`}
+                        >
+                            {title}
+                        </DrawerTitle>
+                        <DrawerDescription aria-hidden />
+                    </DrawerHeader>
+
+                    <DrawerBody className='mt-2 space-y-3 p-2'>
+                        {amountInput}
+                        <PaymentMode
+                            selectedKey={transaction.mode}
+                            onSelectionChange={(mode) =>
+                                setTransactionMode(type, mode as PaymentMethodType)
+                            }
+                        />
+                        {noteInput}
+                    </DrawerBody>
+
+                    <DrawerFooter className='border-t p-2'>{saveButton}</DrawerFooter>
+                </div>
             </DrawerContent>
         </DrawerNested>
     )
@@ -181,6 +188,7 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
 function formatINR(amount: number) {
     return `₹${amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
 }
+
 const modes: PaymentMethodType[] = ['cash', 'upi', 'card']
 
 type PaymentModeProps = Omit<ComponentPropsWithoutRef<typeof Tabs>, 'children' | 'key'>
@@ -198,10 +206,11 @@ function PaymentMode({ ...tabsProps }: PaymentModeProps) {
                 size='sm'
                 title='Payment Mode'
                 variant='light'
+                onKeyDown={stopSearchBarKeyHandling}
                 {...tabsProps}
             >
-                {modes.map((m) => (
-                    <Tab key={m} title={m.toUpperCase()} value={m} />
+                {modes.map((mode) => (
+                    <Tab key={mode} title={mode.toUpperCase()} value={mode} />
                 ))}
             </Tabs>
         </div>
