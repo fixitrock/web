@@ -4,6 +4,11 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:web": "pnpm --filter ./apps/web dev",
+    "dev:docs": "pnpm --filter ./apps/docs dev",
+    "dev:mobile": "pnpm --filter ./apps/mobile dev",
+    "android:mobile": "pnpm --filter ./apps/mobile android",
+    "ios:mobile": "pnpm --filter ./apps/mobile ios",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
