@@ -1,10 +1,11 @@
 'use client'
 import { sellerProducts, userCategories, userProducts } from '@/actions/user'
 import { useQuery } from '@tanstack/react-query'
+import { queryKeys } from './queryKeys'
 
 export function useSellerProducts(search: string, category: string) {
     const query = useQuery({
-        queryKey: ['SellerProducts', search, category],
+        queryKey: queryKeys.sellerProducts.list(search, category),
         queryFn: () => sellerProducts(search, category),
         staleTime: 1000 * 60 * 5,
         retry: 1,
@@ -21,7 +22,7 @@ export function useUserProducts(
     limit?: number
 ) {
     const query = useQuery({
-        queryKey: ['UserProducts', username, search, category],
+        queryKey: queryKeys.storefrontProducts.list(username, search, category, page, limit),
         queryFn: () => userProducts(username, search, category, page, limit),
         staleTime: 1000 * 60 * 5,
         retry: 1,
@@ -33,7 +34,7 @@ export function useUserProducts(
 
 export function useUserCategories(username: string) {
     const query = useQuery({
-        queryKey: ['UserCategories', username],
+        queryKey: queryKeys.storefrontProductCategories.list(username),
         queryFn: () => userCategories(username),
         staleTime: 1000 * 60 * 5,
         retry: 1,

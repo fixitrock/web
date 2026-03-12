@@ -65,12 +65,13 @@ export function Input({
             className='bg-transparent'
             classNames={{
                 inputWrapper:
-                    'rounded-sm border bg-transparent shadow-none group-data-[focus=true]:bg-transparent data-[hover=true]:bg-transparent',
+                    'rounded-full min-h-9.5 border bg-transparent shadow-none group-data-[focus=true]:bg-transparent data-[hover=true]:bg-transparent',
 
                 input: 'truncate overflow-hidden',
+                innerWrapper: 'px-1.5'
             }}
             endContent={
-                <>
+                <div className='flex items-center gap-0.5'>
                     {!value && hotKey && (
                         <Button
                             isIconOnly
@@ -83,8 +84,8 @@ export function Input({
                         </Button>
                     )}
 
-                    <div className='ml-0.5 flex items-center gap-0.5'>{end}</div>
-                </>
+                    <div className='flex items-center gap-0.5'>{end}</div>
+                </div>
             }
             size='sm'
             startContent={

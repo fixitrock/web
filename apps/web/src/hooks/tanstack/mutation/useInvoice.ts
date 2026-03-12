@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { createClient } from '@/supabase/client'
 import { Invoice } from '@/types/invoice'
+import { queryKeys } from '../query/queryKeys'
 
 const supabase = createClient()
 
@@ -21,7 +22,7 @@ export function useInvoice() {
             return inserted
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['invoice'] })
+            queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all })
         },
     })
 
@@ -39,7 +40,7 @@ export function useInvoice() {
             return updated
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['invoice'] })
+            queryClient.invalidateQueries({ queryKey: queryKeys.invoices.all })
         },
     })
 

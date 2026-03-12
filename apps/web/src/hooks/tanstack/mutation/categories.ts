@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Category, CategoryInput } from '@/types/category'
 import { createCategory, updateCategory } from '@/actions/user'
+import { queryKeys } from '../query/queryKeys'
 
 export function useCreateCategory() {
     const qc = useQueryClient()
@@ -12,7 +13,7 @@ export function useCreateCategory() {
             return await createCategory(data)
         },
         onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['Categories'] })
+            qc.invalidateQueries({ queryKey: queryKeys.productCategories.all })
         },
     })
 }
@@ -25,7 +26,7 @@ export function useUpdateCategory() {
             return await updateCategory(data)
         },
         onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['Categories'] })
+            qc.invalidateQueries({ queryKey: queryKeys.productCategories.all })
         },
     })
 }

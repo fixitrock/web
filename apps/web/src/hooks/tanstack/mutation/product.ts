@@ -2,6 +2,7 @@
 import { addProduct, updateProduct } from '@/actions/user'
 import { Product } from '@/types/product'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '../query/queryKeys'
 
 export function useAddProduct() {
     const qc = useQueryClient()
@@ -11,8 +12,9 @@ export function useAddProduct() {
             return await addProduct(data)
         },
         onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['Products'] })
-            qc.invalidateQueries({ queryKey: ['SellerProducts'] })
+            qc.invalidateQueries({ queryKey: queryKeys.sellerProducts.all })
+            qc.invalidateQueries({ queryKey: queryKeys.storefrontProducts.all })
+            qc.invalidateQueries({ queryKey: queryKeys.storefrontProductCategories.all })
         },
     })
 }
@@ -25,8 +27,9 @@ export function useUpdateProduct() {
             return await updateProduct(data)
         },
         onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['Products'] })
-            qc.invalidateQueries({ queryKey: ['SellerProducts'] })
+            qc.invalidateQueries({ queryKey: queryKeys.sellerProducts.all })
+            qc.invalidateQueries({ queryKey: queryKeys.storefrontProducts.all })
+            qc.invalidateQueries({ queryKey: queryKeys.storefrontProductCategories.all })
         },
     })
 }

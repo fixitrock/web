@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { searchCustomer, sellerCategories, addCustomer } from '@/actions/user/pos'
 import { logWarning } from '@/lib/utils'
+import { queryKeys } from './queryKeys'
 
 export function usePosCategories() {
     const query = useQuery({
@@ -21,7 +22,7 @@ export function usePosCategories() {
 
 export function useCustomerSearch(query: string, enabled = !!query && /^\d{10}$/.test(query)) {
     return useQuery({
-        queryKey: ['customer', query],
+        queryKey: queryKeys.customerSearch.list(query),
         queryFn: () => searchCustomer(query),
         enabled,
         staleTime: 1000 * 60, // 1 min
@@ -35,7 +36,7 @@ export function useAddCustomer() {
     return useMutation({
         mutationFn: (customer: CustomerInput) => addCustomer(customer),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['customer'] })
+            queryClient.invalidateQueries({ queryKey: queryKeys.customerSearch.all })
         },
         onError: (err) => {
             logWarning('Error adding customer', err)

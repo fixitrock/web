@@ -1,9 +1,10 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { myTransaction, myTransactions } from '@/actions/user/transactions'
+import { queryKeys } from './queryKeys'
 
 export function useMyTransaction(search: string = '') {
     return useInfiniteQuery({
-        queryKey: ['transaction', search],
+        queryKey: queryKeys.transactionHistorySearch.list(search),
         queryFn: ({ pageParam = 1 }) => myTransaction(search, pageParam as number),
 
         initialPageParam: 1,
@@ -27,7 +28,7 @@ export function useMyTransaction(search: string = '') {
 
 export function useMyTransactions(userId?: string | null) {
     return useInfiniteQuery({
-        queryKey: ['transactions', userId],
+        queryKey: queryKeys.transactionHistoryByUser.list(userId),
         queryFn: ({ pageParam = 1 }) => myTransactions(userId ?? '', pageParam as number),
         initialPageParam: 1,
         enabled: Boolean(userId),

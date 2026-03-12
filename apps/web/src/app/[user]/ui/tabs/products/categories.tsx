@@ -34,7 +34,7 @@ export function CategoryTabs({ username }: { username: string }) {
                 ref={combinedRef}
                 classNames={{
                     base: 'bg-transparent py-0',
-                    cursor: 'dark:bg-default/20 rounded-md border shadow-none',
+                    cursor: 'dark:bg-default/20 rounded-2xl border shadow-none',
                     tabList: 'gap-2 p-0 px-1',
                 }}
                 items={data?.top}

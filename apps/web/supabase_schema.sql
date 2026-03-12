@@ -4811,28 +4811,48 @@ BEGIN
   ) category_list
   ;
 
-  -- Step 4: Build the top list with "All" first, then the top 10 categories by product count
-  SELECT COALESCE(jsonb_agg(top_item ORDER BY sort_order, sort_count DESC, sort_name ASC), '[]'::jsonb)
+  -- Step 4: Build the top list with "All" first, then top categories ranked by sales
+  -- while keeping each count as the actual product count in that category
+  SELECT COALESCE(jsonb_agg(top_item ORDER BY sort_order, sales_rank DESC, sort_name ASC), '[]'::jsonb)
   INTO v_top
   FROM (
     SELECT
       jsonb_build_object('category', 'All', 'count', v_total_count) AS top_item,
       0 AS sort_order,
-      v_total_count AS sort_count,
+      0::numeric AS sales_rank,
       'All' AS sort_name
     UNION ALL
     SELECT
-      jsonb_build_object('category', ranked.category, 'count', ranked.count) AS top_item,
+      jsonb_build_object('category', ranked.category, 'count', ranked.product_count) AS top_item,
       1 AS sort_order,
-      ranked.count AS sort_count,
+      ranked.sales_rank AS sales_rank,
       ranked.category AS sort_name
     FROM (
-      SELECT p.category, COUNT(*) AS count
-      FROM product p
-      WHERE p.seller_id = v_target_user_id
-      GROUP BY p.category
-      ORDER BY COUNT(*) DESC, p.category ASC
-      LIMIT 10
+      SELECT
+        sales.category,
+        sales.sales_rank,
+        counts.product_count
+      FROM (
+        SELECT
+          op.category,
+          SUM(GREATEST(op.quantity - COALESCE(op.returned_quantity, 0), 0)) AS sales_rank
+        FROM public.order_products op
+        JOIN public.orders o ON o.id = op.order_id
+        WHERE o."sellerID" = v_target_user_id
+          AND op.category IS NOT NULL
+        GROUP BY op.category
+        HAVING SUM(GREATEST(op.quantity - COALESCE(op.returned_quantity, 0), 0)) > 0
+        ORDER BY sales_rank DESC, op.category ASC
+        LIMIT 10
+      ) sales
+      JOIN (
+        SELECT
+          p.category,
+          COUNT(*) AS product_count
+        FROM public.product p
+        WHERE p.seller_id = v_target_user_id
+        GROUP BY p.category
+      ) counts ON counts.category = sales.category
     ) ranked
   ) top_categories;
 
@@ -7733,10 +7753,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "service_role";
-
-
-
-
 
 
 

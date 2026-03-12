@@ -50,9 +50,7 @@ export default async function Users({ params, searchParams }: Props) {
 
             <div className='relative mx-auto 2xl:px-[10%]'>
                 <Tabs tabs={tabs} user={user} />
-                <div className='m-2'>
-                    <Content user={user} can={can} />
-                </div>
+                <Content user={user} can={can} />
             </div>
         </div>
     )

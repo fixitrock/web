@@ -57,12 +57,8 @@ export function TransactionHistory({
                             {formatPhone(user.phone)}
                         </p>
                     </div>
-                    <div className='rounded-xl'>
-                        <h3
-                            className={`${balanceColor(balance, view)} text-lg font-bold tracking-normal`}
-                        >
-                            <NumberFlow
-                                className='overflow-hidden'
+                     <NumberFlow
+                                className={`${balanceColor(balance, view)} text-lg font-bold tracking-normal`}
                                 format={{
                                     style: 'currency',
                                     currency: 'INR',
@@ -70,9 +66,8 @@ export function TransactionHistory({
                                     maximumFractionDigits: 0,
                                 }}
                                 value={Math.abs(balance)}
-                            />
-                        </h3>
-                    </div>
+                    />
+                   
                 </div>
 
                 <div className='relative overflow-hidden rounded-2xl'>
@@ -82,45 +77,26 @@ export function TransactionHistory({
                                 <p className='text-[10px] font-semibold tracking-[0.12em] text-emerald-800 uppercase dark:text-emerald-200'>
                                     Received
                                 </p>
-                                <TrendingUp className='size-3.5 text-emerald-700 dark:text-emerald-300' />
+                                <TrendingDown className='size-3.5 text-emerald-700 dark:text-emerald-300' />
                             </div>
-                            <h3 className='text-md w-full text-left font-bold text-emerald-600 md:text-2xl dark:text-emerald-300'>
-                                <NumberFlow
-                                    className='overflow-hidden'
+                            <NumberFlow
+                                    className='overflow-hidden text-md w-full text-left font-bold text-emerald-600 md:text-2xl dark:text-emerald-300'
                                     format={{ style: 'currency', currency: 'INR' }}
                                     value={totalReceived}
                                 />
-                            </h3>
                         </div>
-                        {/* <div className='flex w-full flex-col items-start rounded-xl bg-sky-50/70 p-2 md:p-4 dark:bg-sky-500/15'>
-                            <div className='mb-2 flex w-full items-center justify-between'>
-                                <p className='text-[10px] font-semibold tracking-[0.12em] text-sky-800 uppercase dark:text-sky-200'>
-                                    Balance
-                                </p>
-                                <Scale className='size-3.5 text-sky-700 dark:text-sky-300' />
-                            </div>
-                            <h3 className='text-md w-full text-left font-bold text-sky-600 md:text-2xl dark:text-sky-300'>
-                                <NumberFlow
-                                    className='overflow-hidden'
-                                    format={{ style: 'currency', currency: 'INR' }}
-                                    value={balance}
-                                />
-                            </h3>
-                        </div> */}
                         <div className='flex w-full flex-col items-start rounded-xl bg-rose-50/70 p-2 md:p-4 dark:bg-rose-500/15'>
                             <div className='mb-2 flex w-full items-center justify-between'>
                                 <p className='text-[10px] font-semibold tracking-[0.12em] text-rose-800 uppercase dark:text-rose-200'>
                                     Paid
                                 </p>
-                                <TrendingDown className='size-3.5 text-rose-700 dark:text-rose-300' />
+                                <TrendingUp className='size-3.5 text-rose-700 dark:text-rose-300' />
                             </div>
-                            <h3 className='text-md w-full text-left font-bold text-rose-600 md:text-2xl dark:text-rose-300'>
-                                <NumberFlow
-                                    className='overflow-hidden'
+                             <NumberFlow
+                                    className='overflow-hidden text-md w-full text-left font-bold text-rose-600 md:text-2xl dark:text-rose-300'
                                     format={{ style: 'currency', currency: 'INR' }}
                                     value={totalPaid}
                                 />
-                            </h3>
                         </div>
                     </div>
                 </div>

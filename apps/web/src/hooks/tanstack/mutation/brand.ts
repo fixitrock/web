@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Category, CategoryInput } from '@/types/category'
 import { createBrand, updateBrand } from '@/actions/user/brand'
+import { queryKeys } from '../query/queryKeys'
 
 export function useCreateBrand() {
     const qc = useQueryClient()
@@ -12,7 +13,7 @@ export function useCreateBrand() {
             return await createBrand(data)
         },
         onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['Brands'] })
+            qc.invalidateQueries({ queryKey: queryKeys.brands.all })
         },
     })
 }
@@ -25,7 +26,7 @@ export function useUpdateBrand() {
             return await updateBrand(data)
         },
         onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['Brands'] })
+            qc.invalidateQueries({ queryKey: queryKeys.brands.all })
         },
     })
 }
