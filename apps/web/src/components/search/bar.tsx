@@ -93,7 +93,7 @@ export function SearchBar({
                 className='flex h-full flex-col'
             >
                 <CommandInput
-                    autoFocus={true}
+                    autoFocus={isOpen}
                     className={isOpen ? 'border-b' : ''}
                     endContent={
                         <>
