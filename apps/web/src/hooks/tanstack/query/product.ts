@@ -1,5 +1,5 @@
 'use client'
-import { sellerProducts, userCategories, userProducts } from '@/actions/user'
+import { productSlug, sellerProducts, userCategories, userProducts } from '@/actions/user'
 import { useQuery } from '@tanstack/react-query'
 import { queryKeys } from './queryKeys'
 
@@ -7,6 +7,17 @@ export function useSellerProducts(search: string, category: string) {
     const query = useQuery({
         queryKey: queryKeys.sellerProducts.list(search, category),
         queryFn: () => sellerProducts(search, category),
+        staleTime: 1000 * 60 * 5,
+        retry: 1,
+        refetchOnWindowFocus: false,
+    })
+
+    return { ...query }
+}
+export function useProductSlug(slug: string) {
+    const query = useQuery({
+        queryKey: queryKeys.productSlug.list(slug),
+        queryFn: () => productSlug(slug),
         staleTime: 1000 * 60 * 5,
         retry: 1,
         refetchOnWindowFocus: false,

@@ -126,7 +126,7 @@ function ExpandableOrderItem({
 
     return (
         <>
-            <CommandItem value={order.id} onSelect={onToggle}>
+            <CommandItem key={order.id} value={order.id} onSelect={onToggle}>
                 <div className='bg-default/5 rounded-md border border-dashed px-1.5 py-2'>
                     <span className='font-mono text-sm font-semibold'>#{order.id.slice(-4)}</span>
                 </div>

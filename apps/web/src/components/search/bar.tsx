@@ -8,7 +8,7 @@ import { Command, CommandInput, CommandList } from '@/ui/command'
 import { useSearchStore } from '@/zustand/store'
 import { User as UserType } from '@/app/login/types'
 import { tabs } from '@/config/tabs'
-import { isAppleDevice, isWebKit } from '@react-aria/utils'
+import { isAppleDevice } from '@react-aria/utils'
 
 import { QuickAction } from './quick'
 import { Space } from './space'
@@ -87,7 +87,7 @@ export function SearchBar({
         <AnimatedSearch>
             <Command
                 ref={ref}
-                loop
+                
                 shouldFilter={shouldFilter}
                 onKeyDown={onKeyDown}
                 className='flex h-full flex-col'

@@ -35,7 +35,6 @@ import { Delete } from '@/ui/icons'
 import type { Product, ProductVariant } from '@/types/product'
 import { HiColorSwatch } from 'react-icons/hi'
 import { storage } from '@/config/site'
-import { useEffect } from 'react'
 import { inputWrapperStyle } from '@/config/style'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/ui/accordion'
 import { Icon } from '@iconify/react'
@@ -43,6 +42,7 @@ import { bucketUrl } from '@/supabase/bucket'
 import { prepareProduct } from '@/hooks/cloudflare'
 import { RichTextEditor } from '@/ui/rich-text-editor'
 import { useMediaQuery } from '@/hooks'
+import { useRouter } from 'next/navigation'
 
 const EMPTY_VARIANT: ProductVariant = {
     id: '',
@@ -60,12 +60,12 @@ const EMPTY_VARIANT: ProductVariant = {
 interface AddModalProps {
     mode: 'add' | 'update'
     isOpen: boolean
-    onClose: () => void
 }
 
-export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
+export function AddProduct({ mode, isOpen }: AddModalProps) {
     const { data: cat, isLoading: catLoading } = useCategories()
     const isDesktop = useMediaQuery('(min-width: 768px)')
+    const router = useRouter()
 
     const {
         form,
@@ -76,14 +76,17 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
         updateVariant,
         removeVariant,
         resetForm,
-        setMode,
         editingProduct,
         validate,
         setUploading,
         isUploading,
     } = useProductStore()
+    const handleClose = () => {
+        router.back()
+    }
     const { mutateAsync: createMutate, isPending: isCreating } = useAddProduct()
     const { mutateAsync: updateMutate, isPending: isUpdating } = useUpdateProduct()
+
     const handleSubmit = async () => {
         if (!validate()) {
             toast.warning('Missing Required Fields', {
@@ -111,7 +114,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
             }
 
             resetForm()
-            onClose()
+            handleClose()
         } catch (err) {
             setUploading(false)
             console.error(err)
@@ -120,12 +123,6 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
             })
         }
     }
-
-    useEffect(() => {
-        if (isOpen && mode === 'add') {
-            setMode('add')
-        }
-    }, [isOpen, mode, setMode])
 
     const Title = mode === 'add' ? 'Add Product' : 'Edit Product'
     const Submit = mode === 'add' ? 'Add Product' : 'Update Product'
@@ -145,7 +142,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                 ],
             }}
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={handleClose}
         >
             <ModalContent>
                 <ModalHeader className='flex items-center justify-between border-b p-3 select-none'>
@@ -160,7 +157,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                         size='sm'
                         startContent={<X size={18} />}
                         variant='light'
-                        onPress={onClose}
+                        onPress={handleClose}
                     />
                 </ModalHeader>
 
@@ -446,7 +443,7 @@ export function AddProduct({ mode, isOpen, onClose }: AddModalProps) {
                         radius='full'
                         variant='light'
                         size='sm'
-                        onPress={onClose}
+                        onPress={handleClose}
                     >
                         Cancel
                     </Button>

@@ -4,7 +4,6 @@ import {
     Image,
     Modal,
     Card,
-    useDisclosure,
     ModalContent,
     Skeleton,
     ModalHeader,
@@ -14,6 +13,7 @@ import {
     Tabs,
     Tab,
     addToast,
+    useDisclosure,
 } from '@heroui/react'
 import React, { useState } from 'react'
 import { Eye, EyeOff, XIcon } from 'lucide-react'
@@ -22,18 +22,20 @@ import { formatPrice, getProductImage } from '@/lib/utils'
 import { Product } from '@/types/product'
 import { usePosStore, usePosTypeStore } from '@/zustand/store'
 import { useCartStore } from '@/zustand/store/cart'
-import { AddProduct } from '../../products/add'
-import { useProductStore } from '@/zustand/store/product'
 import { Icon } from '@iconify/react'
+import { usePathname, useRouter } from 'next/navigation'
+import { useProductStore } from '@/zustand/store/product'
 
 export function ProductCard({ product }: { product: Product }) {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
     const { setMode } = useProductStore()
-    const updateModal = useDisclosure({ defaultOpen: false })
-    const openUpdateModal = (product: Product) => {
-        setMode('update', product)
-        updateModal.onOpen()
-    }
+    const router = useRouter()
+    const pathname = usePathname()
+
+const openUpdateModal = (product: Product) => {
+    setMode('update', product)
+  router.push(`${pathname}/update/${product.slug}`)
+}
 
     return (
         <div className='group relative'>
@@ -81,7 +83,6 @@ export function ProductCard({ product }: { product: Product }) {
                     onPress={() => openUpdateModal(product)}
                 />
             </div>
-            <AddProduct mode='update' isOpen={updateModal.isOpen} onClose={updateModal.onClose} />
             <ProductModal isOpen={isOpen} product={product} onOpenChange={onOpenChange} />
         </div>
     )

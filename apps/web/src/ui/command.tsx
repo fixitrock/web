@@ -1,11 +1,12 @@
 'use client'
 
 import * as React from 'react'
-import { Command as CommandPrimitive } from 'cmdk'
+import { Command as CommandPrimitive, useCommandState } from 'cmdk'
 import { ScrollShadow } from '@heroui/react'
 
 import { cn } from '@/lib/utils'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/ui/dialog'
+import { LayoutGroup, motion } from 'framer-motion'
 
 type CommandProps = Omit<React.ComponentPropsWithoutRef<typeof CommandPrimitive>, 'key'>
 type CommandDialogProps = Omit<React.ComponentPropsWithoutRef<typeof Dialog>, 'children' | 'key'> & {
@@ -105,18 +106,20 @@ CommandInput.displayName = CommandPrimitive.Input.displayName
 
 const CommandList = React.forwardRef<HTMLDivElement, CommandListProps>(
     function CommandList({ className, ...props }, ref) {
-        return (
-            <ScrollShadow isEnabled className='flex-1 outline-0' size={20}>
-                <CommandPrimitive.List
+    
+      return (
+        <ScrollShadow isEnabled className="flex-1 outline-0" size={20}>
+             <LayoutGroup id="command">
+         <CommandPrimitive.List
                     ref={ref}
                     className={cn('flex flex-col outline-0', className)}
                     data-slot='command-list'
                     {...props}
                 />
-            </ScrollShadow>
-        )
-    }
-)
+                </LayoutGroup>
+        </ScrollShadow>
+      )
+    })
 
 CommandList.displayName = CommandPrimitive.List.displayName
 
@@ -181,21 +184,44 @@ const CommandSeparator = React.forwardRef<
 CommandSeparator.displayName = CommandPrimitive.Separator.displayName
 
 const CommandItem = React.forwardRef<HTMLDivElement, CommandItemProps>(
-    function CommandItem({ className, ...props }, ref) {
-        return (
+    ({ className, children, value, ...props }, ref) => {
+      const selectedValue = useCommandState(state => state.value)
+      const selected = selectedValue === value
+  
+      return (
         <CommandPrimitive.Item
-            ref={ref}
-            className={cn(
-                "data-[selected=true]:bg-default/20 data-[selected=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-[selected=true]:backdrop-blur-md [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-                className
-            )}
-            data-slot='command-item'
-            {...props}
-        />
-        )
+          data-slot='command-item'
+          ref={ref}
+          value={value}
+          className={cn(
+            "relative flex cursor-default items-center gap-2 rounded-md px-2 py-2 text-sm outline-none",
+            "data-[disabled=true]:opacity-50",
+            className
+          )}
+          {...props}
+        >
+          {selected && (
+            <motion.div
+              layoutId="command-highlight"
+              layout
+              transition={{
+                type: "spring",
+                stiffness: 600,
+                damping: 45,
+                mass: 0.8
+              }}
+              className="absolute inset-0 rounded-md bg-default/20 backdrop-blur-md pointer-events-none"
+            />
+          )}
+  
+          <div className="relative flex w-full items-center gap-2 z-10">
+            {children}
+          </div>
+        </CommandPrimitive.Item>
+      )
     }
-)
-
+  )
+  
 CommandItem.displayName = CommandPrimitive.Item.displayName
 
 function CommandShortcut({ className, ...props }: React.ComponentProps<'span'>) {

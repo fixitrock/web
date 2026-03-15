@@ -43,8 +43,9 @@ export function QuickAction({ command }: { command: Record<string, Navigations> 
                     <CommandGroup heading={group.heading}>
                         {group.navigationItems?.map((item) => (
                             <CommandItem
-                                key={item.id}
-                                value={`${item.title} ${item.description || ''} ${item.keywords?.join(' ') || ''}`}
+                            key={item.id}
+                            value={item.id}
+                            keywords={item.keywords}
                                 onSelect={() => onSelect(item, router, setTheme)}
                             >
                                 {item.icon && (
@@ -128,6 +129,18 @@ const shortcuts: Navigations = [
         keywords: ['search', 'firmware', 'phone', 'device', 'flash'],
     },
     {
+        id: 'space-apps',
+        title: 'Browse Apps . . .',
+        icon: 'uim:apps',
+        href: '/space/apps',
+      },
+      {
+        id: 'space-games',
+        title: 'Browse Games . . .',
+        icon: 'f7:gamecontroller-alt-fill',
+        href: '/space/games',
+      },
+    {
         id: 'download-shortcut',
         title: 'Downloads & History',
         icon: 'hugeicons:download-01',
@@ -152,6 +165,18 @@ const actions: Record<string, Navigations> = {
             href: '/frp',
             keywords: ['frp', 'bypass', 'google', 'lock', 'android'],
         },
+        {
+            id: 'space-apps',
+            title: 'Browse Apps . . .',
+            icon: 'uim:apps',
+            href: '/space/apps',
+          },
+          {
+            id: 'space-games',
+            title: 'Browse Games . . .',
+            icon: 'f7:gamecontroller-alt-fill',
+            href: '/space/games',
+          },
         {
             id: 'space-flash-tool',
             title: 'Flashing Tools',

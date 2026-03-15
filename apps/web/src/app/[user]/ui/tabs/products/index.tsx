@@ -35,7 +35,7 @@ export function ProductsTabs({ user }: { user: User }) {
         <div className='bg-background flex flex-col'>
             <div className='bg-background/90 px-1.5 supports-backdrop-filter:bg-background/90 sticky top-8.25 z-20 flex w-full flex-col-reverse items-center justify-between gap-1.5 py-1 backdrop-blur sm:flex-row'>
                 <CategoryTabs username={user.username || ''} />
-                <div className='flex w-full items-center gap-2 sm:w-[50%] md:w-[40%] xl:w-[25%]'>
+                <div className='flex w-full sm:max-w-[320px] items-center ml-auto'>
                     <Input
                         placeholder={
                             activeFilter && activeFilter !== 'All'

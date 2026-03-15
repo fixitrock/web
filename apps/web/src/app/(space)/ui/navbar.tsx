@@ -85,7 +85,7 @@ export function Navbar({
                     {formatTitle(lastSegment)}
                 </h1>
             </div>
-            <div className='flex w-full items-center gap-2 sm:w-[50%] md:w-[40%] xl:w-[25%]'>
+            <div className='flex w-full sm:max-w-87.5 items-center ml-auto'>
                 <Input
                     end={
                         <>
@@ -100,14 +100,6 @@ export function Navbar({
                     value={query}
                     onInput={(e) => handleQueryChange(e.currentTarget.value)}
                 />
-                {/* <Button
-                    className='border-1.5 bg-default/20 hidden min-w-fit rounded-sm border-dashed sm:flex'
-                    size='sm'
-                    startContent={<Upload size={20} />}
-                    variant='light'
-                >
-                    Add Files
-                </Button> */}
             </div>
         </Header>
     )

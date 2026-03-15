@@ -247,7 +247,7 @@ export function Downloads() {
                             const status = getDownloadStatus(download)
 
                             return (
-                                <CommandItem key={download.id}>
+                                <CommandItem key={download.id} value={download.name}>
                                     <Thumbnail name={download.name} type='List' />
                                     <div className='flex w-full flex-1 flex-col items-start gap-0 truncate'>
                                         <h3 className='truncate text-sm font-medium'>

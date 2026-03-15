@@ -10,6 +10,11 @@ export const queryKeys = {
         list: (search: string, category: string) =>
             [...queryKeys.sellerProducts.all, { search, category }] as const,
     },
+    productSlug: {
+        all: ['product'] as const,
+        list: (slug: string) =>
+            [...queryKeys.productSlug.all, { slug }] as const,
+    },
     storefrontProducts: {
         all: ['storefront-products'] as const,
         list: (

@@ -85,6 +85,18 @@ export const sellerProducts = async (search: string, category?: string) => {
     }
 }
 
+export const productSlug = async (slug:  string) => {
+    const supabase = await createClient()
+    const { data, error } = await supabase.rpc("product_slug", {
+        p_slug: slug
+      })
+
+    return {
+        product: data as Product | null,
+        error,
+    }
+}
+
 export const userProducts = async (
     username: string,
     search: string,

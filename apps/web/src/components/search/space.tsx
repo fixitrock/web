@@ -24,7 +24,7 @@ export function Space() {
         return (
             <CommandGroup heading='⚡&nbsp;&nbsp;Quick Access in Space'>
                 {Spaces.map((item) => (
-                    <CommandItem key={item.id} onSelect={() => onSelect(item, router)}>
+                    <CommandItem key={item.id} value={item.title} onSelect={() => onSelect(item, router)}>
                         <Icon base='size-6' className='size-6' icon={item.icon} />
                         <div className='flex w-full flex-1 flex-col items-start truncate'>
                             {item.title && <div className='text-sm font-medium'>{item.title}</div>}
@@ -50,6 +50,7 @@ export function Space() {
             {items.map((c: SearchItem) => (
                 <CommandItem
                     key={c.id}
+                    value={c.name}
                     onSelect={() => {
                         router.push(path(c.webUrl, !!c.file))
                         onClose()
@@ -86,21 +87,6 @@ const Spaces = [
         icon: 'fluent:phone-link-setup-24-regular',
         href: '/space',
     },
-    // {
-    //     id: 'space-apps',
-    //     title: 'Apps',
-    //     description: 'Get the latest apps for Android, iOS, Windows, MacOS, and Linux',
-    //     icon: 'ri:apps-2-ai-line',
-
-    //     href: '/space/apps',
-    // },
-    // {
-    //     id: 'space-games',
-    //     title: 'Games',
-    //     description: 'Download premium games for mobile, PC, and gaming consoles',
-    //     icon: 'ion:game-controller',
-    //     href: '/space/games',
-    // },
     {
         id: 'space-frp',
         title: 'FRP Bypass',
