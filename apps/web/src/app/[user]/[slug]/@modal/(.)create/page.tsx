@@ -1,9 +1,11 @@
 'use client'
 
-import { notFound } from 'next/navigation'
+import { notFound, useParams } from 'next/navigation'
 import { AddProduct } from '../../ui/products/add'
 
-export default function CreateModal({ params }: { params: { slug: string } }) {
+export default function CreateModal() {
+    const params = useParams<{ slug: string }>()
+
     if (params.slug !== 'pos') {
         notFound()
     }
