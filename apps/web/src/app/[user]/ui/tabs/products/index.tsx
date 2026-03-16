@@ -18,11 +18,7 @@ export function ProductsTabs({ user }: { user: User }) {
     const debouncedQuery = useDebounce(query)
     const { activeCategory } = useCategoryTabsStore()
     const activeFilter = activeCategory === 'all' ? '' : (activeCategory ?? '')
-    const { data, isLoading } = useUserProducts(
-        user.username || '',
-        debouncedQuery,
-        activeFilter
-    )
+    const { data, isLoading } = useUserProducts(user.username || '', debouncedQuery, activeFilter)
     const isProductsEmpty = !isLoading && data?.products.length === 0
 
     const showEmptyState = isProductsEmpty && !query && !activeFilter
@@ -33,9 +29,9 @@ export function ProductsTabs({ user }: { user: User }) {
 
     return (
         <div className='bg-background flex flex-col'>
-            <div className='bg-background/90 px-1.5 supports-backdrop-filter:bg-background/90 sticky top-8.25 z-20 flex w-full flex-col-reverse items-center justify-between gap-1.5 py-1 backdrop-blur sm:flex-row'>
+            <div className='bg-background/90 supports-backdrop-filter:bg-background/90 sticky top-8.25 z-20 flex w-full flex-col-reverse items-center justify-between gap-1.5 px-1.5 py-1 backdrop-blur sm:flex-row'>
                 <CategoryTabs username={user.username || ''} />
-                <div className='flex w-full sm:max-w-[320px] items-center ml-auto'>
+                <div className='ml-auto flex w-full items-center sm:max-w-[320px]'>
                     <Input
                         placeholder={
                             activeFilter && activeFilter !== 'All'
@@ -59,13 +55,12 @@ export function ProductsTabs({ user }: { user: User }) {
                 </div>
             </div>
             <div className='p-2'>
-            {showEmptyState && <PosEmptyState type='product' />}
-            {showSearchEmpty && <PosEmptyState type='search' value={query} />}
-            {showCategoryEmpty && <PosEmptyState type='category' value={activeFilter} />}
-            {isLoading && <ProductGridSkeleton />}
-            <ProductGrid products={data?.products || []} />
+                {showEmptyState && <PosEmptyState type='product' />}
+                {showSearchEmpty && <PosEmptyState type='search' value={query} />}
+                {showCategoryEmpty && <PosEmptyState type='category' value={activeFilter} />}
+                {isLoading && <ProductGridSkeleton />}
+                <ProductGrid products={data?.products || []} />
             </div>
-
         </div>
     )
 }

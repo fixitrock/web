@@ -393,7 +393,8 @@ export function HeyYou(name?: string | null, previous?: string, now: Date = new 
         withName('Midnight momentum'),
     ]
 
-    const pool = hour >= 5 && hour < 12 ? morning : hour < 18 ? afternoon : hour < 23 ? evening : night
+    const pool =
+        hour >= 5 && hour < 12 ? morning : hour < 18 ? afternoon : hour < 23 ? evening : night
     if (pool.length === 1) return pool[0]
 
     let next = pool[Math.floor(Math.random() * pool.length)]

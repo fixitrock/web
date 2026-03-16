@@ -13,7 +13,9 @@ function invalidateQueryGroups(
     queryClient: ReturnType<typeof useQueryClient>,
     queryKeyGroups: QueryKeyGroup
 ) {
-    return Promise.all(queryKeyGroups.map((queryKey) => queryClient.invalidateQueries({ queryKey })))
+    return Promise.all(
+        queryKeyGroups.map((queryKey) => queryClient.invalidateQueries({ queryKey }))
+    )
 }
 
 export function useOrder() {

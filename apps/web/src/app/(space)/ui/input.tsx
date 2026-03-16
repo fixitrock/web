@@ -65,10 +65,10 @@ export function Input({
             className='bg-transparent'
             classNames={{
                 inputWrapper:
-                    'rounded-full min-h-9.5 border bg-transparent shadow-none group-data-[focus=true]:bg-transparent data-[hover=true]:bg-transparent',
+                    'min-h-9.5 rounded-full border bg-transparent shadow-none group-data-[focus=true]:bg-transparent data-[hover=true]:bg-transparent',
 
                 input: 'truncate overflow-hidden',
-                innerWrapper: 'px-1.5'
+                innerWrapper: 'px-1.5',
             }}
             endContent={
                 <div className='flex items-center gap-0.5'>

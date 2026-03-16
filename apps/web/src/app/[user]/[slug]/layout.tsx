@@ -1,14 +1,14 @@
-export default function SlugLayout({
+export default async function SlugLayout({
     children,
-    modal
-  }: {
+    modal,
+}: {
     children: React.ReactNode
     modal: React.ReactNode
-  }) {
+}) {
     return (
-      <>
-        {children}
-        {modal}
-      </>
+        <>
+            {children}
+            {modal}
+        </>
     )
-  }
+}

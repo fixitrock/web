@@ -27,8 +27,7 @@ export default function AnimatedSearch({ children }: AnimatedSearchProps) {
             <ModalContentWrapper>{children}</ModalContentWrapper>
         </>
     )
-    }
-
+}
 
 function ModalContentWrapper({ children }: AnimatedSearchProps) {
     const { isOpen, onClose, ref } = useSearchStore()

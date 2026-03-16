@@ -87,7 +87,6 @@ export function SearchBar({
         <AnimatedSearch>
             <Command
                 ref={ref}
-                
                 shouldFilter={shouldFilter}
                 onKeyDown={onKeyDown}
                 className='flex h-full flex-col'

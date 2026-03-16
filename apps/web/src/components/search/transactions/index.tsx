@@ -34,7 +34,11 @@ const TransactionRow = memo(
             bucketUrl(avatar) || `${fallback.user}${normalizeName(name)}.svg?text=${name.charAt(0)}`
 
         return (
-            <CommandItem key={transaction.id} value={transaction.id} onSelect={() => onOpen(transaction)}>
+            <CommandItem
+                key={transaction.id}
+                value={transaction.id}
+                onSelect={() => onOpen(transaction)}
+            >
                 <Image
                     width={35}
                     height={35}

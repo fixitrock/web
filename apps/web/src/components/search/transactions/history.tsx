@@ -20,8 +20,9 @@ export function TransactionHistory({
     user: TransactionItem
     view: 'seller' | 'user'
 }) {
-    const { data, isLoading, isError, isFetchingNextPage, fetchNextPage } =
-        useMyTransactions(user.id)
+    const { data, isLoading, isError, isFetchingNextPage, fetchNextPage } = useMyTransactions(
+        user.id
+    )
     const { transactionSeller, setTransactionSeller } = useSearchStore()
 
     const transactions = data?.transactions ?? []
@@ -57,17 +58,16 @@ export function TransactionHistory({
                             {formatPhone(user.phone)}
                         </p>
                     </div>
-                     <NumberFlow
-                                className={`${balanceColor(balance, view)} text-lg font-bold tracking-normal`}
-                                format={{
-                                    style: 'currency',
-                                    currency: 'INR',
-                                    minimumFractionDigits: 0,
-                                    maximumFractionDigits: 0,
-                                }}
-                                value={Math.abs(balance)}
+                    <NumberFlow
+                        className={`${balanceColor(balance, view)} text-lg font-bold tracking-normal`}
+                        format={{
+                            style: 'currency',
+                            currency: 'INR',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                        }}
+                        value={Math.abs(balance)}
                     />
-                   
                 </div>
 
                 <div className='relative overflow-hidden rounded-2xl'>
@@ -80,10 +80,10 @@ export function TransactionHistory({
                                 <TrendingDown className='size-3.5 text-emerald-700 dark:text-emerald-300' />
                             </div>
                             <NumberFlow
-                                    className='overflow-hidden text-md w-full text-left font-bold text-emerald-600 md:text-2xl dark:text-emerald-300'
-                                    format={{ style: 'currency', currency: 'INR' }}
-                                    value={totalReceived}
-                                />
+                                className='text-md w-full overflow-hidden text-left font-bold text-emerald-600 md:text-2xl dark:text-emerald-300'
+                                format={{ style: 'currency', currency: 'INR' }}
+                                value={totalReceived}
+                            />
                         </div>
                         <div className='flex w-full flex-col items-start rounded-xl bg-rose-50/70 p-2 md:p-4 dark:bg-rose-500/15'>
                             <div className='mb-2 flex w-full items-center justify-between'>
@@ -92,11 +92,11 @@ export function TransactionHistory({
                                 </p>
                                 <TrendingUp className='size-3.5 text-rose-700 dark:text-rose-300' />
                             </div>
-                             <NumberFlow
-                                    className='overflow-hidden text-md w-full text-left font-bold text-rose-600 md:text-2xl dark:text-rose-300'
-                                    format={{ style: 'currency', currency: 'INR' }}
-                                    value={totalPaid}
-                                />
+                            <NumberFlow
+                                className='text-md w-full overflow-hidden text-left font-bold text-rose-600 md:text-2xl dark:text-rose-300'
+                                format={{ style: 'currency', currency: 'INR' }}
+                                value={totalPaid}
+                            />
                         </div>
                     </div>
                 </div>
@@ -105,7 +105,7 @@ export function TransactionHistory({
             {isLoading && <TransactionSkeleton />}
             {isError && <NoTransactionMessage />}
             {hasMore && (
-                <div className='flex items-center justify-center mb-0.5'>
+                <div className='mb-0.5 flex items-center justify-center'>
                     <Button
                         isLoading={isFetchingNextPage}
                         radius='full'

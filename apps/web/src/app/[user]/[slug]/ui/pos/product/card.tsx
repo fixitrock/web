@@ -32,10 +32,10 @@ export function ProductCard({ product }: { product: Product }) {
     const router = useRouter()
     const pathname = usePathname()
 
-const openUpdateModal = (product: Product) => {
-    setMode('update', product)
-  router.push(`${pathname}/update/${product.slug}`)
-}
+    const openUpdateModal = (product: Product) => {
+        setMode('update', product)
+        router.push(`${pathname}/update/${product.slug}`)
+    }
 
     return (
         <div className='group relative'>

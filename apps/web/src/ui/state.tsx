@@ -150,19 +150,19 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
                         <div className='bg-background ring-border relative top-1 left-3 grid size-14 -rotate-6 place-items-center rounded-lg shadow-md ring-1 transition duration-300 group-hover:-translate-x-4 group-hover:-translate-y-0.5'>
                             {firstIcon &&
                                 React.createElement(firstIcon, {
-                                className: 'w-7 h-7',
+                                    className: 'w-7 h-7',
                                 })}
                         </div>
                         <div className='bg-background ring-border relative z-10 grid size-14 place-items-center rounded-lg shadow-md ring-1 transition duration-300 group-hover:-translate-y-1'>
                             {secondIcon &&
                                 React.createElement(secondIcon, {
-                                className: 'w-7 h-7',
+                                    className: 'w-7 h-7',
                                 })}
                         </div>
                         <div className='bg-background ring-border relative top-1 right-3 grid size-14 rotate-6 place-items-center rounded-lg shadow-md ring-1 transition duration-300 group-hover:translate-x-4 group-hover:-translate-y-1'>
                             {thirdIcon &&
                                 React.createElement(thirdIcon, {
-                                className: 'w-7 h-7',
+                                    className: 'w-7 h-7',
                                 })}
                         </div>
                     </>

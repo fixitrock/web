@@ -150,7 +150,7 @@ export const VideoPlayer: React.FC<CustomVideoPlayerProps> = ({
     const handleProgressChange = useCallback((value: number | number[]) => {
         if (!videoRef.current) return
 
-        const newTime = Array.isArray(value) ? value[0] ?? 0 : value
+        const newTime = Array.isArray(value) ? (value[0] ?? 0) : value
         const newVideoTime = (newTime / 100) * videoRef.current.duration
 
         videoRef.current.currentTime = newVideoTime
@@ -167,7 +167,7 @@ export const VideoPlayer: React.FC<CustomVideoPlayerProps> = ({
     const handleVolumeChange = useCallback((value: number | number[]) => {
         if (!videoRef.current) return
 
-        const newVolume = Array.isArray(value) ? value[0] ?? 0 : value
+        const newVolume = Array.isArray(value) ? (value[0] ?? 0) : value
 
         videoRef.current.volume = newVolume
         setVolume(newVolume)

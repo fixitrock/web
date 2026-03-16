@@ -1,21 +1,21 @@
-import { defineConfig, defineDocs } from 'fumadocs-mdx/config';
-import { metaSchema, pageSchema } from 'fumadocs-core/source/schema';
+import { defineConfig, defineDocs } from 'fumadocs-mdx/config'
+import { metaSchema, pageSchema } from 'fumadocs-core/source/schema'
 
 export const docs = defineDocs({
-  dir: 'content/docs',
-  docs: {
-    schema: pageSchema,
-    postprocess: {
-      includeProcessedMarkdown: true,
+    dir: 'content/docs',
+    docs: {
+        schema: pageSchema,
+        postprocess: {
+            includeProcessedMarkdown: true,
+        },
     },
-  },
-  meta: {
-    schema: metaSchema,
-  },
-});
+    meta: {
+        schema: metaSchema,
+    },
+})
 
 const config = defineConfig({
-  mdxOptions: {},
-});
+    mdxOptions: {},
+})
 
-export default config;
+export default config

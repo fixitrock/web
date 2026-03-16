@@ -112,7 +112,7 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
                         {type === 'debit' ? 'You Gave ₹' : 'You Got ₹'}
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className='max-w-78 overflow-hidden border bg-background p-0'>
+                <PopoverContent className='bg-background max-w-78 overflow-hidden border p-0'>
                     <div className='w-full' onKeyDown={stopSearchBarKeyHandling}>
                         <h1
                             className={`line-clamp-1 truncate overflow-hidden border-b p-2 text-center font-mono text-lg font-semibold ${

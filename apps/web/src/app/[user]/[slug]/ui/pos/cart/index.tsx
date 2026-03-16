@@ -70,19 +70,21 @@ export function PosCart() {
     return (
         <section
             aria-label='Cart'
-            className='flex h-full w-full flex-col overflow-hidden rounded-2xl border border-default-200/70 bg-background'
+            className='border-default-200/70 bg-background flex h-full w-full flex-col overflow-hidden rounded-2xl border'
             data-slot='cart'
         >
-            <div className='border-b border-default-200/70 px-3 py-2.5'>
+            <div className='border-default-200/70 border-b px-3 py-2.5'>
                 <div className='flex items-start justify-between gap-3'>
                     <div className='min-w-0 flex-1'>
                         <div className='flex items-center gap-2'>
-                            <div className='flex h-9 w-9 items-center justify-center rounded-2xl bg-default/10 text-default-700'>
+                            <div className='bg-default/10 text-default-700 flex h-9 w-9 items-center justify-center rounded-2xl'>
                                 <Package2 size={17} />
                             </div>
                             <div className='min-w-0'>
                                 <h2 className='line-clamp-1 text-base font-semibold tracking-tight'>
-                                    {selectedCustomer ? `${selectedCustomer.name}'s Cart` : 'POS Cart'}
+                                    {selectedCustomer
+                                        ? `${selectedCustomer.name}'s Cart`
+                                        : 'POS Cart'}
                                 </h2>
                                 <p className='text-muted-foreground line-clamp-1 text-xs'>
                                     {selectedCustomer
@@ -95,7 +97,7 @@ export function PosCart() {
                 </div>
             </div>
 
-            <div className='border-b border-default-200/70 bg-default/5 p-3'>
+            <div className='border-default-200/70 bg-default/5 border-b p-3'>
                 <Customer />
             </div>
 
@@ -103,7 +105,7 @@ export function PosCart() {
                 {items.length === 0 ? (
                     <EmptyCartState />
                 ) : (
-                   items.map((item) => (
+                    items.map((item) => (
                         <Card
                             key={item.id}
                             className='relative rounded-lg border bg-transparent shadow-none'
@@ -346,8 +348,8 @@ export function PosCart() {
 
 function EmptyCartState() {
     return (
-        <div className='flex h-full min-h-72 flex-col items-center justify-center rounded-3xl border border-dashed border-default-300 bg-default/5 px-6 text-center'>
-            <div className='flex h-14 w-14 items-center justify-center rounded-2xl bg-default/10'>
+        <div className='border-default-300 bg-default/5 flex h-full min-h-72 flex-col items-center justify-center rounded-3xl border border-dashed px-6 text-center'>
+            <div className='bg-default/10 flex h-14 w-14 items-center justify-center rounded-2xl'>
                 <Package2 className='text-default-500' size={24} />
             </div>
             <h3 className='mt-4 text-base font-semibold'>Cart is empty</h3>

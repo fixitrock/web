@@ -19,7 +19,8 @@ import { Navigations } from './type'
 export function QuickAction({ command }: { command: Record<string, Navigations> | null }) {
     const router = useRouter()
     const { setTheme } = useTheme()
-    const { query, setQuery, setDynamicNavigations, getNavigationGroups, onSelect } = useSearchStore()
+    const { query, setQuery, setDynamicNavigations, getNavigationGroups, onSelect } =
+        useSearchStore()
 
     useEffect(() => {
         if (command) {
@@ -43,9 +44,9 @@ export function QuickAction({ command }: { command: Record<string, Navigations> 
                     <CommandGroup heading={group.heading}>
                         {group.navigationItems?.map((item) => (
                             <CommandItem
-                            key={item.id}
-                            value={item.id}
-                            keywords={item.keywords}
+                                key={item.id}
+                                value={item.id}
+                                keywords={item.keywords}
                                 onSelect={() => onSelect(item, router, setTheme)}
                             >
                                 {item.icon && (
@@ -133,13 +134,13 @@ const shortcuts: Navigations = [
         title: 'Browse Apps . . .',
         icon: 'uim:apps',
         href: '/space/apps',
-      },
-      {
+    },
+    {
         id: 'space-games',
         title: 'Browse Games . . .',
         icon: 'f7:gamecontroller-alt-fill',
         href: '/space/games',
-      },
+    },
     {
         id: 'download-shortcut',
         title: 'Downloads & History',
@@ -170,13 +171,13 @@ const actions: Record<string, Navigations> = {
             title: 'Browse Apps . . .',
             icon: 'uim:apps',
             href: '/space/apps',
-          },
-          {
+        },
+        {
             id: 'space-games',
             title: 'Browse Games . . .',
             icon: 'f7:gamecontroller-alt-fill',
             href: '/space/games',
-          },
+        },
         {
             id: 'space-flash-tool',
             title: 'Flashing Tools',

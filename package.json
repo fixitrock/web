@@ -1,26 +1,27 @@
 {
-  "name": "fixitrock",
-  "private": true,
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "dev:web": "pnpm --filter ./apps/web dev",
-    "build:web": "pnpm --filter ./apps/web run build",
-    "dev:docs": "pnpm --filter ./apps/docs dev",
-    "dev:mobile": "pnpm --filter ./apps/mobile dev",
-    "android:mobile": "pnpm --filter ./apps/mobile android",
-    "ios:mobile": "pnpm --filter ./apps/mobile ios",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
-  },
-  "devDependencies": {
-    "prettier": "^3.8.1",
-    "turbo": "^2.8.16",
-    "typescript": "^5.9.3"
-  },
-  "packageManager": "pnpm@9.0.0",
-  "engines": {
-    "node": ">=18"
-  }
+    "name": "fixitrock",
+    "private": true,
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "dev:web": "pnpm --filter ./apps/web dev",
+        "build:web": "pnpm --filter ./apps/web run build",
+        "dev:docs": "pnpm --filter ./apps/docs dev",
+        "dev:mobile": "pnpm --filter ./apps/mobile dev",
+        "android:mobile": "pnpm --filter ./apps/mobile android",
+        "ios:mobile": "pnpm --filter ./apps/mobile ios",
+        "lint": "turbo run lint",
+        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "check-types": "turbo run check-types"
+    },
+    "devDependencies": {
+        "prettier": "^3.8.1",
+        "prettier-plugin-tailwindcss": "^0.7.2",
+        "turbo": "^2.8.16",
+        "typescript": "^5.9.3"
+    },
+    "packageManager": "pnpm@9.0.0",
+    "engines": {
+        "node": ">=18"
+    }
 }

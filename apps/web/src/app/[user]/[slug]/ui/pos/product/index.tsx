@@ -33,13 +33,13 @@ export function PosProduct() {
             <div className='flex flex-col items-center gap-2 sm:flex-row'>
                 <Input
                     size='sm'
-                     classNames={{
-                inputWrapper:
-                    'rounded-md border bg-transparent shadow-none group-data-[focus=true]:bg-transparent data-[hover=true]:bg-transparent',
+                    classNames={{
+                        inputWrapper:
+                            'rounded-md border bg-transparent shadow-none group-data-[focus=true]:bg-transparent data-[hover=true]:bg-transparent',
 
-                input: 'truncate overflow-hidden',
-                innerWrapper: 'px-1.5'
-            }}
+                        input: 'truncate overflow-hidden',
+                        innerWrapper: 'px-1.5',
+                    }}
                     hotKey='P'
                     placeholder='Search products . . .'
                     value={query}

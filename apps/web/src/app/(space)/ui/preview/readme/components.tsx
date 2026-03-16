@@ -18,10 +18,7 @@ export const LI = ({ className, ...props }: React.HTMLAttributes<HTMLLIElement>)
     return <li className={cn('mt-2', className)} {...props} />
 }
 
-export const Blockquote = ({
-    className,
-    ...props
-}: React.HTMLAttributes<HTMLQuoteElement>) => {
+export const Blockquote = ({ className, ...props }: React.HTMLAttributes<HTMLQuoteElement>) => {
     return (
         <Card className={cn('dark:bg-default/10 rounded-lg border p-1.5', className)} shadow='none'>
             <blockquote

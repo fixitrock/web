@@ -8,7 +8,10 @@ import { cn } from '@/lib/utils'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/ui/dialog'
 
 type CommandProps = Omit<React.ComponentPropsWithoutRef<typeof CommandPrimitive>, 'key'>
-type CommandDialogProps = Omit<React.ComponentPropsWithoutRef<typeof Dialog>, 'children' | 'key'> & {
+type CommandDialogProps = Omit<
+    React.ComponentPropsWithoutRef<typeof Dialog>,
+    'children' | 'key'
+> & {
     title?: string
     description?: string
     className?: string
@@ -33,7 +36,10 @@ type CommandSeparatorProps = Omit<
     React.ComponentPropsWithoutRef<typeof CommandPrimitive.Separator>,
     'key'
 >
-type CommandItemProps = Omit<React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>, 'key'> & {
+type CommandItemProps = Omit<
+    React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>,
+    'key'
+> & {
     startContent?: React.ReactNode
     endContent?: React.ReactNode
     title?: string
@@ -48,9 +54,11 @@ type CommandItemProps = Omit<React.ComponentPropsWithoutRef<typeof CommandPrimit
     }
 }
 
-const Command = React.forwardRef<HTMLDivElement, CommandProps>(
-    function Command({ className, ...props }, ref) {
-        return (
+const Command = React.forwardRef<HTMLDivElement, CommandProps>(function Command(
+    { className, ...props },
+    ref
+) {
+    return (
         <CommandPrimitive
             ref={ref}
             className={cn(
@@ -60,9 +68,8 @@ const Command = React.forwardRef<HTMLDivElement, CommandProps>(
             data-slot='command'
             {...props}
         />
-        )
-    }
-)
+    )
+})
 
 Command.displayName = CommandPrimitive.displayName
 
@@ -84,7 +91,7 @@ function CommandDialog({
                 className={cn('overflow-hidden p-0', className)}
                 showCloseButton={showCloseButton}
             >
-                <Command className='**:[[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group]]:px-22 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5'>
+                <Command className='**:[[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group]]:px-22 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3'>
                     {children}
                 </Command>
             </DialogContent>
@@ -125,28 +132,29 @@ const CommandInput: React.ForwardRefExoticComponent<
 
 CommandInput.displayName = CommandPrimitive.Input.displayName
 
-const CommandList = React.forwardRef<HTMLDivElement, CommandListProps>(
-    function CommandList({ className, ...props }, ref) {
-        return (
-            <CommandPrimitive.List
-                ref={ref}
-                className={cn(
-                    'flex flex-1 flex-col overflow-x-hidden overflow-y-auto outline-0',
-                    className
-                )}
-                data-slot='command-list'
-                {...props}
-            />
-        )
-    }
-)
+const CommandList = React.forwardRef<HTMLDivElement, CommandListProps>(function CommandList(
+    { className, ...props },
+    ref
+) {
+    return (
+        <CommandPrimitive.List
+            ref={ref}
+            className={cn(
+                'flex flex-1 flex-col overflow-x-hidden overflow-y-auto outline-0',
+                className
+            )}
+            data-slot='command-list'
+            {...props}
+        />
+    )
+})
 
 CommandList.displayName = CommandPrimitive.List.displayName
 
-const CommandEmpty = React.forwardRef<
-    HTMLDivElement,
-    CommandEmptyProps
->(function CommandEmpty({ ...props }, ref) {
+const CommandEmpty = React.forwardRef<HTMLDivElement, CommandEmptyProps>(function CommandEmpty(
+    { ...props },
+    ref
+) {
     return (
         <CommandPrimitive.Empty
             ref={ref}
@@ -159,10 +167,10 @@ const CommandEmpty = React.forwardRef<
 
 CommandEmpty.displayName = CommandPrimitive.Empty.displayName
 
-const CommandGroup = React.forwardRef<
-    HTMLDivElement,
-    CommandGroupProps
->(function CommandGroup({ className, ...props }, ref) {
+const CommandGroup = React.forwardRef<HTMLDivElement, CommandGroupProps>(function CommandGroup(
+    { className, ...props },
+    ref
+) {
     return (
         <CommandPrimitive.Group
             ref={ref}
@@ -178,19 +186,18 @@ const CommandGroup = React.forwardRef<
 
 CommandGroup.displayName = CommandPrimitive.Group.displayName
 
-const CommandSeparator = React.forwardRef<
-    HTMLDivElement,
-    CommandSeparatorProps
->(function CommandSeparator({ className, ...props }, ref) {
-    return (
-        <CommandPrimitive.Separator
-            ref={ref}
-            className={cn('bg-border h-px', className)}
-            data-slot='command-separator'
-            {...props}
-        />
-    )
-})
+const CommandSeparator = React.forwardRef<HTMLDivElement, CommandSeparatorProps>(
+    function CommandSeparator({ className, ...props }, ref) {
+        return (
+            <CommandPrimitive.Separator
+                ref={ref}
+                className={cn('bg-border h-px', className)}
+                data-slot='command-separator'
+                {...props}
+            />
+        )
+    }
+)
 
 CommandSeparator.displayName = CommandPrimitive.Separator.displayName
 

@@ -12,18 +12,11 @@ export const queryKeys = {
     },
     productSlug: {
         all: ['product'] as const,
-        list: (slug: string) =>
-            [...queryKeys.productSlug.all, { slug }] as const,
+        list: (slug: string) => [...queryKeys.productSlug.all, { slug }] as const,
     },
     storefrontProducts: {
         all: ['storefront-products'] as const,
-        list: (
-            username: string,
-            search: string,
-            category: string,
-            page?: number,
-            limit?: number
-        ) =>
+        list: (username: string, search: string, category: string, page?: number, limit?: number) =>
             [
                 ...queryKeys.storefrontProducts.all,
                 {
@@ -37,7 +30,8 @@ export const queryKeys = {
     },
     storefrontProductCategories: {
         all: ['storefront-product-categories'] as const,
-        list: (username: string) => [...queryKeys.storefrontProductCategories.all, username] as const,
+        list: (username: string) =>
+            [...queryKeys.storefrontProductCategories.all, username] as const,
     },
     sellerOrders: {
         all: ['seller-orders'] as const,

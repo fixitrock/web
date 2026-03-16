@@ -85,7 +85,7 @@ export function Navbar({
                     {formatTitle(lastSegment)}
                 </h1>
             </div>
-            <div className='flex w-full sm:max-w-87.5 items-center ml-auto'>
+            <div className='ml-auto flex w-full items-center sm:max-w-87.5'>
                 <Input
                     end={
                         <>
