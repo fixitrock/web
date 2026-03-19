@@ -1,7 +1,6 @@
 'use client'
 
 import {
-    Image,
     Modal,
     Card,
     ModalContent,
@@ -15,6 +14,7 @@ import {
     addToast,
     useDisclosure,
 } from '@heroui/react'
+import Image from 'next/image'
 import React, { useState } from 'react'
 import { Eye, EyeOff, XIcon } from 'lucide-react'
 
@@ -31,6 +31,7 @@ export function ProductCard({ product }: { product: Product }) {
     const { setMode } = useProductStore()
     const router = useRouter()
     const pathname = usePathname()
+       const imageUrl = getProductImage(product)
 
     const openUpdateModal = (product: Product) => {
         setMode('update', product)
@@ -41,27 +42,28 @@ export function ProductCard({ product }: { product: Product }) {
         <div className='group relative'>
             <Card
                 isPressable
-                className='bg-background size-full gap-2 rounded-xl border p-1.5'
+                className='bg-background size-full gap-2 rounded-xl border p-1.5 will-change-transform'
                 shadow='none'
                 onPress={onOpen}
             >
-                <div className='relative m-auto w-full shrink-0'>
-                    <Image
-                        removeWrapper
-                        alt={product.name}
-                        className='bg-default/10 aspect-square size-full object-cover select-none'
-                        loading='lazy'
-                        src={getProductImage(product)}
-                    />
+                <div className='bg-default/10 relative aspect-square w-full overflow-hidden rounded-lg'>
+                    {imageUrl && (
+                        <Image
+                            alt={product.name}
+                            src={imageUrl}
+                            fill
+                            className='object-cover select-none'
+                            sizes='(max-width: 640px) 140px, 220px'
+                        />
+                    )}
                 </div>
-
                 <div className='flex flex-1 flex-col'>
                     <h3 className='line-clamp-1 text-start text-sm font-semibold'>
                         {product.name}
                     </h3>
                     <div className='text-muted-foreground flex w-full justify-between text-xs'>
                         <span>{product.category}</span>
-                        <span>{formatPrice(product.variants?.[0]?.price || 0)}</span>
+                        <span>{formatPrice(product.variants?.[0]?.price ?? 0)}</span>
                     </div>
                 </div>
             </Card>

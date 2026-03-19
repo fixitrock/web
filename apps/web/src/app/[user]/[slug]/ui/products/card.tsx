@@ -8,11 +8,11 @@ import { formatPrice, getProductImage } from '@/lib/utils'
 import { Product, Products } from '@/types/product'
 import { Navbar, Button, Card, useDisclosure } from '@heroui/react'
 import { Plus } from 'lucide-react'
-import Image from 'next/image'
 import { useState, memo } from 'react'
 import { ProductGridSkeleton } from './skeleton'
 import { PosEmptyState } from '@/ui/empty'
 import { ProductModal } from '@/app/[user]/ui/tabs/products/modal'
+import Image from 'next/image'
 
 const ProductCard = memo(({ product }: { product: Product }) => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()

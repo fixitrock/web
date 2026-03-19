@@ -72,7 +72,6 @@ export function CategoryTabs({ username }: { username: string }) {
                                               )}
                                               alt={tab.category}
                                               className='size-full rounded-none'
-                                              loading='lazy'
                                           />
                                       </div>
                                       <span className='font-medium'>{tab.category}</span>
