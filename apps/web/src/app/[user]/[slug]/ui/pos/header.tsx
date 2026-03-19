@@ -8,16 +8,19 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { useCartStore, usePosTypeStore } from '@/zustand/store'
 import { useMounted } from '@/hooks'
 import { usePathname, useRouter } from 'next/navigation'
+import { useProductStore } from '@/zustand/store/product'
 
 export function PosHeader() {
     const { type, setType } = usePosTypeStore()
     const [isFs, setIsFs] = useState(false)
     const { mounted } = useMounted()
+    const { setMode } = useProductStore()
     const { showCart, setShowCart, getTotalItems } = useCartStore()
     const router = useRouter()
     const pathname = usePathname()
 
     const openAddProduct = () => {
+        setMode('add')
         router.push(`${pathname}/create`)
     }
 
