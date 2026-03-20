@@ -8,6 +8,7 @@ import { useRouter } from 'nextjs-toploader/app'
 import { useState } from 'react'
 
 import { siteConfig } from '@/config/site'
+import { RealtimeInvalidationProvider } from '@/provider/realtime-invalidation'
 import { Toaster } from '@/ui/sonner'
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -24,6 +25,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             defaultTheme='system'
         >
             <QueryClientProvider client={queryClient}>
+                <RealtimeInvalidationProvider />
                 <HeroUIProvider navigate={router.push} spinnerVariant='spinner' useHref={useHref}>
                     <ToastProvider
                         maxVisibleToasts={9}

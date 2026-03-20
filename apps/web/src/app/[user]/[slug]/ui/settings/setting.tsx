@@ -38,6 +38,7 @@ import { updateUser } from '@/actions/users'
 import { GoogleMaps, Verified } from '@/ui/icons'
 import { formatDateTime, openCurrentLocationInMaps } from '@/lib/utils'
 import { Dob } from '@/ui/dob'
+import { appMessages } from '@/config/messages'
 
 const LOCATION_EDIT_ROLES = [2, 3]
 
@@ -73,15 +74,17 @@ export function Setting({ user }: { user: User }) {
                 if (result && result.user) {
                     setForm({ ...result.user })
                     addToast({
-                        title: 'Profile settings saved successfully!',
+                        title: appMessages.profile.saveSuccess,
                         color: 'success',
                     })
                 }
 
                 return result
-            } catch {
+            } catch (error) {
                 addToast({
-                    title: 'Failed to save profile settings',
+                    title: appMessages.profile.saveFailed,
+                    description:
+                        error instanceof Error ? error.message : appMessages.common.refreshAndTry,
                     color: 'danger',
                 })
 

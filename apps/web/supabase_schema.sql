@@ -4567,6 +4567,8 @@ DECLARE
   _category text := trim(payload->>'category');
   _slug text;
   _thumbnail text := nullif(trim(payload->>'thumbnail'), '');
+  _expected_updated_at timestamp with time zone := nullif(trim(payload->>'updated_at'), '')::timestamp with time zone;
+  _updated_count integer := 0;
 BEGIN
   -- 🔐 Permission check
   IF NOT EXISTS (
@@ -4587,6 +4589,10 @@ BEGIN
 
   IF _category IS NULL OR _category = '' THEN
     RAISE EXCEPTION 'Product category is required';
+  END IF;
+
+  IF _expected_updated_at IS NULL THEN
+    RAISE EXCEPTION 'Conflict: missing product version token';
   END IF;
 
   -- 🧩 Ownership check
@@ -4627,7 +4633,14 @@ BEGIN
       ELSE thumbnail
     END,
     updated_at = NOW()
-  WHERE id = _product_id;
+  WHERE id = _product_id
+    AND updated_at = _expected_updated_at;
+
+  GET DIAGNOSTICS _updated_count = ROW_COUNT;
+
+  IF _updated_count = 0 THEN
+    RAISE EXCEPTION 'Conflict: product was updated by another user';
+  END IF;
 
   -----------------------------------------------------------------
   -- VARIANT SYNC: UPDATE, INSERT, DELETE (NO UUID CHANGE)
@@ -4637,47 +4650,72 @@ BEGIN
   DELETE FROM public.product_variants
   WHERE product_id = _product_id
     AND id NOT IN (
-      SELECT (elem->>'id')::uuid
+      SELECT (trim(elem->>'id'))::uuid
       FROM jsonb_array_elements(payload->'variants') elem
-      WHERE elem ? 'id' AND elem->>'id' <> ''
+      WHERE elem ? 'id' AND nullif(trim(elem->>'id'), '') IS NOT NULL
     );
 
   -- 2️⃣ Loop through incoming variants
   FOR _variant IN SELECT jsonb_array_elements(payload->'variants')
   LOOP
-    IF (_variant->>'id') IS NOT NULL AND (_variant->>'id') <> '' THEN
+    IF nullif(trim(_variant->>'id'), '') IS NOT NULL THEN
       
       -- 2A️⃣ Update existing variant
       UPDATE public.product_variants
       SET
-        brand = _variant->>'brand',
+        brand = COALESCE(nullif(trim(_variant->>'brand'), ''), brand),
         image = _variant->'image',
         color = _variant->'color',
-        storage = _variant->>'storage',
-        purchase_price = (_variant->>'purchase_price')::numeric,
-        wholesale_price = (_variant->>'wholesale_price')::numeric,
-        price = (_variant->>'price')::numeric,
-        mrp = (_variant->>'mrp')::numeric,
-        quantity = COALESCE((_variant->>'quantity')::int, 0),
+        storage = COALESCE(nullif(trim(_variant->>'storage'), ''), storage),
+        purchase_price = COALESCE(nullif(trim(_variant->>'purchase_price'), '')::numeric, purchase_price),
+        wholesale_price = COALESCE(nullif(trim(_variant->>'wholesale_price'), '')::numeric, wholesale_price),
+        price = COALESCE(nullif(trim(_variant->>'price'), '')::numeric, price),
+        mrp = COALESCE(nullif(trim(_variant->>'mrp'), '')::numeric, mrp),
+        quantity = COALESCE(nullif(trim(_variant->>'quantity'), '')::int, quantity, 0),
         updated_at = NOW()
-      WHERE id = (_variant->>'id')::uuid;
+      WHERE id = (trim(_variant->>'id'))::uuid
+        AND product_id = _product_id;
 
     ELSE
       -- 2B️⃣ Insert new variant (no ID passed)
+      IF nullif(trim(_variant->>'brand'), '') IS NULL THEN
+        RAISE EXCEPTION 'Variant brand is required';
+      END IF;
+
+      IF nullif(trim(_variant->>'storage'), '') IS NULL THEN
+        RAISE EXCEPTION 'Variant storage is required';
+      END IF;
+
+      IF nullif(trim(_variant->>'purchase_price'), '') IS NULL THEN
+        RAISE EXCEPTION 'Variant purchase price is required';
+      END IF;
+
+      IF nullif(trim(_variant->>'wholesale_price'), '') IS NULL THEN
+        RAISE EXCEPTION 'Variant wholesale price is required';
+      END IF;
+
+      IF nullif(trim(_variant->>'price'), '') IS NULL THEN
+        RAISE EXCEPTION 'Variant price is required';
+      END IF;
+
+      IF nullif(trim(_variant->>'mrp'), '') IS NULL THEN
+        RAISE EXCEPTION 'Variant MRP is required';
+      END IF;
+
       INSERT INTO public.product_variants (
         product_id, brand, image, color, storage,
         purchase_price, wholesale_price, price, mrp, quantity
       ) VALUES (
         _product_id,
-        _variant->>'brand',
+        trim(_variant->>'brand'),
         _variant->'image',
         _variant->'color',
-        _variant->>'storage',
-        (_variant->>'purchase_price')::numeric,
-        (_variant->>'wholesale_price')::numeric,
-        (_variant->>'price')::numeric,
-        (_variant->>'mrp')::numeric,
-        COALESCE((_variant->>'quantity')::int, 0)
+        trim(_variant->>'storage'),
+        (nullif(trim(_variant->>'purchase_price'), ''))::numeric,
+        (nullif(trim(_variant->>'wholesale_price'), ''))::numeric,
+        (nullif(trim(_variant->>'price'), ''))::numeric,
+        (nullif(trim(_variant->>'mrp'), ''))::numeric,
+        COALESCE(nullif(trim(_variant->>'quantity'), '')::int, 0)
       );
 
     END IF;
@@ -6305,6 +6343,30 @@ ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."user_balance";
 
 ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."users";
 
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."brands";
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."categories";
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."notifications";
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."permissions";
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."product";
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."product_categories";
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."product_variants";
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."role_permissions";
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."team_members";
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."teams";
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."user_login_sessions";
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."user_permissions";
+
 
 
 
@@ -7753,11 +7815,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "service_role";
-
-
-
-
-
 
 
 

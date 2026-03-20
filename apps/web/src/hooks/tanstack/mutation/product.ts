@@ -1,5 +1,6 @@
 'use client'
 import { addProduct, updateProduct } from '@/actions/user'
+import { appMessages } from '@/config/messages'
 import { Product } from '@/types/product'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '../query/queryKeys'
@@ -9,7 +10,11 @@ export function useAddProduct() {
 
     return useMutation({
         mutationFn: async (data: Product) => {
-            return await addProduct(data)
+            const result = await addProduct(data)
+            if (!result.success) {
+                throw new Error(result.error ?? appMessages.common.unknownError)
+            }
+            return result.data
         },
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: queryKeys.sellerProducts.all })
@@ -24,7 +29,11 @@ export function useUpdateProduct() {
 
     return useMutation({
         mutationFn: async (data: Product) => {
-            return await updateProduct(data)
+            const result = await updateProduct(data)
+            if (!result.success) {
+                throw new Error(result.error ?? appMessages.common.unknownError)
+            }
+            return result.data
         },
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: queryKeys.sellerProducts.all })

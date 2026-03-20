@@ -12,13 +12,12 @@ export default function UpdateModal() {
         notFound()
     }
 
-    const { editingProduct, setMode } = useProductStore()
-    const slug = editingProduct ? '' : params.product
+    const scheduleSyncEditingProduct = useProductStore((state) => state.scheduleSyncEditingProduct)
 
-    const { data } = useProductSlug(slug)
+    const { data } = useProductSlug(params.product)
 
-    if (!editingProduct && data?.product) {
-        setMode('update', data.product)
+    if (data?.product) {
+        scheduleSyncEditingProduct(data.product)
     }
 
     return <AddProduct mode='update' isOpen />

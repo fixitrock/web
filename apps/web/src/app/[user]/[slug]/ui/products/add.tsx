@@ -29,6 +29,7 @@ import {
     X,
     Copy,
     ImagePlus,
+    RefreshCcw,
 } from 'lucide-react'
 import { LuBadgeIndianRupee } from 'react-icons/lu'
 import { Delete } from '@/ui/icons'
@@ -80,6 +81,8 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
         validate,
         setUploading,
         isUploading,
+        remoteUpdateAvailable,
+        reloadFromRemote,
     } = useProductStore()
     const handleClose = () => {
         router.back()
@@ -107,7 +110,11 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
                     description: 'Product added successfully.',
                 })
             } else if (mode === 'update' && editingProduct) {
-                await updateMutate({ ...editingProduct, ...preparedProduct })
+                await updateMutate({
+                    ...editingProduct,
+                    ...preparedProduct,
+                    updated_at: editingProduct.updated_at,
+                })
                 toast.success(`${preparedProduct.name} updated`, {
                     description: 'Product updated successfully.',
                 })
@@ -117,7 +124,6 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
             handleClose()
         } catch (err) {
             setUploading(false)
-            console.error(err)
             toast.error('Submission failed', {
                 description: (err as any)?.message || 'Something went wrong.',
             })
@@ -163,6 +169,23 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
 
                 <ModalBody className='p-0'>
                     <ScrollShadow className='flex flex-col gap-3 px-3 py-2' hideScrollBar>
+                        {mode === 'update' && remoteUpdateAvailable && (
+                            <div className='flex items-center justify-between gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 p-2.5'>
+                                <p className='text-sm'>
+                                    This product changed in another session. Reload latest data.
+                                </p>
+                                <Button
+                                    size='sm'
+                                    radius='full'
+                                    color='warning'
+                                    variant='flat'
+                                    startContent={<RefreshCcw size={14} />}
+                                    onPress={reloadFromRemote}
+                                >
+                                    Reload
+                                </Button>
+                            </div>
+                        )}
                         <div className='flex flex-col-reverse gap-3 md:flex-row'>
                             <div className='bg-background/60 flex w-full flex-col gap-2 rounded-xl border p-3 md:p-4'>
                                 <Input

@@ -1,10 +1,33 @@
 'use server'
 
-import { withErrorHandling } from '@/lib/utils'
+import { createSafeAction, logWarning, withErrorHandling } from '@/lib/utils'
 import { createClient } from '@/supabase/server'
 import { DeleteObjectCommand } from '@aws-sdk/client-s3'
 import type { Categories, Product, Products } from '@/types/product'
 import { R2 } from '@/supabase/r2'
+import { appMessages, getProductErrorMessage } from '@/config/messages'
+
+const errorText = (error: {
+    message?: string
+    details?: string
+    hint?: string
+    code?: string
+}): string => [error.message, error.details, error.hint, error.code].filter(Boolean).join(' | ')
+
+function normalizeVariants(variants: Product['variants']): Product['variants'] {
+    return (variants ?? []).map((variant) => ({
+        ...variant,
+        brand: typeof variant.brand === 'string' ? variant.brand : '',
+        storage: typeof variant.storage === 'string' ? variant.storage : '',
+        image: Array.isArray(variant.image) ? variant.image : [],
+        color: variant.color ?? null,
+        purchase_price: variant.purchase_price,
+        wholesale_price: variant.wholesale_price,
+        price: variant.price,
+        mrp: variant.mrp,
+        quantity: variant.quantity,
+    }))
+}
 
 export const deleteImagesFromR2 = async (paths: string[]): Promise<void> => {
     if (!Array.isArray(paths) || paths.length === 0) return
@@ -25,30 +48,50 @@ export const deleteImagesFromR2 = async (paths: string[]): Promise<void> => {
     )
 }
 
-export const addProduct = withErrorHandling(async (data: Product) => {
+const addProductAction = withErrorHandling(async (data: Product) => {
+    const payload: Product = {
+        ...data,
+        variants: normalizeVariants(data.variants),
+    }
+
     const supabase = await createClient()
-    const { data: product_id, error } = await supabase.rpc('addproduct', { payload: data })
-    if (error) throw error
+    const { data: product_id, error } = await supabase.rpc('addproduct', { payload })
+    if (error) {
+        logWarning('addProduct rpc error:', error)
+        throw new Error(getProductErrorMessage(errorText(error), 'add'))
+    }
     return product_id
 })
 
-export const updateProduct = withErrorHandling(async (data: Product) => {
+const updateProductAction = withErrorHandling(async (data: Product) => {
+    if (!data.updated_at) {
+        throw new Error(appMessages.product.missingVersion)
+    }
+
+    const payload: Product = {
+        ...data,
+        variants: normalizeVariants(data.variants),
+    }
+
     const supabase = await createClient()
 
     const { data: oldProducts, error: fetchError } = await supabase.rpc('posproduct', {
-        search: data.name,
-        category: data.category,
+        search: payload.name,
+        category: payload.category,
     })
-    if (fetchError) throw fetchError
+    if (fetchError) {
+        logWarning('updateProduct posproduct rpc error:', fetchError)
+        throw new Error(getProductErrorMessage(errorText(fetchError), 'update'))
+    }
 
-    const oldProduct = oldProducts?.products?.find((p: any) => p.id === data.id)
+    const oldProduct = oldProducts?.products?.find((p: any) => p.id === payload.id)
     const oldVariants = oldProduct?.variants ?? []
 
     const oldImages = new Set<string>()
     const newImages = new Set<string>()
 
     if (oldProduct?.thumbnail) oldImages.add(oldProduct.thumbnail)
-    if (data.thumbnail && typeof data.thumbnail === 'string') newImages.add(data.thumbnail)
+    if (payload.thumbnail && typeof payload.thumbnail === 'string') newImages.add(payload.thumbnail)
 
     oldVariants.forEach((v: any) => {
         v.image?.forEach((img: unknown) => {
@@ -56,7 +99,7 @@ export const updateProduct = withErrorHandling(async (data: Product) => {
         })
     })
 
-    data.variants?.forEach((v) => {
+    payload.variants?.forEach((v) => {
         v.image?.forEach((img) => {
             if (typeof img === 'string') newImages.add(img)
         })
@@ -65,14 +108,20 @@ export const updateProduct = withErrorHandling(async (data: Product) => {
     const removed = [...oldImages].filter((img) => !newImages.has(img))
 
     const { data: product_id, error: updateError } = await supabase.rpc('updateproduct', {
-        payload: data,
+        payload,
     })
-    if (updateError) throw updateError
+    if (updateError) {
+        logWarning('updateProduct rpc error:', updateError)
+        throw new Error(getProductErrorMessage(errorText(updateError), 'update'))
+    }
 
     if (removed.length > 0) await deleteImagesFromR2(removed)
 
     return product_id
 })
+
+export const addProduct = createSafeAction(addProductAction)
+export const updateProduct = createSafeAction(updateProductAction)
 
 export const sellerProducts = async (search: string, category?: string) => {
     const supabase = await createClient()

@@ -26,16 +26,28 @@ interface AddProps {
     onClose: () => void
     onOpenChange: (open: boolean) => void
     mode: 'avatar' | 'cover'
+    userUpdatedAt?: string
 }
 
-export default function AvatarCover({ isOpen, onClose, onOpenChange, mode }: AddProps) {
+export default function AvatarCover({
+    isOpen,
+    onClose,
+    onOpenChange,
+    mode,
+    userUpdatedAt,
+}: AddProps) {
     const isDesktop = useMediaQuery('(min-width: 786px)')
     const fileInputRef = useRef<HTMLInputElement>(null)
     const cameraInputRef = useRef<HTMLInputElement>(null)
+    const currentUpdatedAtRef = useRef<string | undefined>(userUpdatedAt)
     const [isLoading, setIsLoading] = useState(false)
 
     const title = mode === 'avatar' ? 'Avatar Change' : 'Cover Change'
     const deleteText = mode === 'avatar' ? 'Remove Avatar' : 'Remove Cover'
+
+    if (userUpdatedAt && currentUpdatedAtRef.current !== userUpdatedAt) {
+        currentUpdatedAtRef.current = userUpdatedAt
+    }
 
     // Detect platform
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -74,7 +86,10 @@ export default function AvatarCover({ isOpen, onClose, onOpenChange, mode }: Add
         try {
             const uploadAction = mode === 'avatar' ? updateSelfAvatar : updateSelfCover
 
-            await uploadAction(file)
+            const result = await uploadAction(file, currentUpdatedAtRef.current)
+            if (result?.updatedAt) {
+                currentUpdatedAtRef.current = result.updatedAt
+            }
 
             addToast({
                 title: `${mode === 'avatar' ? 'Avatar' : 'Cover'} updated successfully!`,
@@ -137,7 +152,10 @@ export default function AvatarCover({ isOpen, onClose, onOpenChange, mode }: Add
         try {
             const removeAction = mode === 'avatar' ? removeSelfAvatar : removeSelfCover
 
-            await removeAction()
+            const result = await removeAction(currentUpdatedAtRef.current)
+            if (result?.updatedAt) {
+                currentUpdatedAtRef.current = result.updatedAt
+            }
 
             addToast({
                 title: `${mode === 'avatar' ? 'Avatar' : 'Cover'} removed successfully!`,

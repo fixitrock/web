@@ -21,7 +21,7 @@ export function PosHeader() {
 
     const openAddProduct = () => {
         setMode('add')
-        router.push(`${pathname}/create`)
+        router.push(`${pathname}/new`)
     }
 
     useHotkeys(

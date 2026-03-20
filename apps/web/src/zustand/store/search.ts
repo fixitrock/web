@@ -63,6 +63,7 @@ export const useSearchStore = create<SearchState>()(
     devtools(
         (set, get) => {
             const ref = React.createRef<HTMLDivElement>()
+            const INITIAL_GREETING = 'What do you need? . . .'
 
             const filterNavigations = (
                 list: Navigations,
@@ -144,7 +145,7 @@ export const useSearchStore = create<SearchState>()(
                 setTransactionSeller: (value) =>
                     set({ transactionSeller: value }, false, 'setTransactionSeller'),
 
-                greeting: HeyYou(),
+                greeting: INITIAL_GREETING,
                 refreshGreeting: (name) =>
                     set(
                         (state) => ({

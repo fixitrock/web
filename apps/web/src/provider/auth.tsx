@@ -4,12 +4,10 @@ import { useEffect, ReactNode } from 'react'
 
 import { createClient } from '@/supabase/client'
 import { logout as serverLogout } from '@/actions/user'
-import { useAuth, useEvent } from '@/zustand/store'
+import { useAuth } from '@/zustand/store'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const setLogout = useAuth((s) => s.setLogout)
-
-    const { trigger } = useEvent()
 
     useEffect(() => {
         const logout = async () => {
@@ -52,22 +50,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
         })
 
-        const channel = supabase
-            .channel('realtime:all')
-            .on('postgres_changes', { event: '*', schema: 'public', table: '*' }, (_payload) => {
-                trigger()
-            })
-            .subscribe()
-
         return () => {
             try {
                 ;(authListener as any)?.subscription?.unsubscribe?.()
                 ;(authListener as any)?.unsubscribe?.()
             } catch {}
-
-            supabase.removeChannel(channel)
         }
-    }, [trigger])
+    }, [])
 
     return children
 }

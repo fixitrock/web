@@ -27,7 +27,7 @@ export function PosProduct() {
     return (
         <section
             aria-label='Products'
-            className='flex h-full flex-col gap-2 rounded-2xl border p-2.5'
+            className='flex h-full flex-col gap-2 rounded-2xl border p-2'
             data-slot='products'
         >
             <div className='flex flex-col items-center gap-2 sm:flex-row'>
@@ -73,20 +73,21 @@ export function PosProduct() {
             {showSearchEmpty && <PosEmptyState type='search' value={query} />}
             {showCategoryEmpty && <PosEmptyState type='category' value={category} />}
 
-            <ScrollShadow hideScrollBar size={60}>
-                <div className='grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2 overflow-y-auto md:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'>
-                    {isLoading && (
-                        <>
-                            {Array.from({ length: 18 }).map((_, i) => (
-                                <ProductSkeleton key={i} />
-                            ))}
-                        </>
-                    )}
+            <ScrollShadow
+                hideScrollBar
+                className='grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2.5 p-0.5 sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'
+            >
+                {isLoading && (
+                    <>
+                        {Array.from({ length: 18 }).map((_, i) => (
+                            <ProductSkeleton key={i} />
+                        ))}
+                    </>
+                )}
 
-                    {data?.products.map((product) => (
-                        <ProductCard key={product.id} product={product} />
-                    ))}
-                </div>
+                {data?.products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                ))}
             </ScrollShadow>
         </section>
     )

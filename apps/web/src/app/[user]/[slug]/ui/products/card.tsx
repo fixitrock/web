@@ -13,6 +13,8 @@ import { ProductGridSkeleton } from './skeleton'
 import { PosEmptyState } from '@/ui/empty'
 import { ProductModal } from '@/app/[user]/ui/tabs/products/modal'
 import Image from 'next/image'
+import AnimatedDiv from '@/ui/farmer/div'
+import { BlogCardAnimation, fromLeftVariant } from '@/lib/FramerMotionVariants'
 
 const ProductCard = memo(({ product }: { product: Product }) => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -58,7 +60,14 @@ const ProductGrid = memo(({ products }: { products: Products }) => {
     return (
         <div className='grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2.5 sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'>
             {products.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <AnimatedDiv
+                    key={p.id}
+                    className='size-full'
+                    mobileVariants={BlogCardAnimation}
+                    variants={fromLeftVariant}
+                >
+                    <ProductCard key={p.id} product={p} />
+                </AnimatedDiv>
             ))}
         </div>
     )

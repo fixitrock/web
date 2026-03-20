@@ -9,6 +9,7 @@ import { createClient } from '@/supabase/server'
 import { logWarning } from '@/lib/utils'
 import { userSession } from '@/actions/user'
 import { R2 } from '@/supabase/r2'
+import { appMessages } from '@/config/messages'
 
 const SettingsSchema = z.object({
     name: z.string().min(1, 'Name is required'),
@@ -33,6 +34,11 @@ export async function updateUser(formData: FormData) {
     try {
         const data = Object.fromEntries(formData.entries())
         const validatedData = SettingsSchema.parse(data)
+        const expectedUpdatedAt = typeof data.updated_at === 'string' ? data.updated_at : ''
+
+        if (!expectedUpdatedAt) {
+            throw new Error(appMessages.concurrency.missingVersion)
+        }
 
         // Only allow location/location_url update for allowed roles
         const updateObj: Record<string, string | null | Date> = {
@@ -48,9 +54,17 @@ export async function updateUser(formData: FormData) {
             updateObj.location_url = validatedData.location_url || null
         }
 
-        const { error } = await supabase.from('users').update(updateObj).eq('id', user.id)
+        const { data: updatedRows, error } = await supabase
+            .from('users')
+            .update(updateObj)
+            .eq('id', user.id)
+            .eq('updated_at', expectedUpdatedAt)
+            .select('id')
 
         if (error) throw error
+        if (!updatedRows || updatedRows.length === 0) {
+            throw new Error(appMessages.concurrency.staleData)
+        }
         await revalidatePath('/[user]/[slug]/settings', 'layout')
 
         const { data: updatedUser, error: fetchError } = await supabase
@@ -64,16 +78,21 @@ export async function updateUser(formData: FormData) {
         return { success: true, user: updatedUser }
     } catch (error) {
         logWarning('Error updating user:', error)
-        throw new Error('Failed to update user')
+        throw new Error(error instanceof Error ? error.message : 'Failed to update user')
     }
 }
 const AVATAR_SIZES = [48, 72, 96, 120, 128, 144, 152, 167, 180, 192, 256, 384, 512] as const
 
-export async function uploadUserImage(file: File, type: 'avatar' | 'cover') {
+export async function uploadUserImage(
+    file: File,
+    type: 'avatar' | 'cover',
+    expectedUpdatedAt?: string
+) {
     const session = await userSession()
     const user = session.user
 
     if (!user) throw new Error('Not authenticated')
+    if (!expectedUpdatedAt) throw new Error(appMessages.concurrency.missingVersion)
 
     const supabase = await createClient()
 
@@ -121,39 +140,50 @@ export async function uploadUserImage(file: File, type: 'avatar' | 'cover') {
 
         // Update user table
         const updateData = type === 'avatar' ? { avatar: tablePath } : { cover: tablePath }
-        const { error: updateError } = await supabase
+        const { data: updatedRows, error: updateError } = await supabase
             .from('users')
             .update({ ...updateData, updated_at: new Date().toISOString() })
             .eq('id', user.id)
+            .eq('updated_at', expectedUpdatedAt)
+            .select('updated_at')
 
         if (updateError) throw updateError
+        if (!updatedRows || updatedRows.length === 0) {
+            throw new Error(appMessages.concurrency.staleData)
+        }
 
         revalidatePath(`/@${user.username}`, 'layout')
         revalidateTag(`user:${user.username}`, 'max')
 
-        return { url: tablePath }
+        return { url: tablePath, updatedAt: updatedRows[0]?.updated_at ?? null }
     } catch (error) {
         logWarning(`Error uploading ${type}:`, error)
-        throw new Error(`Failed to upload ${type}`)
+        const fallback =
+            type === 'avatar'
+                ? appMessages.profile.uploadAvatarFailed
+                : appMessages.profile.uploadCoverFailed
+
+        throw new Error(error instanceof Error ? error.message : fallback)
     }
 }
 
 // Update self avatar
-export async function updateSelfAvatar(file: File) {
-    return uploadUserImage(file, 'avatar')
+export async function updateSelfAvatar(file: File, expectedUpdatedAt?: string) {
+    return uploadUserImage(file, 'avatar', expectedUpdatedAt)
 }
 
 // Update self cover
-export async function updateSelfCover(file: File) {
-    return uploadUserImage(file, 'cover')
+export async function updateSelfCover(file: File, expectedUpdatedAt?: string) {
+    return uploadUserImage(file, 'cover', expectedUpdatedAt)
 }
 
 // Delete a user image (avatar or cover)
-export async function deleteUserImage(type: 'avatar' | 'cover') {
+export async function deleteUserImage(type: 'avatar' | 'cover', expectedUpdatedAt?: string) {
     const session = await userSession()
     const user = session.user
 
     if (!user) throw new Error('Not authenticated')
+    if (!expectedUpdatedAt) throw new Error(appMessages.concurrency.missingVersion)
 
     const supabase = await createClient()
 
@@ -186,29 +216,39 @@ export async function deleteUserImage(type: 'avatar' | 'cover') {
         }
 
         // Remove from table
-        const { error: updateError } = await supabase
+        const { data: updatedRows, error: updateError } = await supabase
             .from('users')
             .update({ ...tablePath, updated_at: new Date().toISOString() })
             .eq('id', user.id)
+            .eq('updated_at', expectedUpdatedAt)
+            .select('updated_at')
 
         if (updateError) throw updateError
+        if (!updatedRows || updatedRows.length === 0) {
+            throw new Error(appMessages.concurrency.staleData)
+        }
 
         await revalidatePath(`/@${user.username}`, 'layout')
         await revalidateTag(`user:${user.username}`, 'max')
 
-        return { success: true }
+        return { success: true, updatedAt: updatedRows[0]?.updated_at ?? null }
     } catch (error) {
         logWarning(`Error deleting ${type}:`, error)
-        throw new Error(`Failed to delete ${type}`)
+        const fallback =
+            type === 'avatar'
+                ? appMessages.profile.removeAvatarFailed
+                : appMessages.profile.removeCoverFailed
+
+        throw new Error(error instanceof Error ? error.message : fallback)
     }
 }
 
 // Remove self avatar
-export async function removeSelfAvatar() {
-    return deleteUserImage('avatar')
+export async function removeSelfAvatar(expectedUpdatedAt?: string) {
+    return deleteUserImage('avatar', expectedUpdatedAt)
 }
 
 // Remove self cover
-export async function removeSelfCover() {
-    return deleteUserImage('cover')
+export async function removeSelfCover(expectedUpdatedAt?: string) {
+    return deleteUserImage('cover', expectedUpdatedAt)
 }

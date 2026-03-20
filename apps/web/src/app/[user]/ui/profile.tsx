@@ -162,6 +162,7 @@ export default function Profile({ user, can }: ProfileProps) {
             <AvatarCover
                 isOpen={isOpen}
                 mode={editMode}
+                userUpdatedAt={user.updated_at}
                 onClose={onClose}
                 onOpenChange={onOpenChange}
             />
