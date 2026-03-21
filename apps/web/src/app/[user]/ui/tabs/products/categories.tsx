@@ -4,29 +4,23 @@ import { useUserCategories } from '@/hooks/tanstack/query'
 import { bucketUrl } from '@/supabase/bucket'
 import { useCategoryTabsStore } from '@/zustand/store'
 import { ScrollShadow, Skeleton, Tab, Tabs, Image } from '@heroui/react'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 
 export function CategoryTabs({ username }: { username: string }) {
     const dragRef = useDragScroll<HTMLDivElement>()
     const containerRef = useRef<HTMLDivElement | null>(null)
     const { data, isLoading } = useUserCategories(username)
-    const { activeCategory, setActiveCategory, handleCategoryChange } = useCategoryTabsStore()
-    useEffect(() => {
-        if (!isLoading && data?.top && data?.top.length > 0) {
-            const exists = data.categories.some((c) => c.category === activeCategory)
-            const defaultCategory = data.categories[0]
-            if (!exists) {
-                if (defaultCategory) {
-                    setActiveCategory(defaultCategory.category)
-                }
-            }
-        }
-    }, [data, isLoading, activeCategory, setActiveCategory])
+    const { activeCategory, handleCategoryChange } = useCategoryTabsStore()
 
     const combinedRef = (node: HTMLDivElement | null) => {
         containerRef.current = node
         dragRef(node)
     }
+
+    const availableKeys = data?.top?.map((item) => item.category) ?? []
+    const selectedKey = availableKeys.includes(activeCategory || '')
+        ? (activeCategory as string)
+        : (availableKeys[0] ?? 'all')
 
     return (
         <ScrollShadow ref={combinedRef} hideScrollBar className='w-full' orientation='horizontal'>
@@ -39,8 +33,8 @@ export function CategoryTabs({ username }: { username: string }) {
                 }}
                 items={data?.top}
                 variant='light'
-                selectedKey={activeCategory as string}
-                onSelectionChange={(key) => handleCategoryChange(String(key))}
+                selectedKey={selectedKey}
+                onSelectionChange={(key) => handleCategoryChange(String(key), username)}
             >
                 {isLoading
                     ? Array.from({ length: 10 }).map((_, i) => (

@@ -1,5 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import type { Metadata } from 'next'
+import type { ComponentType } from 'react'
 
 import { userProfile } from '@/actions/user'
 import { userAvatar } from '@/lib/utils'
@@ -17,7 +18,12 @@ export type UserTab = {
 
 type Props = {
     params: Promise<{ user: string }>
-    searchParams: Promise<{ tab?: string }>
+    searchParams: Promise<{
+        tab?: string
+        page?: string
+        search?: string
+        category?: string
+    }>
 }
 
 export default async function Users({ params, searchParams }: Props) {
@@ -39,10 +45,17 @@ export default async function Users({ params, searchParams }: Props) {
 
     const { can } = await checkAuth(cleanUsername)
 
-    const requestedTab = (await searchParams).tab?.toLowerCase() || 'activity'
+    const resolvedSearchParams = await searchParams
+    const requestedTab = resolvedSearchParams.tab?.toLowerCase() || 'activity'
     const activeTab = tabs.find((t) => t.title.toLowerCase() === requestedTab) || defaultTab
 
     const Content = await loadServerTabComponent(activeTab.component)
+    const RenderTab = Content as ComponentType<any>
+    const initialProductsParams = {
+        category: resolvedSearchParams.category || '',
+        page: resolvedSearchParams.page || '',
+        search: resolvedSearchParams.search || '',
+    }
 
     return (
         <div>
@@ -50,7 +63,7 @@ export default async function Users({ params, searchParams }: Props) {
 
             <div className='relative mx-auto 2xl:px-[10%]'>
                 <Tabs tabs={tabs} user={user} />
-                <Content user={user} can={can} />
+                <RenderTab user={user} can={can} initialProductsParams={initialProductsParams} />
             </div>
         </div>
     )
@@ -58,7 +71,12 @@ export default async function Users({ params, searchParams }: Props) {
 
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
     const raw = (await params).user
-    const tab = (await searchParams).tab
+    const resolvedSearchParams = await searchParams
+    const tab = resolvedSearchParams.tab
+    const productCategory = resolvedSearchParams.category || ''
+    const searchQuery = (resolvedSearchParams.search || '').trim()
+    const pageParam = Number(resolvedSearchParams.page || 1)
+    const page = Number.isFinite(pageParam) && pageParam > 0 ? Math.floor(pageParam) : 1
 
     const username = decodeURIComponent(raw.split('/')[0] || '')
     const cleanUsername = username.startsWith('@') ? username.slice(1) : username
@@ -76,16 +94,44 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
     const currentTab = tabs.find((t) => t.title.toLowerCase() === tab?.toLowerCase())
 
-    const title = currentTab ? `${currentTab.title} - ${user.name}` : user.name
-
-    const description =
+    let title = currentTab ? `${currentTab.title} - ${user.name}` : user.name
+    let description =
         currentTab?.description?.replace('the user', user.name).replace('this user', user.name) ||
         user.bio ||
         ''
 
+    if (currentTab?.title.toLowerCase() === 'products') {
+        const heading =
+            productCategory ||
+            (searchQuery ? searchQuery : page > 1 ? `Products Page ${page}` : 'Products')
+        title = `${heading} - ${user.name}`
+
+        const descParts = [`Browse ${user.name}'s products`]
+        if (productCategory) descParts.push(`category: ${productCategory}`)
+        if (searchQuery) descParts.push(`search: "${searchQuery}"`)
+        if (page > 1) descParts.push(`page ${page}`)
+        description = `${descParts.join(' • ')}.`
+    }
+
+    const canonicalParams = new URLSearchParams()
+    if (tab) canonicalParams.set('tab', tab)
+    if (productCategory && currentTab?.title.toLowerCase() === 'products') {
+        canonicalParams.set('category', productCategory)
+    }
+    if (searchQuery && currentTab?.title.toLowerCase() === 'products') {
+        canonicalParams.set('search', searchQuery)
+    }
+    if (page > 1 && currentTab?.title.toLowerCase() === 'products') {
+        canonicalParams.set('page', String(page))
+    }
+    const canonical = canonicalParams.toString()
+        ? `/@${user.username}?${canonicalParams.toString()}`
+        : `/@${user.username}`
+
     const metadata: Metadata = {
         title: { absolute: title },
         description,
+        alternates: { canonical },
         openGraph: {
             title,
             description,

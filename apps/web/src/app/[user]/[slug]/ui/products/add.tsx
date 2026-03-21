@@ -273,7 +273,7 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
                                     )}
                                 </Autocomplete>
                             </div>
-                            <div className='shrink-0 md:size-50'>
+                            <div className='mx-auto aspect-square size-50 shrink-0'>
                                 {form.thumbnail ? (
                                     <div className='group relative'>
                                         <Image
@@ -283,10 +283,9 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
                                                     : URL.createObjectURL(form.thumbnail)
                                             }
                                             alt='Thumbnail'
-                                            className='aspect-video rounded-lg border object-contain md:aspect-square md:object-cover'
+                                            className='aspect-square rounded-lg border object-cover'
                                             classNames={{
-                                                wrapper:
-                                                    'aspect-video object-contain md:aspect-square md:object-cover',
+                                                wrapper: 'aspect-square object-cover',
                                             }}
                                         />
                                         <Button
@@ -303,7 +302,7 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
                                 ) : (
                                     <Button
                                         as='label'
-                                        className='bg-background/60 hover:border-foreground/40 flex aspect-video size-full min-h-0 min-w-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 text-center transition md:aspect-square'
+                                        className='bg-background/60 hover:border-foreground/40 flex aspect-square size-full min-h-0 min-w-0 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 text-center transition'
                                         variant='light'
                                     >
                                         <div className='flex flex-col items-center gap-2'>
@@ -420,13 +419,8 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
                                                     aria-hidden='true'
                                                 />
                                             </AccordionPrimitive.Trigger>
-                                            <Tooltip
-                                                content='Duplicate'
-                                                radius='full'
-                                                color='foreground'
-                                            >
+                                            <Tooltip content='Duplicate'>
                                                 <Button
-                                                    className='mr-2'
                                                     variant='light'
                                                     startContent={<Copy size={16} />}
                                                     size='sm'
@@ -434,19 +428,8 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
                                                     onPress={() => duplicateVariant(idx)}
                                                 />
                                             </Tooltip>
-                                            {idx === 0 ? (
-                                                <Button
-                                                    variant='light'
-                                                    startContent={<CirclePlus size={18} />}
-                                                    size='sm'
-                                                    isIconOnly
-                                                    onPress={() =>
-                                                        addVariant({
-                                                            ...EMPTY_VARIANT,
-                                                        })
-                                                    }
-                                                />
-                                            ) : (
+
+                                            <Tooltip content='Delete'>
                                                 <Button
                                                     color='danger'
                                                     variant='light'
@@ -455,6 +438,22 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
                                                     isIconOnly
                                                     onPress={() => removeVariant(idx)}
                                                 />
+                                            </Tooltip>
+
+                                            {idx === 0 && (
+                                                <Tooltip content='Add Variant'>
+                                                    <Button
+                                                        variant='light'
+                                                        startContent={<CirclePlus size={18} />}
+                                                        size='sm'
+                                                        isIconOnly
+                                                        onPress={() =>
+                                                            addVariant({
+                                                                ...EMPTY_VARIANT,
+                                                            })
+                                                        }
+                                                    />
+                                                </Tooltip>
                                             )}
                                         </AccordionPrimitive.Header>
                                         <AccordionContent className='pb-3'>

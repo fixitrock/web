@@ -162,11 +162,18 @@ export const userProducts = async (
         limit_count: limit,
     })
 
+    const currentPage = data?.page ?? page ?? 1
+    const totalPages = data?.total_pages ?? 1
+
     return {
         products: (data?.products ?? []) as Products,
         total: data?.total,
         error,
         empty: data?.empty ?? true,
+        page: currentPage,
+        limit: data?.limit ?? limit ?? 42,
+        total_pages: totalPages,
+        hasMore: currentPage < totalPages,
     }
 }
 

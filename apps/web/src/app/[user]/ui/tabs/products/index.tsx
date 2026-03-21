@@ -2,7 +2,6 @@
 
 import { useUserProducts } from '@/hooks/tanstack/query'
 import { PosEmptyState } from '@/ui/empty'
-import { useState } from 'react'
 import { useDebounce } from '@/hooks'
 import { Input } from '@/app/(space)/ui'
 import { ProductGridSkeleton } from '@/app/[user]/[slug]/ui/products/skeleton'
@@ -13,19 +12,82 @@ import { User } from '@/types/users'
 import { Button } from '@heroui/react'
 import { ListFilter } from 'lucide-react'
 
-export function ProductsTabs({ user }: { user: User }) {
-    const [query, setQuery] = useState('')
-    const debouncedQuery = useDebounce(query)
-    const { activeCategory } = useCategoryTabsStore()
-    const activeFilter = activeCategory === 'all' ? '' : (activeCategory ?? '')
-    const { data, isLoading } = useUserProducts(user.username || '', debouncedQuery, activeFilter)
+type InitialProductsParams = {
+    category?: string
+    page?: string
+    search?: string
+}
+
+const normalizeStoreCategory = (value?: string) => {
+    const normalized = value?.trim()
+    if (!normalized || normalized.toLowerCase() === 'all') return 'all'
+
+    return normalized
+}
+
+export function ProductsTabs({
+    user,
+    initialProductsParams,
+}: {
+    user: User
+    initialProductsParams?: InitialProductsParams
+}) {
+    const username = user.username || ''
+    const initialCategory = normalizeStoreCategory(initialProductsParams?.category)
+    const {
+        activeCategory,
+        page,
+        search,
+        categoryTouched,
+        searchTouched,
+        isFetchingNextPage,
+        setPage,
+        setSearch,
+        setIsFetchingNextPage,
+        updateProductsUrl,
+    } = useCategoryTabsStore()
+    const initialSearch = initialProductsParams?.search?.trim() || ''
+    const effectiveSearch = searchTouched ? search : (search || initialSearch)
+    const debouncedQuery = useDebounce(effectiveSearch)
+    const activeCategoryForUI = categoryTouched
+        ? activeCategory
+        : activeCategory === 'all'
+          ? initialCategory
+          : activeCategory
+    const activeFilter = activeCategoryForUI === 'all' ? '' : (activeCategoryForUI ?? '')
+    const activeFilterForQuery = activeCategory === 'all' ? '' : (activeCategory ?? '')
+    const { data, isLoading, fetchNextPage, hasNextPage } = useUserProducts(
+        username,
+        debouncedQuery,
+        activeFilterForQuery,
+        page
+    )
     const isProductsEmpty = !isLoading && data?.products.length === 0
 
-    const showEmptyState = isProductsEmpty && !query && !activeFilter
+    const showEmptyState = isProductsEmpty && !effectiveSearch && !activeFilter
 
-    const showSearchEmpty = isProductsEmpty && !!query
+    const showSearchEmpty = isProductsEmpty && !!effectiveSearch
 
-    const showCategoryEmpty = isProductsEmpty && !!activeFilter && !query
+    const showCategoryEmpty = isProductsEmpty && !!activeFilter && !effectiveSearch
+
+    const handleSearchChange = (value: string) => {
+        setSearch(value, username)
+    }
+
+    const handleLoadMore = async () => {
+        if (!hasNextPage || isFetchingNextPage) return
+
+        const nextPage = page + 1
+
+        setIsFetchingNextPage(true)
+        try {
+            await fetchNextPage({ throwOnError: true })
+            setPage(nextPage)
+            updateProductsUrl(username, nextPage, activeCategory)
+        } finally {
+            setIsFetchingNextPage(false)
+        }
+    }
 
     return (
         <div className='bg-background flex flex-col'>
@@ -49,17 +111,31 @@ export function ProductsTabs({ user }: { user: User }) {
                                 variant='light'
                             />
                         }
-                        value={query}
-                        onValueChange={(value) => setQuery(value)}
+                        value={effectiveSearch}
+                        onValueChange={handleSearchChange}
                     />
                 </div>
             </div>
             <div className='p-2'>
                 {showEmptyState && <PosEmptyState type='product' />}
-                {showSearchEmpty && <PosEmptyState type='search' value={query} />}
+                {showSearchEmpty && <PosEmptyState type='search' value={effectiveSearch} />}
                 {showCategoryEmpty && <PosEmptyState type='category' value={activeFilter} />}
                 {isLoading && <ProductGridSkeleton />}
                 <ProductGrid products={data?.products || []} />
+                {hasNextPage && (data?.products?.length ?? 0) > 0 && (
+                    <div className='mt-4 flex justify-center'>
+                        <Button
+                            className='bg-default/10 border text-xs font-semibold'
+                            isLoading={isFetchingNextPage}
+                            radius='full'
+                            size='sm'
+                            variant='flat'
+                            onPress={handleLoadMore}
+                        >
+                            {isFetchingNextPage ? 'Loading . . .' : 'Load More'}
+                        </Button>
+                    </div>
+                )}
             </div>
         </div>
     )

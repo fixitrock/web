@@ -44,10 +44,8 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
                 <DrawerBody className='flex flex-col'>
                     <div className='aspect-square'>
                         <Image
-                            removeWrapper
                             alt={product.name}
                             className='bg-default/10 aspect-square size-full object-cover select-none'
-                            loading='lazy'
                             src={getProductImage(product)}
                         />
                     </div>

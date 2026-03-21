@@ -6,8 +6,8 @@ export function useTabs() {
     const searchParams = useSearchParams()
 
     const selectedTab = searchParams.get('tab') || 'activity'
-    const category = searchParams.get('cat') || null
-    const search = searchParams.get('q') || ''
+    const category = searchParams.get('category')
+    const search = searchParams.get('search') || ''
 
     return { selectedTab, category, search }
 }
