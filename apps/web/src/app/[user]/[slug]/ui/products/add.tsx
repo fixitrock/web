@@ -149,6 +149,27 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
             }}
             isOpen={isOpen}
             onClose={handleClose}
+            motionProps={{
+                transition: { type: 'spring', stiffness: 350, damping: 35 },
+                variants: {
+                    enter: {
+                        y: 0,
+                        opacity: 1,
+                        transition: {
+                            duration: 0.3,
+                            ease: 'easeOut',
+                        },
+                    },
+                    exit: {
+                        y: '50dvh',
+                        opacity: 0,
+                        transition: {
+                            duration: 0.25,
+                            ease: 'easeInOut',
+                        },
+                    },
+                },
+            }}
         >
             <ModalContent>
                 <ModalHeader className='flex items-center justify-between border-b p-3 select-none'>

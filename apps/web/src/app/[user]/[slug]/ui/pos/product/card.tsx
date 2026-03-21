@@ -15,16 +15,18 @@ import {
     useDisclosure,
 } from '@heroui/react'
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { memo, useState } from 'react'
 import { Eye, EyeOff, XIcon } from 'lucide-react'
 
 import { formatPrice, getProductImage } from '@/lib/utils'
-import { Product } from '@/types/product'
+import { Product, Products } from '@/types/product'
 import { usePosStore, usePosTypeStore } from '@/zustand/store'
 import { useCartStore } from '@/zustand/store/cart'
 import { Icon } from '@iconify/react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useProductStore } from '@/zustand/store/product'
+import AnimatedDiv from '@/ui/farmer/div'
+import { BlogCardAnimation, fromLeftVariant } from '@/lib/FramerMotionVariants'
 
 export function ProductCard({ product }: { product: Product }) {
     const { isOpen, onOpen, onOpenChange } = useDisclosure()
@@ -90,6 +92,27 @@ export function ProductCard({ product }: { product: Product }) {
     )
 }
 
+const ProductGrid = memo(({ products }: { products: Products }) => {
+    return (
+        <div className='grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2.5 sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'>
+            {products.map((p) => (
+                <AnimatedDiv
+                    key={p.id}
+                    className='size-full'
+                    mobileVariants={BlogCardAnimation}
+                    variants={fromLeftVariant}
+                >
+                    <ProductCard key={p.id} product={p} />
+                </AnimatedDiv>
+            ))}
+        </div>
+    )
+})
+
+ProductGrid.displayName = 'ProductGrid'
+
+export { ProductGrid }
+
 interface ProductModalProps {
     product: Product
     isOpen: boolean
@@ -108,7 +131,8 @@ function ProductModal({ product, isOpen, onOpenChange }: ProductModalProps) {
     const handleAddToCart = () => {
         if (active && active.quantity > 0) {
             const price = type === 'retail' ? active.price : active.wholesale_price
-            const imageUrl = typeof active.image[0] === 'string' ? active.image[0] : null
+            const firstImage = Array.isArray(active.image) ? active.image[0] : null
+            const imageUrl = typeof firstImage === 'string' ? firstImage : null
 
             const cartItem = {
                 product: { id: product.id!, name: product.name, category: product.category },

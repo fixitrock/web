@@ -8,9 +8,13 @@ import { usePosCategories, useSellerProducts } from '@/hooks/tanstack/query'
 import { PosEmptyState } from '@/ui/empty'
 import { Input } from '@/app/(space)/ui'
 
-import { ProductCard, ProductSkeleton } from './card'
-
-export function PosProduct() {
+import { ProductGrid } from './card'
+import { ProductGridSkeleton } from '../../products/skeleton'
+import { cn } from '@/lib/utils'
+type Props = {
+    className?: string
+}
+export function PosProduct({ className }: Props): React.ReactNode {
     const [query, setQuery] = useState('')
     const debouncedQuery = useDebounce(query)
     const [category, setCategory] = useState<string | null>(null)
@@ -27,7 +31,10 @@ export function PosProduct() {
     return (
         <section
             aria-label='Products'
-            className='flex h-full flex-col gap-2 rounded-2xl border p-2'
+            className={cn(
+                'flex h-full w-full flex-col gap-2 rounded-2xl border p-2 transition-all duration-300 ease-in-out',
+                className
+            )}
             data-slot='products'
         >
             <div className='flex flex-col items-center gap-2 sm:flex-row'>
@@ -69,25 +76,12 @@ export function PosProduct() {
                 </Autocomplete>
             </div>
 
-            {showEmptyState && <PosEmptyState type='product' />}
-            {showSearchEmpty && <PosEmptyState type='search' value={query} />}
-            {showCategoryEmpty && <PosEmptyState type='category' value={category} />}
-
-            <ScrollShadow
-                hideScrollBar
-                className='grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-2.5 p-0.5 sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]'
-            >
-                {isLoading && (
-                    <>
-                        {Array.from({ length: 18 }).map((_, i) => (
-                            <ProductSkeleton key={i} />
-                        ))}
-                    </>
-                )}
-
-                {data?.products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                ))}
+            <ScrollShadow hideScrollBar className='p-0.5'>
+                {showEmptyState && <PosEmptyState type='product' />}
+                {showSearchEmpty && <PosEmptyState type='search' value={query} />}
+                {showCategoryEmpty && <PosEmptyState type='category' value={category} />}
+                {isLoading && <ProductGridSkeleton />}
+                <ProductGrid products={data?.products || []} />
             </ScrollShadow>
         </section>
     )

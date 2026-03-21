@@ -18,8 +18,12 @@ import { useCartStore } from '@/zustand/store/cart'
 
 import { Customer } from './customer'
 import { OrderPlace } from './orderplace'
+import { cn } from '@/lib/utils'
 
-export function PosCart() {
+type Props = {
+    className?: string
+}
+export function PosCart({ className }: Props): React.ReactNode {
     const {
         items,
         updateQuantity,
@@ -70,7 +74,10 @@ export function PosCart() {
     return (
         <section
             aria-label='Cart'
-            className='border-default-200/70 bg-background flex h-full w-full flex-col overflow-hidden rounded-2xl border'
+            className={cn(
+                'border-default-200/70 bg-background flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 ease-in-out',
+                className
+            )}
             data-slot='cart'
         >
             <div className='border-default-200/70 border-b px-3 py-2.5'>
