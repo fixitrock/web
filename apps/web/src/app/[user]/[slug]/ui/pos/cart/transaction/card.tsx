@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
-import { Skeleton } from '@heroui/react'
+import { Skeleton } from '@heroui-v3/react'
 
 import { Icon } from '@/lib'
 
@@ -287,3 +287,4 @@ function formatPrice(amount: number): string {
         minimumFractionDigits: 0,
     }).format(amount)
 }
+

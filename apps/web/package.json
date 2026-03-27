@@ -14,6 +14,8 @@
         "@aws-sdk/client-s3": "^3.926.0",
         "@aws-sdk/s3-request-presigner": "^3.927.0",
         "@heroui/react": "^2",
+        "@heroui-v3/react": "npm:@heroui/react@3.0.0-beta.2",
+        "@heroui/styles": "3.0.0-beta.2",
         "@hookform/resolvers": "^5.2.2",
         "@iconify/react": "^6.0.0",
         "@microsoft/microsoft-graph-client": "^3.0.7",

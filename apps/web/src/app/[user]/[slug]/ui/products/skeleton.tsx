@@ -1,6 +1,6 @@
 'use client'
 
-import { Skeleton } from '@heroui/react'
+import { Skeleton } from '@heroui-v3/react'
 
 export function ProductSkeleton() {
     return (
@@ -26,3 +26,4 @@ export function ProductGridSkeleton({ count = 18 }: { count?: number }) {
         </div>
     )
 }
+

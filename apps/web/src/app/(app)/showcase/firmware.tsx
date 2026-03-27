@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardHeader, CardFooter } from '@heroui/react'
+import { Card } from '@heroui-v3/react'
 import Autoplay from 'embla-carousel-autoplay'
 import Link from 'next/link'
 import React from 'react'
@@ -56,33 +56,32 @@ export default function Firmware() {
                                     }}
                                 >
                                     <ContextMenuTrigger>
-                                        <Card
-                                            aria-label={c?.name}
-                                            as={Link}
-                                            className='w-full rounded-2xl border bg-transparent select-none'
-                                            href={`/space/${c.name}`}
-                                            shadow='none'
-                                        >
-                                            <CardHeader className='mb-px p-2'>
-                                                <h1 className='truncate text-start text-[13px]'>
-                                                    {c?.name}
-                                                </h1>
-                                            </CardHeader>
-                                            <Thumbnail
-                                                name={c?.name as string}
-                                                src={c?.thumbnails?.[0]?.large?.url || ''}
-                                                type='Grid'
-                                            />
-                                            <CardFooter className='text-muted-foreground grid grid-cols-3 p-2 text-xs'>
-                                                <p className='truncate text-start'>
-                                                    {formatBytes(c?.size)}
-                                                </p>
-                                                <p className='truncate text-center' />
-                                                <p className='truncate text-right'>
-                                                    {formatDateTime(c?.lastModifiedDateTime)}
-                                                </p>
-                                            </CardFooter>
-                                        </Card>
+                                        <Link href={`/space/${c.name}`}>
+                                            <Card
+                                                aria-label={c?.name}
+                                                className='w-full rounded-2xl border bg-transparent shadow-none select-none'
+                                            >
+                                                <Card.Header className='mb-px p-2'>
+                                                    <h1 className='truncate text-start text-[13px]'>
+                                                        {c?.name}
+                                                    </h1>
+                                                </Card.Header>
+                                                <Thumbnail
+                                                    name={c?.name as string}
+                                                    src={c?.thumbnails?.[0]?.large?.url || ''}
+                                                    type='Grid'
+                                                />
+                                                <Card.Footer className='text-muted-foreground grid grid-cols-3 p-2 text-xs'>
+                                                    <p className='truncate text-start'>
+                                                        {formatBytes(c?.size)}
+                                                    </p>
+                                                    <p className='truncate text-center' />
+                                                    <p className='truncate text-right'>
+                                                        {formatDateTime(c?.lastModifiedDateTime)}
+                                                    </p>
+                                                </Card.Footer>
+                                            </Card>
+                                        </Link>
                                     </ContextMenuTrigger>
                                     <Menu
                                         c={c}

@@ -1,6 +1,6 @@
 'use client'
 
-import { Skeleton } from '@heroui/react'
+import { Skeleton } from '@heroui-v3/react'
 import { useRouter } from 'nextjs-toploader/app'
 
 import { CommandEmpty, CommandGroup, CommandItem } from '@/ui/command'
@@ -165,3 +165,4 @@ const Loading = () => {
         </CommandGroup>
     )
 }
+

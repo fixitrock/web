@@ -4,7 +4,7 @@ import { Layers, LucideIcon, Package, Tag, TrendingUp } from 'lucide-react'
 import { Carousel, CarouselContent, CarouselItem } from '@/ui/carousel'
 import { TopItem, TopStats } from '@/types/orders'
 import { Counts } from '@/lib/utils'
-import { Skeleton } from '@heroui/react'
+import { Skeleton } from '@heroui-v3/react'
 
 export function TopSection({ top }: { top: TopStats }) {
     return (
@@ -185,3 +185,4 @@ function SkeletonCard() {
         </div>
     )
 }
+

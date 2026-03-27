@@ -1,5 +1,5 @@
 'use client'
-import { Card, CardBody, CardFooter, CardHeader, Skeleton } from '@heroui/react'
+import { Card, Skeleton } from '@heroui-v3/react'
 import { Quote } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -19,19 +19,18 @@ export const GridSkeleton = ({ length = 15, className }: GridSkeletonProps) => {
             {Array.from({ length }).map((_, i) => (
                 <Card
                     key={i}
-                    className={cn('rounded-2xl border bg-transparent', className)}
-                    shadow='none'
+                    className={cn('rounded-2xl border bg-transparent shadow-none', className)}
                 >
                     <MagicCard className='items-stretch'>
-                        <CardHeader className='justify-between gap-x-2 p-2'>
+                        <Card.Header className='justify-between gap-x-2 p-2'>
                             <Skeleton className='h-4 flex-1 rounded-xl' />
                             <Skeleton className='h-6 w-6 rounded-lg' />
-                        </CardHeader>
+                        </Card.Header>
                         <Skeleton className='aspect-square h-40 w-full rounded-2xl' />
-                        <CardFooter className='mt-[2px] justify-between p-2'>
+                        <Card.Footer className='mt-[2px] justify-between p-2'>
                             <Skeleton className='h-4 w-20 rounded-xl' />
                             <Skeleton className='h-4 w-20 rounded-xl' />
-                        </CardFooter>
+                        </Card.Footer>
                     </MagicCard>
                 </Card>
             ))}
@@ -52,12 +51,11 @@ export const QuoteSkeleton = ({
                 <Card
                     key={index}
                     className={cn(
-                        'rounded-none border-b bg-transparent p-0 md:rounded-xl md:border',
+                        'rounded-none border-b bg-transparent p-0 shadow-none md:rounded-xl md:border',
                         className
                     )}
-                    shadow='none'
                 >
-                    <CardHeader className='flex w-full justify-between'>
+                    <Card.Header className='flex w-full justify-between'>
                         <div className='flex items-center gap-2'>
                             <Skeleton className='size-10 rounded-full' />
                             <div className='flex flex-col items-start pt-2'>
@@ -70,9 +68,9 @@ export const QuoteSkeleton = ({
                             </div>
                         </div>
                         <Skeleton className='size-8 rounded-full' />
-                    </CardHeader>
+                    </Card.Header>
 
-                    <CardBody className='relative h-52 p-0 px-2 select-none'>
+                    <Card.Content className='relative h-52 p-0 px-2 select-none'>
                         <div className='bg-surface dark:bg-muted/30 relative flex h-full items-center justify-center overflow-hidden rounded-xl'>
                             <Quote
                                 className='text-muted-foreground pointer-events-none absolute top-4 left-4 rotate-185'
@@ -91,14 +89,14 @@ export const QuoteSkeleton = ({
                                 </div>
                             </div>
                         </div>
-                    </CardBody>
+                    </Card.Content>
 
-                    <CardFooter className='flex w-full items-center justify-between'>
+                    <Card.Footer className='flex w-full items-center justify-between'>
                         <Skeleton className='h-6 w-16 rounded-full' />
                         <Skeleton className='h-6 w-16 rounded-full' />
                         <Skeleton className='h-6 w-16 rounded-full' />
                         <Skeleton className='h-6 w-16 rounded-full' />
-                    </CardFooter>
+                    </Card.Footer>
                 </Card>
             ))}
         </>

@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Card } from '@heroui/react'
+import { Card } from '@heroui-v3/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -21,7 +21,7 @@ export const LI = ({ className, ...props }: React.HTMLAttributes<HTMLLIElement>)
 
 export const Blockquote = ({ className, ...props }: React.HTMLAttributes<HTMLQuoteElement>) => {
     return (
-        <Card className={cn('dark:bg-default/10 rounded-lg border p-1.5', className)} shadow='none'>
+        <Card className={cn('dark:bg-default/10 rounded-lg border p-1.5 shadow-none', className)}>
             <blockquote
                 className={cn('ml-1 border-l-2 border-[hsl(var(--ring))] pl-4 italic', className)}
                 {...props}

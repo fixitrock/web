@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { Card, CardFooter, CardHeader } from '@heroui/react'
+import { Card } from '@heroui-v3/react'
 import Autoplay from 'embla-carousel-autoplay'
 import Link from 'next/link'
 import { SiSupabase } from 'react-icons/si'
@@ -41,23 +41,22 @@ export default function FRP() {
                             <CarouselItem key={f.id} className='basis-75'>
                                 <Card
                                     aria-label={f.title}
-                                    className='w-full rounded-2xl border bg-transparent'
-                                    shadow='none'
+                                    className='w-full rounded-2xl border bg-transparent shadow-none'
                                 >
                                     <Link passHref href={f.link} target='_blank'>
-                                        <CardHeader className='mb-px p-2'>
+                                        <Card.Header className='mb-px p-2'>
                                             <h1 className='line-clamp-1 text-start text-[13px]'>
                                                 {f.title}
                                             </h1>
-                                        </CardHeader>
+                                        </Card.Header>
                                         <Image
                                             alt={f.title}
                                             className='bg-default/5 dark:bg-default/10 aspect-video h-40 rounded-lg object-contain p-2'
                                             src={f.img}
                                         />
-                                        <CardFooter className='text-muted-foreground justify-end p-2 text-xs'>
+                                        <Card.Footer className='text-muted-foreground justify-end p-2 text-xs'>
                                             <p>{formatDateTime(f.created_at)}</p>
-                                        </CardFooter>
+                                        </Card.Footer>
                                     </Link>
                                 </Card>
                             </CarouselItem>

@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardBody } from '@heroui/react'
+import { Card } from '@heroui-v3/react'
 import Autoplay from 'embla-carousel-autoplay'
 import { SiSupabase } from 'react-icons/si'
 import { TbDatabaseStar, TbPlugConnectedX } from 'react-icons/tb'
@@ -37,7 +37,7 @@ export default function Quotes() {
                         data?.slice(0, 6).map((q) => (
                             <CarouselItem key={q.id} className='basis-[300px]'>
                                 <Card className='bg-muted flex w-full flex-col justify-between shadow-none select-none'>
-                                    <CardBody className='flex flex-1 flex-col'>
+                                    <Card.Content className='flex flex-1 flex-col'>
                                         <p className='flex h-[180px] items-center justify-center text-center text-lg font-semibold text-balance'>
                                             "{q.quote}"
                                         </p>
@@ -45,7 +45,7 @@ export default function Quotes() {
                                             <span>{formatDateTime(q.lastModifiedDateTime)}</span>
                                             <span>— Rock Star 💕</span>
                                         </div>
-                                    </CardBody>
+                                    </Card.Content>
                                 </Card>
                             </CarouselItem>
                         ))
