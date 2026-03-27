@@ -1,6 +1,7 @@
 'use client'
 
-import { Card, CardFooter, CardHeader, Image } from '@heroui/react'
+import Image from 'next/image'
+import { Card, CardFooter, CardHeader } from '@heroui/react'
 import Link from 'next/link'
 import { SiSupabase } from 'react-icons/si'
 import { TbDatabaseStar, TbPlugConnectedX } from 'react-icons/tb'
@@ -37,11 +38,10 @@ export default function Page() {
                                 <h1 className='line-clamp-1 text-start text-[13px]'>{f.title}</h1>
                             </CardHeader>
                             <Image
-                                isBlurred
+                                width={512}
+                                height={512}
                                 alt={f.title}
                                 className='bg-default/5 dark:bg-default/10 aspect-video h-40 rounded-lg object-contain p-2'
-                                classNames={{ wrapper: 'mx-auto' }}
-                                loading='lazy'
                                 src={f.img}
                             />
                             <CardFooter className='text-muted-foreground justify-end p-2 text-xs'>

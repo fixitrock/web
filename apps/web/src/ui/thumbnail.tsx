@@ -1,8 +1,6 @@
 'use client'
 
-import React from 'react'
-import { Image } from '@heroui/react'
-
+import Image from 'next/image'
 import Icon from '@/lib/utils/Icon'
 
 type ThumbnailProps = {
@@ -16,10 +14,10 @@ export function Thumbnail({ src, name, type }: ThumbnailProps) {
         <div className='flex shrink-0 items-center justify-center'>
             {src ? (
                 <Image
+                    width={512}
+                    height={512}
                     alt={name}
-                    className={`${type === 'Grid' ? 'bg-default/5 dark:bg-default/10 aspect-video h-40 rounded-md p-2' : 'size-10'} object-contain`}
-                    isBlurred={type === 'Grid'}
-                    loading='lazy'
+                    className={`${type === 'Grid' ? 'bg-default/5 dark:bg-default/10 aspect-video rounded-md p-2' : 'size-10'} overflow-hidden object-contain`}
                     src={src}
                 />
             ) : (

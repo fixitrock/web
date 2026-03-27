@@ -1,6 +1,6 @@
 'use client'
 
-import { Image } from '@heroui/react'
+import Image from 'next/image'
 import { FC } from 'react'
 
 import { DriveItem } from '@/types/drive'
@@ -13,13 +13,12 @@ const ImagePreview: FC<{ file: DriveItem }> = ({ file }) => {
 
     return (
         <Image
-            // isBlurred
+            fill
             alt={file.name}
             className='object-contain p-0.5'
-            classNames={{ img: 'max-h-[60vh]!', wrapper: 'mx-auto' }}
+            // classNames={{ img: 'max-h-[60vh]!', wrapper: 'mx-auto' }}
             height={file.thumbnails?.[0]?.large?.height}
-            loading='lazy'
-            src={src}
+            src={src ?? ''}
             width={file.thumbnails?.[0]?.large?.width}
         />
     )

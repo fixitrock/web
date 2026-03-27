@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'cdn.fixitrock.com',
+                hostname: '**',
             },
         ],
     },

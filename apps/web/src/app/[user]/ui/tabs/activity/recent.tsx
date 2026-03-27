@@ -1,6 +1,7 @@
 'use client'
 import { ShoppingBag, Store } from 'lucide-react'
-import { Skeleton, Image } from '@heroui/react'
+import Image from 'next/image'
+import { Skeleton } from '@heroui/react'
 import { Carousel, CarouselContent, CarouselItem } from '@/ui/carousel'
 import { formatPrice } from '@/lib/utils'
 import TimeAgo from 'react-timeago'
@@ -32,13 +33,14 @@ export function RecentOrders({ recent }: { recent: RecentOrder[] }) {
                                     <div className='flex items-start justify-between'>
                                         <div className='flex items-center gap-3'>
                                             <Image
+                                                height={40}
+                                                width={40}
                                                 src={
                                                     fallback.user +
                                                     `${order.name}.svg?text=${order.name.charAt(0)}`
                                                 }
                                                 alt={order.name}
-                                                className='aspect-square size-10 rounded-full object-cover'
-                                                removeWrapper
+                                                className='rounded-full object-cover'
                                             />
 
                                             <div className='overflow-hidden'>

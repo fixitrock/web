@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import {
     Button,
     Chip,
@@ -10,7 +11,6 @@ import {
     ModalFooter,
     ModalHeader,
     Textarea,
-    Image,
     ScrollShadow,
 } from '@heroui/react'
 import { CirclePlus, Eye, Plus, Settings2, X } from 'lucide-react'

@@ -1,5 +1,5 @@
 'use client'
-import { Image } from '@heroui/react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 import { FRP } from '@/types/frp'
@@ -17,8 +17,8 @@ export default function FRPCard({ data }: FRPCardProps) {
                     target='_blank'
                     className='group flex flex-col items-center space-y-2 rounded-2xl p-3'
                 >
-                    <div className='relative h-16 w-16 overflow-hidden rounded-2xl'>
-                        <Image alt={f.title} src={f.img} loading='lazy' isBlurred />
+                    <div className='relative h-16 w-16 rounded-2xl'>
+                        <Image alt={f.title} src={f.img} fill />
                     </div>
                     <h3 className='text-center text-[10px] text-balance'>{f.title}</h3>
                 </Link>

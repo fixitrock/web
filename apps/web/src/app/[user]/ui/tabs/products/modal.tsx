@@ -1,7 +1,7 @@
 'use client'
 
 import { Product } from '@/types/product'
-import { Image, Button, Chip, Divider } from '@heroui/react'
+import { Button, Chip, Divider } from '@heroui/react'
 import {
     Drawer,
     DrawerContent,
@@ -42,13 +42,11 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
         >
             <DrawerContent className='h-[80vh] md:h-auto' showbar={!isDesktop}>
                 <DrawerBody className='flex flex-col'>
-                    <div className='aspect-square'>
-                        <Image
-                            alt={product.name}
-                            className='bg-default/10 aspect-square size-full object-cover select-none'
-                            src={getProductImage(product)}
-                        />
-                    </div>
+                    <img
+                        alt={product.name}
+                        className='bg-default/10 aspect-square rounded-xl border object-cover select-none'
+                        src={getProductImage(product)}
+                    />
 
                     <DrawerHeader className='px-0 py-3'>
                         <DrawerTitle className='text-xl font-semibold tracking-tight'>

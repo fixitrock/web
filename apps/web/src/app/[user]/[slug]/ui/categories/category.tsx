@@ -1,6 +1,7 @@
 'use client'
 import AddEdit from './add'
-import { Button, Navbar, Image, useDisclosure, Skeleton } from '@heroui/react'
+import Image from 'next/image'
+import { Button, Navbar, useDisclosure, Skeleton } from '@heroui/react'
 
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/ui/command'
 import { Edit, FolderOpen, Plus, SearchIcon, X } from 'lucide-react'
@@ -104,35 +105,41 @@ export function Category({ can }: { can: CanType }) {
                             key={c.id}
                             value={c.name}
                             keywords={c.keywords}
-                            className='group data relative flex aspect-square flex-col gap-2 rounded-xl border p-1.5'
+                            className='overflow-hidden rounded-xl border'
                             tabIndex={0}
                         >
-                            <Image
-                                removeWrapper
-                                alt={c.name}
-                                className='bg-default/10 aspect-square size-full object-cover select-none'
-                                loading='lazy'
-                                radius='sm'
-                                src={`${bucketUrl(c.image)}?v=${c.updated_at}` || fallback.category}
-                            />
-                            <h3 className='font-mono'>{c.name}</h3>
-                            {can.update.category && (
-                                <div
-                                    className={cn(
-                                        'absolute top-1.5 right-1.5 z-10 flex gap-2 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 data-[selected=true]:bg-red-500'
-                                    )}
-                                >
-                                    <Button
-                                        isIconOnly
-                                        className='bg-background border'
-                                        radius='full'
-                                        size='sm'
-                                        startContent={<Edit size={18} />}
-                                        variant='light'
-                                        onPress={() => openEditModal(c)}
+                            <div className='flex w-full flex-col items-center gap-2'>
+                                <div className='bg-default/10 relative aspect-square w-full overflow-hidden rounded-lg'>
+                                    <Image
+                                        alt={c.name}
+                                        src={
+                                            `${bucketUrl(c.image)}?v=${c.updated_at}` ||
+                                            fallback.category
+                                        }
+                                        fill
+                                        className='object-cover select-none'
+                                        sizes='(max-width: 640px) 140px, 220px'
                                     />
                                 </div>
-                            )}
+                                <h3 className='font-mono'>{c.name}</h3>
+                                {can.update.category && (
+                                    <div
+                                        className={cn(
+                                            'absolute top-1.5 right-1.5 z-10 flex gap-2 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 data-[selected=true]:bg-red-500'
+                                        )}
+                                    >
+                                        <Button
+                                            isIconOnly
+                                            className='bg-background border'
+                                            radius='full'
+                                            size='sm'
+                                            startContent={<Edit size={18} />}
+                                            variant='light'
+                                            onPress={() => openEditModal(c)}
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         </CommandItem>
                     )
                 })}
@@ -140,10 +147,10 @@ export function Category({ can }: { can: CanType }) {
             {!isLoading && query && (
                 <CommandEmpty className='flex flex-col items-center justify-center gap-6 p-4 py-16 text-center'>
                     <Image
-                        removeWrapper
+                        width={160}
+                        height={160}
+                        alt={fallback.category}
                         className='aspect-square size-40 object-cover select-none'
-                        loading='lazy'
-                        radius='sm'
                         src={fallback.categorySearch}
                     />
 

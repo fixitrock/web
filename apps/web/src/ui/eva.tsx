@@ -116,7 +116,7 @@ const DialogContent = React.forwardRef<
         <DialogPrimitive.Content
             ref={ref}
             className={cn(
-                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[90vw] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-2xl border border-[#333333] bg-[#1F2023] p-0 shadow-xl duration-300 md:max-w-[800px]',
+                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[90vw] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-2xl border border-[#333333] bg-[#1F2023] p-0 shadow-xl duration-300 md:max-w-200',
                 className
             )}
             {...props}
@@ -260,7 +260,7 @@ const ImageViewDialog: React.FC<ImageViewDialogProps> = ({ imageUrl, onClose }) 
 
     return (
         <Dialog open={!!imageUrl} onOpenChange={onClose}>
-            <DialogContent className='max-w-[90vw] border-none bg-transparent p-0 shadow-none md:max-w-[800px]'>
+            <DialogContent className='max-w-[90vw] border-none bg-transparent p-0 shadow-none md:max-w-200'>
                 <DialogTitle className='sr-only'>Image Preview</DialogTitle>
                 <motion.div
                     animate={{ opacity: 1, scale: 1 }}

@@ -1,6 +1,7 @@
 'use client'
 
-import { Card, Image } from '@heroui/react'
+import Image from 'next/image'
+import { Card } from '@heroui/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -50,20 +51,16 @@ export const A = ({ className, ...props }: LinkProps) => {
 type Props = {
     src: string
     alt?: string
-    width?: string
-    height?: string
+    width?: number
+    height?: number
 }
 
 export const IMG = ({ src, alt, width, height }: Props) => {
     return (
         <Image
-            isBlurred
-            removeWrapper
-            alt={alt}
+            alt={alt as string}
             className='mx-auto my-2'
             height={height}
-            loading='lazy'
-            radius='lg'
             src={src}
             width={width}
         />

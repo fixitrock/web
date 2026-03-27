@@ -3,6 +3,7 @@
 import { useBrands, useCategories, useColors } from '@/hooks/tanstack/query'
 import { useProductStore } from '@/zustand/store/product'
 import { useAddProduct, useUpdateProduct } from '@/hooks/tanstack/mutation'
+import Image from 'next/image'
 import {
     Autocomplete,
     AutocompleteItem,
@@ -10,7 +11,6 @@ import {
     Input,
     ScrollShadow,
     Textarea,
-    Image,
     Tooltip,
 } from '@heroui/react'
 import { toast } from 'sonner'
@@ -239,10 +239,8 @@ export function UpdateProduct({ mode }: AddModalProps) {
                                                 : URL.createObjectURL(form.thumbnail)
                                         }
                                         alt='Thumbnail'
+                                        fill
                                         className='aspect-square rounded-lg border object-cover'
-                                        classNames={{
-                                            wrapper: 'aspect-square object-cover',
-                                        }}
                                     />
                                     <Button
                                         isIconOnly
@@ -690,7 +688,6 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                                         src={src}
                                         alt={`Image ${i + 1}`}
                                         className='size-20 rounded-lg border object-cover'
-                                        classNames={{ wrapper: 'size-20 object-cover' }}
                                     />
                                     <Button
                                         isIconOnly

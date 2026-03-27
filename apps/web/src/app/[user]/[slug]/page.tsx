@@ -5,7 +5,7 @@ import { userProfile, userSession } from '@/actions/user'
 import { getSlug } from '@/actions/supabase/getSlug'
 
 import Products from './ui/products'
-import { Brands, Categories, Orders, Pos, Settings, Stocks } from './ui'
+import { Brands, Categories, Orders, Pos, Pay, Settings, Stocks } from './ui'
 import { userAvatar } from '@/lib/utils'
 
 const components: Record<
@@ -17,6 +17,7 @@ const components: Record<
 > = {
     Products,
     Pos,
+    Pay,
     Orders,
     Stocks,
     Brands,

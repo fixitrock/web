@@ -1,6 +1,7 @@
 'use client'
 
 import { Order } from '@/types/orders'
+import Image from 'next/image'
 import {
     Card,
     CardBody,
@@ -15,7 +16,6 @@ import {
     TableCell,
     User,
     Snippet,
-    Image,
     ScrollShadow,
     Button,
     Tooltip,

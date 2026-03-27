@@ -3,17 +3,8 @@
 import { useState } from 'react'
 import { CanType } from '@/actions/auth'
 import { Input } from '@/app/(space)/ui'
-import {
-    Button,
-    Card,
-    CardBody,
-    CardFooter,
-    CardHeader,
-    cn,
-    Navbar,
-    Skeleton,
-    Image,
-} from '@heroui/react'
+import Image from 'next/image'
+import { Button, Card, CardBody, CardFooter, CardHeader, cn, Navbar, Skeleton } from '@heroui/react'
 import { ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useSellerOrders } from '@/hooks/tanstack/query'
@@ -126,17 +117,16 @@ function OrdersGrid({ orders }: { orders: Order[] }) {
                         </CardHeader>
                         <CardBody className='py-0'>
                             <div className='bg-default/20 flex items-center gap-4 rounded-xl border p-1'>
-                                <div className='bg-background size-24 shrink-0 rounded-lg border'>
-                                    <Image
-                                        src={
-                                            `${bucketUrl(order.products?.[0]?.image || '')}` ||
-                                            `${fallback.order}`
-                                        }
-                                        alt={order.products?.[0]?.name || 'Product'}
-                                        className='aspect-square size-full rounded-lg object-cover'
-                                        removeWrapper
-                                    />
-                                </div>
+                                <Image
+                                    height={96}
+                                    width={96}
+                                    src={
+                                        `${bucketUrl(order.products?.[0]?.image || '')}` ||
+                                        `${fallback.order}`
+                                    }
+                                    alt={order.products?.[0]?.name || 'Product'}
+                                    className='bg-background aspect-square rounded-lg border object-cover'
+                                />
                                 <div className='flex min-w-0 flex-1 flex-col gap-0.5'>
                                     <p className='line-clamp-2 leading-tight font-bold'>
                                         {order.products?.[0]?.name || 'Unknown Product'}

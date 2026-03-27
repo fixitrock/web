@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
 import {
     Button,
     Modal,
@@ -8,7 +9,6 @@ import {
     ModalContent,
     ModalFooter,
     ModalHeader,
-    Image,
     Textarea,
 } from '@heroui/react'
 import { useOrderStore } from '@/zustand/store/orders'

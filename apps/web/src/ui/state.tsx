@@ -1,5 +1,5 @@
 'use client'
-import { Image } from '@heroui/react'
+import Image from 'next/image'
 import { motion } from 'motion/react'
 import React from 'react'
 import { IconType } from 'react-icons/lib'
@@ -10,7 +10,6 @@ export const NotFound = () => {
     return (
         <div className='flex flex-col items-center gap-4 rounded-xl p-4 select-none'>
             <Image
-                isBlurred
                 alt='Page not found.'
                 height={200}
                 src='/onedrive/empty_folder_v2.svg'
@@ -28,7 +27,6 @@ export const FolderEmpty = () => {
     return (
         <div className='flex flex-col items-center gap-4 rounded-xl p-4 select-none'>
             <Image
-                isBlurred
                 alt='This folder is empty.'
                 height={200}
                 src='/onedrive/empty_folder_v3.webp'
@@ -43,15 +41,15 @@ export const SearchEmpty = ({ query }: { query: string }) => {
     return (
         <div className='flex flex-col items-center gap-4 rounded-xl p-4 select-none'>
             <Image
-                isBlurred
                 alt='Oops! The folder is empty.'
                 className='size-64'
                 height={200}
                 src='/onedrive/empty_search_v2.svg'
                 width={200}
             />
-            <h4 className='max-w-full text-center font-semibold break-words sm:text-xl'>
-                We couldn&apos;t find any results for <span className='break-words'>{query}</span>
+            <h4 className='max-w-full text-center font-semibold wrap-break-word sm:text-xl'>
+                We couldn&apos;t find any results for{' '}
+                <span className='wrap-break-word'>{query}</span>
             </h4>
         </div>
     )

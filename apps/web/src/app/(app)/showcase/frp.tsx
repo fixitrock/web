@@ -1,6 +1,7 @@
 'use client'
 
-import { Card, CardFooter, CardHeader, Image } from '@heroui/react'
+import Image from 'next/image'
+import { Card, CardFooter, CardHeader } from '@heroui/react'
 import Autoplay from 'embla-carousel-autoplay'
 import Link from 'next/link'
 import { SiSupabase } from 'react-icons/si'
@@ -28,7 +29,7 @@ export default function FRP() {
             >
                 <CarouselContent>
                     {isLoading ? (
-                        <GridSkeleton className='min-w-[300px]' length={6} />
+                        <GridSkeleton className='min-w-75' length={6} />
                     ) : error ? (
                         <ErrorState
                             icons={[TbDatabaseStar, SiSupabase, TbPlugConnectedX]}
@@ -37,7 +38,7 @@ export default function FRP() {
                         />
                     ) : (
                         data?.slice(0, 6).map((f) => (
-                            <CarouselItem key={f.id} className='basis-[300px]'>
+                            <CarouselItem key={f.id} className='basis-75'>
                                 <Card
                                     aria-label={f.title}
                                     className='w-full rounded-2xl border bg-transparent'
@@ -50,11 +51,8 @@ export default function FRP() {
                                             </h1>
                                         </CardHeader>
                                         <Image
-                                            isBlurred
                                             alt={f.title}
                                             className='bg-default/5 dark:bg-default/10 aspect-video h-40 rounded-lg object-contain p-2'
-                                            classNames={{ wrapper: 'mx-auto' }}
-                                            loading='lazy'
                                             src={f.img}
                                         />
                                         <CardFooter className='text-muted-foreground justify-end p-2 text-xs'>

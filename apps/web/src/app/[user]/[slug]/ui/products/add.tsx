@@ -3,6 +3,7 @@
 import { useBrands, useCategories, useColors } from '@/hooks/tanstack/query'
 import { useProductStore } from '@/zustand/store/product'
 import { useAddProduct, useUpdateProduct } from '@/hooks/tanstack/mutation'
+import Image from 'next/image'
 import {
     Autocomplete,
     AutocompleteItem,
@@ -15,7 +16,6 @@ import {
     ModalHeader,
     ScrollShadow,
     Textarea,
-    Image,
     Tooltip,
 } from '@heroui/react'
 import { toast } from 'sonner'
@@ -276,7 +276,7 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
                             <div className='mx-auto aspect-square size-50 shrink-0'>
                                 {form.thumbnail ? (
                                     <div className='group relative'>
-                                        <Image
+                                        <img
                                             src={
                                                 typeof form.thumbnail === 'string'
                                                     ? bucketUrl(form.thumbnail)
@@ -284,9 +284,6 @@ export function AddProduct({ mode, isOpen }: AddModalProps) {
                                             }
                                             alt='Thumbnail'
                                             className='aspect-square rounded-lg border object-cover'
-                                            classNames={{
-                                                wrapper: 'aspect-square object-cover',
-                                            }}
                                         />
                                         <Button
                                             isIconOnly
@@ -722,8 +719,8 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                     </span>
                 </AccordionTrigger>
 
-                <AccordionContent className='px-2'>
-                    <div className='flex flex-wrap items-center gap-2'>
+                <AccordionContent className=''>
+                    <div className='flex flex-wrap items-center gap-2 p-2'>
                         {(variant.image ?? []).map((fileOrUrl, i) => {
                             const src =
                                 typeof fileOrUrl === 'string'
@@ -731,14 +728,14 @@ function VariantForm({ index, variant, updateVariant }: VariantFormProps) {
                                     : URL.createObjectURL(fileOrUrl)
                             return (
                                 <div key={i} className='group relative shrink-0'>
-                                    <Image
+                                    <img
                                         src={src}
                                         alt={`Image ${i + 1}`}
                                         className='size-20 rounded-lg border object-cover'
-                                        classNames={{ wrapper: 'size-20 object-cover' }}
                                     />
                                     <Button
                                         isIconOnly
+                                        color='danger'
                                         className='absolute -top-1 -right-1 z-30 h-6 w-6 min-w-0 rounded-full p-0 shadow-md'
                                         onPress={() => {
                                             const updatedImages = [...(variant.image ?? [])]

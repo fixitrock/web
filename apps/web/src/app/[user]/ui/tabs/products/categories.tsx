@@ -3,7 +3,8 @@ import { useDragScroll } from '@/hooks'
 import { useUserCategories } from '@/hooks/tanstack/query'
 import { bucketUrl } from '@/supabase/bucket'
 import { useCategoryTabsStore } from '@/zustand/store'
-import { ScrollShadow, Skeleton, Tab, Tabs, Image } from '@heroui/react'
+import Image from 'next/image'
+import { ScrollShadow, Skeleton, Tab, Tabs } from '@heroui/react'
 import { useRef } from 'react'
 
 export function CategoryTabs({ username }: { username: string }) {
@@ -57,6 +58,9 @@ export function CategoryTabs({ username }: { username: string }) {
                                   <div className='flex items-center justify-between gap-1.5'>
                                       <div className='size-6 overflow-hidden rounded'>
                                           <Image
+                                              width={100}
+                                              height={100}
+                                              quality={100}
                                               src={bucketUrl(
                                                   '/assets/categories/' +
                                                       tab.category
@@ -65,7 +69,6 @@ export function CategoryTabs({ username }: { username: string }) {
                                                       '.png'
                                               )}
                                               alt={tab.category}
-                                              className='size-full rounded-none'
                                           />
                                       </div>
                                       <span className='font-medium'>{tab.category}</span>
