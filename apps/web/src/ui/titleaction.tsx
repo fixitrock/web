@@ -1,6 +1,6 @@
-'use client'
+﻿'use client'
 
-import { Button } from '@heroui-v3/react'
+import { Button } from '@heroui/react'
 import Link from 'next/link'
 import { useRouter } from 'nextjs-toploader/app'
 
@@ -33,3 +33,5 @@ export const TitleAction = ({ title, children, href, className }: TitleActionPro
         </section>
     )
 }
+
+

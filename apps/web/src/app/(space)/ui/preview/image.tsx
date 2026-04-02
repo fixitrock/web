@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Image from 'next/image'
 import { FC } from 'react'
@@ -16,7 +16,7 @@ const ImagePreview: FC<{ file: DriveItem }> = ({ file }) => {
             fill
             alt={file.name}
             className='object-contain p-0.5'
-            // classNames={{ img: 'max-h-[60vh]!', wrapper: 'mx-auto' }}
+            // className={{ img: 'max-h-[60vh]!', wrapper: 'mx-auto' }}
             height={file.thumbnails?.[0]?.large?.height}
             src={src ?? ''}
             width={file.thumbnails?.[0]?.large?.width}
@@ -25,3 +25,4 @@ const ImagePreview: FC<{ file: DriveItem }> = ({ file }) => {
 }
 
 export default ImagePreview
+

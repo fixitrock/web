@@ -1,15 +1,16 @@
 'use client'
+
 import {
     Button,
     Input,
+    InputGroup,
     Popover,
     PopoverContent,
     PopoverTrigger,
-    Tab,
     Tabs,
-    useDisclosure,
+    useOverlayState,
 } from '@heroui/react'
-import type { ComponentPropsWithoutRef, KeyboardEvent as ReactKeyboardEvent } from 'react'
+import type { Key, KeyboardEvent as ReactKeyboardEvent } from 'react'
 
 import { useMediaQuery } from '@/hooks'
 import { useTransactions } from '@/hooks/tanstack/mutation'
@@ -25,13 +26,16 @@ import {
     DrawerTrigger,
 } from '@/ui/drawer'
 import { useCartStore, useSearchStore } from '@/zustand/store'
+import type { PaymentMethodType } from '@/zustand/store/cart'
 
 function stopSearchBarKeyHandling(event: ReactKeyboardEvent<HTMLElement>) {
     event.stopPropagation()
 }
 
+const currencySymbol = '\u20B9'
+
 export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
-    const { isOpen, onOpenChange, onClose } = useDisclosure()
+    const overlayState = useOverlayState()
     const isDesktop = useMediaQuery('(min-width: 786px)')
     const {
         transactions,
@@ -59,7 +63,7 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
                 mode: transaction.mode,
             })
             clearTransaction(type)
-            onClose()
+            overlayState.close()
         } catch (error) {
             logWarning('Failed to add transaction', error)
         }
@@ -71,14 +75,15 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
             : `You got ${formatINR(transaction.amount)} from ${selectedTransaction?.name}`
 
     const amountInput = (
-        <Input
-            className='w-full rounded-[1px]'
-            placeholder='Enter Amount'
-            startContent='₹'
-            type='number'
-            value={amountValue}
-            onChange={(e) => setTransactionAmount(type, Number(e.target.value))}
-        />
+        <InputGroup className='w-full rounded-[1px]'>
+            <InputGroup.Prefix>{currencySymbol}</InputGroup.Prefix>
+            <InputGroup.Input
+                placeholder='Enter Amount'
+                type='number'
+                value={amountValue}
+                onChange={(e) => setTransactionAmount(type, Number(e.target.value))}
+            />
+        </InputGroup>
     )
 
     const noteInput = (
@@ -95,7 +100,7 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
             className={`w-full rounded-md text-white ${
                 type === 'debit' ? 'bg-red-500' : 'bg-green-500'
             }`}
-            isLoading={addTransaction.isPending}
+            isDisabled={addTransaction.isPending}
             onPress={handlePlaceTransaction}
         >
             {addTransaction.isPending ? 'Saving...' : 'Save'}
@@ -104,12 +109,12 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
 
     if (isDesktop) {
         return (
-            <Popover isOpen={isOpen} shadow='none' onOpenChange={onOpenChange}>
-                <PopoverTrigger asChild>
+            <Popover isOpen={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
+                <PopoverTrigger>
                     <Button
                         className={`${type === 'debit' ? 'bg-red-500' : 'bg-green-500'} w-full text-white`}
                     >
-                        {type === 'debit' ? 'You Gave ₹' : 'You Got ₹'}
+                        {type === 'debit' ? `You Gave ${currencySymbol}` : `You Got ${currencySymbol}`}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className='bg-background max-w-78 overflow-hidden border p-0'>
@@ -143,13 +148,13 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
     }
 
     return (
-        <DrawerNested open={isOpen} onOpenChange={onOpenChange}>
+        <DrawerNested open={overlayState.isOpen} onOpenChange={overlayState.setOpen}>
             <DrawerTrigger asChild>
                 <Button
                     size='sm'
                     className={`${type === 'debit' ? 'bg-red-500' : 'bg-green-500'} w-full text-white`}
                 >
-                    {type === 'debit' ? 'You Gave ₹' : 'You Got ₹'}
+                    {type === 'debit' ? `You Gave ${currencySymbol}` : `You Got ${currencySymbol}`}
                 </Button>
             </DrawerTrigger>
             <DrawerContent>
@@ -186,35 +191,37 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
 }
 
 function formatINR(amount: number) {
-    return `₹${amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+    return `${currencySymbol}${amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
 }
 
-const modes: PaymentMethodType[] = ['cash', 'upi', 'card']
+const modes: PaymentMethodType[] = ['cash', 'upi', 'card', 'paylater']
 
-type PaymentModeProps = Omit<ComponentPropsWithoutRef<typeof Tabs>, 'children' | 'key'>
+type PaymentModeProps = {
+    selectedKey: PaymentMethodType
+    onSelectionChange: (key: Key) => void
+}
 
-function PaymentMode({ ...tabsProps }: PaymentModeProps) {
+function PaymentMode({ selectedKey, onSelectionChange }: PaymentModeProps) {
     return (
-        <div>
+        <div onKeyDown={stopSearchBarKeyHandling}>
             <h3 className='text-muted-foreground mb-1 text-sm font-medium'>Payment Method</h3>
             <Tabs
-                classNames={{
-                    cursor: 'bg-default/25 dark:bg-default/30 shadow-none',
-                    tab: 'bg-default/15',
-                }}
-                radius='full'
-                size='sm'
-                title='Payment Mode'
-                variant='light'
-                onKeyDown={stopSearchBarKeyHandling}
-                {...tabsProps}
+                className='[&_button]:bg-default/15'
+                selectedKey={selectedKey}
+                variant='secondary'
+                onSelectionChange={onSelectionChange}
             >
-                {modes.map((mode) => (
-                    <Tab key={mode} title={mode.toUpperCase()} value={mode} />
-                ))}
+                <Tabs.ListContainer>
+                    <Tabs.List aria-label='Payment Mode'>
+                        {modes.map((mode) => (
+                            <Tabs.Tab key={mode} id={mode}>
+                                {mode.toUpperCase()}
+                                <Tabs.Indicator className='rounded-full' />
+                            </Tabs.Tab>
+                        ))}
+                    </Tabs.List>
+                </Tabs.ListContainer>
             </Tabs>
         </div>
     )
 }
-
-export type PaymentMethodType = 'cash' | 'upi' | 'card'

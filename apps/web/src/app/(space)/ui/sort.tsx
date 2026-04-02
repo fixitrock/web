@@ -1,17 +1,18 @@
 'use client'
 
+import type { Selection } from '@heroui/react'
+
 import {
     Button,
+    Description,
     Dropdown,
-    DropdownItem,
-    DropdownMenu,
-    DropdownSection,
-    DropdownTrigger,
-    Listbox,
-    ListboxItem,
-    ListboxSection,
+    Header,
+    Kbd,
+    Label,
+    ListBox,
+    Separator,
 } from '@heroui/react'
-import { ListFilter } from 'lucide-react'
+import { EllipsisVertical, ListFilter, Pencil, SquarePlus, Trash } from 'lucide-react'
 import * as React from 'react'
 
 import { useMediaQuery } from '@/hooks/useMediaQuery'
@@ -46,133 +47,165 @@ export function SortBy({ sort }: { sort: (sortField: SortField, sortOrder: SortO
                 return null
         }
     }
-    const handleSelectionChange = (key: string) => {
-        if (key === 'asc' || key === 'desc') {
-            setSortOrder(key as SortOrder)
-            sort(sortField, key as SortOrder)
-        } else {
-            setSortField(key as SortField)
-            sort(key as SortField, sortOrder)
-        }
-        if (!isDesktop) {
-            setOpen(false)
-        }
+
+    const handleFieldChange = (keys: Selection) => {
+        const key = Array.from(keys)[0] as SortField | undefined
+        if (!key) return
+
+        setSortField(key)
+        sort(key, sortOrder)
+
+        if (!isDesktop) setOpen(false)
     }
+
+    const handleOrderChange = (keys: Selection) => {
+        const key = Array.from(keys)[0] as SortOrder | undefined
+        if (!key) return
+
+        setSortOrder(key)
+        sort(sortField, key)
+
+        if (!isDesktop) setOpen(false)
+    }
+
+    const trigger = (
+        <Button isIconOnly size='sm' variant='tertiary'>
+            <ListFilter size={20} />
+        </Button>
+    )
 
     return (
         <>
             {isDesktop ? (
-                <Dropdown
-                    className='rounded-lg border shadow-none'
-                    placement='bottom-end'
-                    radius='none'
-                    type='listbox'
-                >
-                    <DropdownTrigger>
-                        <Button
-                            isIconOnly
-                            className='h-8 w-8 min-w-0 p-0'
-                            radius='full'
-                            size='sm'
-                            startContent={<ListFilter size={20} />}
-                            variant='light'
-                        />
-                    </DropdownTrigger>
-                    <DropdownMenu
-                        aria-label='Sort Options'
-                        selectedKeys={[sortField, sortOrder]}
-                        selectionMode='single'
-                        variant='faded'
-                        onSelectionChange={(keys) =>
-                            handleSelectionChange(Array.from(keys)[0] as SortField | SortOrder)
-                        }
-                    >
-                        <DropdownSection showDivider title='Sort By'>
-                            {(['name', 'type', 'size', 'lastModifiedDateTime'] as SortField[]).map(
-                                (field) => (
-                                    <DropdownItem
-                                        key={field}
-                                        startContent={getSortByIcon(field)}
-                                        onPress={() => handleSelectionChange(field)}
-                                    >
-                                        {field === 'lastModifiedDateTime'
-                                            ? 'Date'
-                                            : field.charAt(0).toUpperCase() + field.slice(1)}
-                                    </DropdownItem>
-                                )
-                            )}
-                        </DropdownSection>
-                        <DropdownSection title='Order'>
-                            {(['asc', 'desc'] as SortOrder[]).map((order) => (
-                                <DropdownItem
-                                    key={order}
-                                    startContent={
-                                        order === 'asc' ? <ArrowSortDown /> : <ArrowSortUp />
-                                    }
-                                    onPress={() => handleSelectionChange(order)}
+                <Dropdown>
+                    <Dropdown.Trigger aria-label='Menu' className='button button-md'>
+                        <EllipsisVertical className='outline-none' />
+                    </Dropdown.Trigger>
+                    <Dropdown.Popover>
+                        <Dropdown.Menu onAction={(key) => console.log(`Selected: ${key}`)}>
+                            <Dropdown.Section>
+                                <Header>Actions</Header>
+                                <Dropdown.Item id='new-file' textValue='New file'>
+                                    <div className='flex h-8 items-start justify-center pt-px'>
+                                        <SquarePlus className='text-muted size-4 shrink-0' />
+                                    </div>
+                                    <div className='flex flex-col'>
+                                        <Label>New file</Label>
+                                        <Description>Create a new file</Description>
+                                    </div>
+                                    <Kbd className='ms-auto' slot='keyboard' variant='light'>
+                                        <Kbd.Abbr keyValue='command' />
+                                        <Kbd.Content>N</Kbd.Content>
+                                    </Kbd>
+                                </Dropdown.Item>
+                                <Dropdown.Item id='edit-file' textValue='Edit file'>
+                                    <div className='flex h-8 items-start justify-center pt-px'>
+                                        <Pencil className='text-muted size-4 shrink-0' />
+                                    </div>
+                                    <div className='flex flex-col'>
+                                        <Label>Edit file</Label>
+                                        <Description>Make changes</Description>
+                                    </div>
+                                    <Kbd className='ms-auto' slot='keyboard' variant='light'>
+                                        <Kbd.Abbr keyValue='command' />
+                                        <Kbd.Content>E</Kbd.Content>
+                                    </Kbd>
+                                </Dropdown.Item>
+                            </Dropdown.Section>
+                            <Separator />
+                            <Dropdown.Section>
+                                <Header>Danger zone</Header>
+                                <Dropdown.Item
+                                    id='delete-file'
+                                    textValue='Delete file'
+                                    variant='danger'
                                 >
-                                    {order === 'asc' ? 'Ascending' : 'Descending'}
-                                </DropdownItem>
-                            ))}
-                        </DropdownSection>
-                    </DropdownMenu>
+                                    <div className='flex h-8 items-start justify-center pt-px'>
+                                        <Trash className='text-danger size-4 shrink-0' />
+                                    </div>
+                                    <div className='flex flex-col'>
+                                        <Label>Delete file</Label>
+                                        <Description>Move to trash</Description>
+                                    </div>
+                                    <Kbd className='ms-auto' slot='keyboard' variant='light'>
+                                        <Kbd.Abbr keyValue='command' />
+                                        <Kbd.Abbr keyValue='shift' />
+                                        <Kbd.Content>D</Kbd.Content>
+                                    </Kbd>
+                                </Dropdown.Item>
+                            </Dropdown.Section>
+                        </Dropdown.Menu>
+                    </Dropdown.Popover>
                 </Dropdown>
             ) : (
                 <Drawer open={isOpen} onOpenChange={setOpen}>
-                    <DrawerTrigger asChild>
-                        <Button
-                            isIconOnly
-                            className='h-8 w-8 min-w-0 p-0'
-                            radius='full'
-                            size='sm'
-                            startContent={<ListFilter size={20} />}
-                            variant='light'
-                            onPress={() => setOpen(true)}
-                        />
-                    </DrawerTrigger>
-                    <DrawerContent className=''>
+                    <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+
+                    <DrawerContent>
                         <DrawerHeader>
                             <DrawerTitle>Sort Options</DrawerTitle>
                             <DrawerDescription>Select sorting preferences below.</DrawerDescription>
                         </DrawerHeader>
-                        <Listbox
-                            className='mb-2'
-                            selectedKeys={[sortField, sortOrder]}
-                            selectionMode='single'
-                            variant='faded'
-                            onSelectionChange={(keys) =>
-                                handleSelectionChange(Array.from(keys)[0] as SortField | SortOrder)
-                            }
-                        >
-                            <ListboxSection showDivider title='Sort By'>
-                                {(
-                                    ['name', 'type', 'size', 'lastModifiedDateTime'] as SortField[]
-                                ).map((field) => (
-                                    <ListboxItem
-                                        key={field}
-                                        startContent={getSortByIcon(field)}
-                                        onPress={() => handleSelectionChange(field)}
-                                    >
-                                        {field === 'lastModifiedDateTime'
-                                            ? 'Date'
-                                            : field.charAt(0).toUpperCase() + field.slice(1)}
-                                    </ListboxItem>
-                                ))}
-                            </ListboxSection>
-                            <ListboxSection title='Order'>
-                                {(['asc', 'desc'] as SortOrder[]).map((order) => (
-                                    <ListboxItem
-                                        key={order}
-                                        startContent={
-                                            order === 'asc' ? <ArrowSortDown /> : <ArrowSortUp />
-                                        }
-                                        onPress={() => handleSelectionChange(order)}
-                                    >
-                                        {order === 'asc' ? 'Ascending' : 'Descending'}
-                                    </ListboxItem>
-                                ))}
-                            </ListboxSection>
-                        </Listbox>
+
+                        <div className='mb-2 space-y-4 px-2 pb-2'>
+                            <ListBox
+                                aria-label='Sort by'
+                                selectedKeys={new Set([sortField])}
+                                selectionMode='single'
+                                onSelectionChange={handleFieldChange}
+                            >
+                                <ListBox.Section>
+                                    <Header>Sort By</Header>
+
+                                    <ListBox.Item id='name' textValue='Name'>
+                                        <ListBox.ItemIndicator />
+                                        {getSortByIcon('name')}
+                                        <Label>Name</Label>
+                                    </ListBox.Item>
+
+                                    <ListBox.Item id='type' textValue='Type'>
+                                        <ListBox.ItemIndicator />
+                                        {getSortByIcon('type')}
+                                        <Label>Type</Label>
+                                    </ListBox.Item>
+
+                                    <ListBox.Item id='size' textValue='Size'>
+                                        <ListBox.ItemIndicator />
+                                        {getSortByIcon('size')}
+                                        <Label>Size</Label>
+                                    </ListBox.Item>
+
+                                    <ListBox.Item id='lastModifiedDateTime' textValue='Date'>
+                                        <ListBox.ItemIndicator />
+                                        {getSortByIcon('lastModifiedDateTime')}
+                                        <Label>Date</Label>
+                                    </ListBox.Item>
+                                </ListBox.Section>
+                            </ListBox>
+
+                            <ListBox
+                                aria-label='Sort order'
+                                selectedKeys={new Set([sortOrder])}
+                                selectionMode='single'
+                                onSelectionChange={handleOrderChange}
+                            >
+                                <ListBox.Section>
+                                    <Header>Order</Header>
+
+                                    <ListBox.Item id='asc' textValue='Ascending'>
+                                        <ListBox.ItemIndicator />
+                                        <ArrowSortDown />
+                                        <Label>Ascending</Label>
+                                    </ListBox.Item>
+
+                                    <ListBox.Item id='desc' textValue='Descending'>
+                                        <ListBox.ItemIndicator />
+                                        <ArrowSortUp />
+                                        <Label>Descending</Label>
+                                    </ListBox.Item>
+                                </ListBox.Section>
+                            </ListBox>
+                        </div>
                     </DrawerContent>
                 </Drawer>
             )}

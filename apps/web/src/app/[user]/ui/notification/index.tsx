@@ -1,4 +1,4 @@
-// 'use client'
+﻿// 'use client'
 
 // import React, { useState, useEffect } from 'react'
 // import { Button, Image } from '@heroui/react'
@@ -61,7 +61,7 @@
 //                 radius='full'
 //                 size='sm'
 //                 startContent={<NotificationIcon className='text-muted-foreground size-5' />}
-//                 variant='light'
+//                 variant='ghost'
 //                 onPress={() => setOpen(true)}
 //             />
 //             {pendingCount > 0 && (
@@ -112,7 +112,7 @@
 //                                         <Button
 //                                             className='border'
 //                                             size='sm'
-//                                             variant='light'
+//                                             variant='ghost'
 //                                             onPress={() => handleTeamRequest(notif, 'rejected')}
 //                                         >
 //                                             Reject
@@ -174,7 +174,7 @@
 //                             radius='full'
 //                             size='sm'
 //                             startContent={<Settings className='size-5' />}
-//                             variant='light'
+//                             variant='ghost'
 //                         />
 //                     </div>
 //                     {NotificationList}
@@ -196,7 +196,7 @@
 //                             radius='full'
 //                             size='sm'
 //                             startContent={<Settings className='size-5' />}
-//                             variant='light'
+//                             variant='ghost'
 //                         />
 //                     </DrawerDescription>
 //                 </DrawerHeader>
@@ -205,3 +205,6 @@
 //         </Drawer>
 //     )
 // }
+
+
+

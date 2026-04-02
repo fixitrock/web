@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect } from 'react'
-import { Badge, Button, Tab, Tabs } from '@heroui/react'
+import { Badge, Button, Tabs } from '@heroui/react'
 import { ArrowLeft, SearchIcon, ShoppingCart, X } from 'lucide-react'
 
 import AnimatedSearch from '@/ui/farmer/search'
@@ -18,6 +18,7 @@ import { Orders } from './orders'
 import { Transactions } from './transactions'
 import { AddTransaction } from './transactions/add'
 import { useCartStore } from '@/zustand/store/cart'
+
 export function SearchBar({
     user,
     children,
@@ -53,6 +54,7 @@ export function SearchBar({
     const hasBackNavigation = Boolean(page || selectedTransaction)
 
     const { showCart, setShowCart, getTotalItems } = useCartStore()
+    const cartItems = getTotalItems()
     const showTransactionActions = Boolean(
         isOpen && tab === 'transactions' && selectedTransaction && transactionSeller
     )
@@ -97,35 +99,32 @@ export function SearchBar({
                     endContent={
                         <>
                             <Download />
-                            {user && getTotalItems() > 0 && (
-                                <Badge
-                                    color='danger'
-                                    content={getTotalItems()}
-                                    isInvisible={getTotalItems() === 0}
-                                    shape='circle'
-                                    size='sm'
-                                >
-                                    <Button
-                                        isIconOnly
-                                        className='bg-default/20'
-                                        radius='full'
-                                        size='sm'
-                                        startContent={<ShoppingCart size={18} />}
-                                        variant='light'
-                                        onPress={() => setShowCart(!showCart)}
-                                    />
+                            {user && cartItems > 0 && (
+                                <Badge color='danger' size='sm'>
+                                    <Badge.Anchor>
+                                        <Button
+                                            isIconOnly
+                                            className='bg-default/20 rounded-full'
+                                            size='sm'
+                                            variant='ghost'
+                                            onPress={() => setShowCart(!showCart)}
+                                        >
+                                            <ShoppingCart size={18} />
+                                        </Button>
+                                    </Badge.Anchor>
+                                    <Badge.Label>{String(cartItems)}</Badge.Label>
                                 </Badge>
                             )}
                             {query ? (
                                 <Button
                                     isIconOnly
-                                    className='bg-default/20'
-                                    radius='full'
+                                    className='bg-default/20 rounded-full'
                                     size='sm'
-                                    startContent={<X size={18} />}
-                                    variant='light'
+                                    variant='ghost'
                                     onPress={() => setQuery('')}
-                                />
+                                >
+                                    <X size={18} />
+                                </Button>
                             ) : (
                                 children
                             )}
@@ -135,17 +134,9 @@ export function SearchBar({
                     startContent={
                         <Button
                             isIconOnly
-                            className={`${hasBackNavigation ? 'bg-default/20' : 'data-[hover=true]:bg-transparent'}`}
-                            radius='full'
+                            className={`${hasBackNavigation ? 'bg-default/20' : 'data-[hover=true]:bg-transparent'} rounded-full`}
                             size='sm'
-                            startContent={
-                                hasBackNavigation ? (
-                                    <ArrowLeft size={18} />
-                                ) : (
-                                    <SearchIcon size={18} />
-                                )
-                            }
-                            variant={hasBackNavigation ? 'flat' : 'light'}
+                            variant={hasBackNavigation ? 'secondary' : 'ghost'}
                             onPress={() => {
                                 if (selectedTransaction) {
                                     setSelectedTransaction(null)
@@ -158,7 +149,9 @@ export function SearchBar({
                                     bounce()
                                 }
                             }}
-                        />
+                        >
+                            {hasBackNavigation ? <ArrowLeft size={18} /> : <SearchIcon size={18} />}
+                        </Button>
                     }
                     value={query}
                     onClick={() => {
@@ -188,15 +181,9 @@ export function SearchBar({
 
                         {!selectedTransaction && (
                             <Tabs
-                                classNames={{
-                                    base: 'p-1 px-1.5',
-                                    tabList: 'bg-accent relative w-full',
-                                    cursor: 'w-full',
-                                    tab: 'max-w-fit px-2 data-[focus-visible=true]:outline-0',
-                                }}
+                                className='p-1 px-1.5'
                                 selectedKey={tab}
-                                radius='sm'
-                                size='sm'
+                                variant='secondary'
                                 onSelectionChange={(key) => {
                                     const selectedTab = tabs(user).find((t) => t.key === key)
 
@@ -204,17 +191,23 @@ export function SearchBar({
                                     setTab(key as string)
                                 }}
                             >
-                                {tabs(user).map((tab) => (
-                                    <Tab
-                                        key={tab.key}
-                                        title={
-                                            <div className='flex items-center space-x-1'>
-                                                <tab.icon />
-                                                <span>{tab.title}</span>
-                                            </div>
-                                        }
-                                    />
-                                ))}
+                                <Tabs.ListContainer>
+                                    <Tabs.List aria-label='Search tabs' className='bg-accent relative w-full'>
+                                        {tabs(user).map((tabItem) => (
+                                            <Tabs.Tab
+                                                key={tabItem.key}
+                                                id={tabItem.key}
+                                                className='max-w-fit px-2 data-[focus-visible=true]:outline-0'
+                                            >
+                                                <div className='flex items-center space-x-1'>
+                                                    <tabItem.icon />
+                                                    <span>{tabItem.title}</span>
+                                                </div>
+                                                <Tabs.Indicator className='w-full' />
+                                            </Tabs.Tab>
+                                        ))}
+                                    </Tabs.List>
+                                </Tabs.ListContainer>
                             </Tabs>
                         )}
                     </>

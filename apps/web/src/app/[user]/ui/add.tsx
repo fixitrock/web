@@ -1,25 +1,17 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
-import {
-    Button,
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    addToast,
-} from '@heroui/react'
+import { Button, Modal, toast } from '@heroui/react'
 import { Camera, ImagePlus, Trash2, X } from 'lucide-react'
 
-import { Drawer, DrawerContent, DrawerHeader, DrawerFooter, DrawerTitle } from '@/ui/drawer'
-import { useMediaQuery } from '@/hooks/useMediaQuery'
 import {
-    updateSelfAvatar,
-    updateSelfCover,
     removeSelfAvatar,
     removeSelfCover,
+    updateSelfAvatar,
+    updateSelfCover,
 } from '@/actions/users'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { Drawer, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle } from '@/ui/drawer'
 
 interface AddProps {
     isOpen: boolean
@@ -27,6 +19,31 @@ interface AddProps {
     onOpenChange: (open: boolean) => void
     mode: 'avatar' | 'cover'
     userUpdatedAt?: string
+}
+
+function ActionButton({
+    icon,
+    label,
+    disabled,
+    onPress,
+}: {
+    icon: React.ReactNode
+    label: string
+    disabled?: boolean
+    onPress: () => void
+}) {
+    return (
+        <Button
+            isIconOnly
+            aria-label={label}
+            className='text-muted-foreground hover:text-foreground size-20 rounded-full border'
+            isDisabled={disabled}
+            variant='ghost'
+            onPress={onPress}
+        >
+            {icon}
+        </Button>
+    )
 }
 
 export default function AvatarCover({
@@ -49,33 +66,30 @@ export default function AvatarCover({
         currentUpdatedAtRef.current = userUpdatedAt
     }
 
-    // Detect platform
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
         navigator.userAgent
     )
 
+    const closeAndReset = () => {
+        onOpenChange(false)
+        onClose()
+    }
+
     const handleFileUpload = async (file: File) => {
         if (!file) return
 
-        // Validate file type
         if (!file.type.startsWith('image/')) {
-            addToast({
-                title: 'Invalid file type',
+            toast.danger('Invalid file type', {
                 description: 'Please select an image file',
-                color: 'danger',
             })
 
             return
         }
 
-        // Validate file size (5MB limit)
-        const maxSize = 5 * 1024 * 1024 // 5MB
-
+        const maxSize = 5 * 1024 * 1024
         if (file.size > maxSize) {
-            addToast({
-                title: 'File too large',
+            toast.danger('File too large', {
                 description: 'Please select an image smaller than 5MB',
-                color: 'danger',
             })
 
             return
@@ -85,23 +99,17 @@ export default function AvatarCover({
 
         try {
             const uploadAction = mode === 'avatar' ? updateSelfAvatar : updateSelfCover
-
             const result = await uploadAction(file, currentUpdatedAtRef.current)
+
             if (result?.updatedAt) {
                 currentUpdatedAtRef.current = result.updatedAt
             }
 
-            addToast({
-                title: `${mode === 'avatar' ? 'Avatar' : 'Cover'} updated successfully!`,
-                color: 'success',
-            })
-
-            onClose()
+            toast.success(`${mode === 'avatar' ? 'Avatar' : 'Cover'} updated successfully!`)
+            closeAndReset()
         } catch (error) {
-            addToast({
-                title: `Failed to update ${mode}`,
+            toast.danger(`Failed to update ${mode}`, {
                 description: error instanceof Error ? error.message : 'Please try again',
-                color: 'danger',
             })
         } finally {
             setIsLoading(false)
@@ -109,15 +117,7 @@ export default function AvatarCover({
     }
 
     const handleCamera = () => {
-        // For mobile devices, use the default camera app
-        if (isMobile) {
-            cameraInputRef.current?.click()
-
-            return
-        }
-
-        // For desktop, use the default camera app without fallback
-        if (isDesktop) {
+        if (isMobile || isDesktop) {
             cameraInputRef.current?.click()
         }
     }
@@ -126,24 +126,24 @@ export default function AvatarCover({
         fileInputRef.current?.click()
     }
 
-    const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
+    const handleFileInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
 
         if (file) {
             await handleFileUpload(file)
         }
-        // Reset input value to allow selecting the same file again
-        e.target.value = ''
+
+        event.target.value = ''
     }
 
-    const handleCameraInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
+    const handleCameraInputChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
 
         if (file) {
             await handleFileUpload(file)
         }
-        // Reset input value to allow selecting the same file again
-        e.target.value = ''
+
+        event.target.value = ''
     }
 
     const handleRemove = async () => {
@@ -151,108 +151,105 @@ export default function AvatarCover({
 
         try {
             const removeAction = mode === 'avatar' ? removeSelfAvatar : removeSelfCover
-
             const result = await removeAction(currentUpdatedAtRef.current)
+
             if (result?.updatedAt) {
                 currentUpdatedAtRef.current = result.updatedAt
             }
 
-            addToast({
-                title: `${mode === 'avatar' ? 'Avatar' : 'Cover'} removed successfully!`,
-                color: 'success',
-            })
-
-            onClose()
+            toast.success(`${mode === 'avatar' ? 'Avatar' : 'Cover'} removed successfully!`)
+            closeAndReset()
         } catch (error) {
-            addToast({
-                title: `Failed to remove ${mode}`,
+            toast.danger(`Failed to remove ${mode}`, {
                 description: error instanceof Error ? error.message : 'Please try again',
-                color: 'danger',
             })
         } finally {
             setIsLoading(false)
         }
     }
 
+    const hiddenInputs = (
+        <>
+            <input
+                ref={fileInputRef}
+                accept='image/*'
+                style={{ display: 'none' }}
+                type='file'
+                onChange={handleFileInputChange}
+            />
+            <input
+                ref={cameraInputRef}
+                accept='image/*'
+                capture={isMobile ? 'user' : undefined}
+                style={{ display: 'none' }}
+                type='file'
+                onChange={handleCameraInputChange}
+            />
+        </>
+    )
+
+    const actions = (
+        <div className='flex flex-row gap-4 py-4'>
+            <ActionButton
+                disabled={isLoading}
+                icon={<Camera size={35} />}
+                label='Use camera'
+                onPress={handleCamera}
+            />
+            <ActionButton
+                disabled={isLoading}
+                icon={<ImagePlus size={35} />}
+                label='Choose from gallery'
+                onPress={handleGallery}
+            />
+            {hiddenInputs}
+        </div>
+    )
+
     if (isDesktop) {
         return (
-            <Modal
-                hideCloseButton
-                className='border dark:bg-[#0a0a0a]'
-                isOpen={isOpen}
-                onOpenChange={onOpenChange}
-            >
-                <ModalContent>
-                    <ModalHeader className='flex-1 items-center justify-between rounded-t-xl border-b bg-gray-50 select-none dark:bg-zinc-900'>
-                        <p className='flex items-center gap-2 text-lg font-semibold'>{title}</p>
-                        <Button
-                            isIconOnly
-                            aria-label='Close modal'
-                            className='border'
-                            radius='full'
-                            size='sm'
-                            startContent={<X size={18} />}
-                            variant='light'
-                            onPress={onClose}
-                        />
-                    </ModalHeader>
-                    <ModalBody className='flex-row py-4'>
-                        <Button
-                            isIconOnly
-                            className='text-muted-foreground hover:text-foreground size-20 rounded-full border'
-                            isDisabled={isLoading}
-                            startContent={<Camera size={35} />}
-                            variant='light'
-                            onPress={handleCamera}
-                        />
-                        <Button
-                            isIconOnly
-                            className='text-muted-foreground hover:text-foreground size-20 rounded-full border'
-                            isDisabled={isLoading}
-                            startContent={<ImagePlus size={35} />}
-                            variant='light'
-                            onPress={handleGallery}
-                        />
-                        <input
-                            ref={fileInputRef}
-                            accept='image/*'
-                            style={{ display: 'none' }}
-                            type='file'
-                            onChange={handleFileInputChange}
-                        />
-                        <input
-                            ref={cameraInputRef}
-                            accept='image/*'
-                            capture={isMobile ? 'user' : undefined}
-                            style={{ display: 'none' }}
-                            type='file'
-                            onChange={handleCameraInputChange}
-                        />
-                    </ModalBody>
-                    <ModalFooter className='flex-row-reverse gap-2 border-t'>
-                        <Button
-                            fullWidth
-                            className='font-semibold'
-                            color='danger'
-                            isLoading={isLoading}
-                            radius='full'
-                            startContent={<Trash2 size={20} />}
-                            onPress={handleRemove}
-                        >
-                            {deleteText}
-                        </Button>
-                        <Button
-                            className='w-full border font-medium'
-                            isDisabled={isLoading}
-                            radius='full'
-                            type='button'
-                            variant='light'
-                            onPress={onClose}
-                        >
-                            Cancel / रद्द करें
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
+            <Modal>
+                <Modal.Backdrop isOpen={isOpen} variant='blur' onOpenChange={onOpenChange}>
+                    <Modal.Container className='rounded-[20px] border bg-background/95 backdrop-blur' size='md'>
+                        <Modal.Dialog>
+                            <Modal.Header className='items-center justify-between border-b'>
+                                <Modal.Heading>{title}</Modal.Heading>
+                                <Button
+                                    isIconOnly
+                                    aria-label='Close modal'
+                                    className='rounded-full border'
+                                    size='sm'
+                                    variant='ghost'
+                                    onPress={closeAndReset}
+                                >
+                                    <X size={18} />
+                                </Button>
+                            </Modal.Header>
+                            <Modal.Body>{actions}</Modal.Body>
+                            <Modal.Footer className='flex-row-reverse gap-2 border-t'>
+                                <Button
+                                    fullWidth
+                                    isPending={isLoading}
+                                    size='sm'
+                                    variant='danger'
+                                    onPress={handleRemove}
+                                >
+                                    <Trash2 size={18} />
+                                    {deleteText}
+                                </Button>
+                                <Button
+                                    fullWidth
+                                    isDisabled={isLoading}
+                                    size='sm'
+                                    variant='secondary'
+                                    onPress={closeAndReset}
+                                >
+                                    Cancel
+                                </Button>
+                            </Modal.Footer>
+                        </Modal.Dialog>
+                    </Modal.Container>
+                </Modal.Backdrop>
             </Modal>
         )
     }
@@ -266,69 +263,35 @@ export default function AvatarCover({
                         <Button
                             isIconOnly
                             aria-label='Close drawer'
-                            className='border'
-                            radius='full'
+                            className='rounded-full border'
                             size='sm'
-                            startContent={<X size={18} />}
-                            variant='light'
-                            onPress={onClose}
-                        />
+                            variant='ghost'
+                            onPress={closeAndReset}
+                        >
+                            <X size={18} />
+                        </Button>
                     </DrawerTitle>
                 </DrawerHeader>
-                <div className='flex flex-row gap-4 p-4'>
-                    <Button
-                        isIconOnly
-                        className='text-muted-foreground hover:text-foreground size-20 rounded-full border'
-                        isDisabled={isLoading}
-                        startContent={<Camera size={35} />}
-                        variant='light'
-                        onPress={handleCamera}
-                    />
-                    <Button
-                        isIconOnly
-                        className='text-muted-foreground hover:text-foreground size-20 rounded-full border'
-                        isDisabled={isLoading}
-                        startContent={<ImagePlus size={35} />}
-                        variant='light'
-                        onPress={handleGallery}
-                    />
-                    <input
-                        ref={fileInputRef}
-                        accept='image/*'
-                        style={{ display: 'none' }}
-                        type='file'
-                        onChange={handleFileInputChange}
-                    />
-                    <input
-                        ref={cameraInputRef}
-                        accept='image/*'
-                        capture={isMobile ? 'user' : undefined}
-                        style={{ display: 'none' }}
-                        type='file'
-                        onChange={handleCameraInputChange}
-                    />
-                </div>
+                <div className='px-4'>{actions}</div>
                 <DrawerFooter className='flex-row-reverse gap-4 border-t'>
                     <Button
                         fullWidth
-                        className='font-semibold'
-                        color='danger'
-                        isLoading={isLoading}
-                        radius='full'
-                        startContent={<Trash2 size={20} />}
+                        isPending={isLoading}
+                        size='sm'
+                        variant='danger'
                         onPress={handleRemove}
                     >
+                        <Trash2 size={18} />
                         {deleteText}
                     </Button>
                     <Button
-                        className='w-full border font-medium'
+                        fullWidth
                         isDisabled={isLoading}
-                        radius='full'
-                        type='button'
-                        variant='light'
-                        onPress={onClose}
+                        size='sm'
+                        variant='secondary'
+                        onPress={closeAndReset}
                     >
-                        Cancel / रद्द करें
+                        Cancel
                     </Button>
                 </DrawerFooter>
             </DrawerContent>

@@ -1,6 +1,6 @@
-'use client'
+﻿'use client'
 
-import { Skeleton } from '@heroui-v3/react'
+import { Skeleton } from '@heroui/react'
 import { useRouter } from 'nextjs-toploader/app'
 
 import { CommandEmpty, CommandGroup, CommandItem } from '@/ui/command'
@@ -22,7 +22,7 @@ export function Space() {
 
     if (!query) {
         return (
-            <CommandGroup heading='⚡&nbsp;&nbsp;Quick Access in Space'>
+            <CommandGroup heading='âš¡&nbsp;&nbsp;Quick Access in Space'>
                 {Spaces.map((item) => (
                     <CommandItem
                         key={item.id}
@@ -50,7 +50,7 @@ export function Space() {
     }
 
     return (
-        <CommandGroup heading='🔍&nbsp;&nbsp;Results in Space'>
+        <CommandGroup heading='ðŸ”&nbsp;&nbsp;Results in Space'>
             {items.map((c: SearchItem) => (
                 <CommandItem
                     key={c.id}
@@ -72,7 +72,7 @@ export function Space() {
                                 .map((item, index, arr) => (
                                     <span key={index}>
                                         {item}
-                                        {index < arr.length - 1 && <span className='mx-2'>•</span>}
+                                        {index < arr.length - 1 && <span className='mx-2'>â€¢</span>}
                                     </span>
                                 ))}
                         </p>
@@ -142,7 +142,7 @@ const Loading = () => {
     ]
 
     return (
-        <CommandGroup heading='🔎&nbsp;&nbsp;Searching in Space...'>
+        <CommandGroup heading='ðŸ”Ž&nbsp;&nbsp;Searching in Space...'>
             {meta.map((l) => (
                 <CommandItem key={l.id} value={l.title + Math.random()}>
                     {/* Icon/thumbnail placeholder */}
@@ -156,7 +156,7 @@ const Loading = () => {
                         {/* Meta row placeholder */}
                         <span className='text-muted-foreground flex items-center gap-2 text-xs'>
                             <Skeleton className='h-3 w-20 rounded' />
-                            <span>•</span>
+                            <span>â€¢</span>
                             <Skeleton className='h-3 w-24 rounded' />
                         </span>
                     </div>
@@ -165,4 +165,6 @@ const Loading = () => {
         </CommandGroup>
     )
 }
+
+
 

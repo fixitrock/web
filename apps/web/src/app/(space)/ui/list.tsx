@@ -1,8 +1,7 @@
 'use client'
 
-import { Button, Card, CardBody } from '@heroui/react'
+import { Card, Link } from '@heroui/react'
 import React from 'react'
-import Link from 'next/link'
 import { CornerDownLeft } from 'lucide-react'
 import { FaEye, FaFolder } from 'react-icons/fa'
 
@@ -13,15 +12,15 @@ import { ContextMenu, ContextMenuTrigger } from '@/ui/context-menu'
 import AnimatedDiv from '@/ui/farmer/div'
 import { ListSkeleton } from '@/ui/skeleton'
 import { Thumbnail } from '@/ui'
-import { Menu } from '@/app/(space)/ui'
+import { Menu, SpaceButton } from '@/app/(space)/ui'
 import { useKeyboardNavigation } from '@/hooks'
 import { useDownloadStore } from '@/zustand/store'
 import { useChild } from '@/zustand/store'
 
-import { getHref } from '../utils'
 import { useSelectItem, useMenuManager } from '../hooks'
 
 import { DownloadSwitch } from './download/switch'
+import { getHref } from '../utils'
 
 export function List({
     data,
@@ -34,6 +33,7 @@ export function List({
     loadMore?: boolean
     focus?: DriveItem | null
     ref: React.Ref<HTMLDivElement>
+
     userRole?: number
 }) {
     const [active, setActive] = React.useState<DriveItem | null>(null)
@@ -46,9 +46,9 @@ export function List({
         length: data?.value.length ?? 0,
         mode: 'list',
         onSelect: (index) => {
-            const c = data?.value?.[index]
+            const item = data?.value?.[index]
 
-            if (c) onSelect(c)
+            if (item) onSelect(item)
         },
     })
 
@@ -57,7 +57,6 @@ export function List({
             {data?.value.map((c, index) => {
                 const isFolderOrPreviewable = isFolder(c) || isPreviewable(c)
                 const href = isFolderOrPreviewable ? getHref(c) : undefined
-                const cardProps = href ? { as: Link, href } : {}
                 const bg = getDownloadBackground(downloads.get(c.id))
                 const progress = downloads.get(c.id)?.progress || 0
                 const download = isDownloadable(c)
@@ -71,57 +70,44 @@ export function List({
                 return (
                     <ContextMenu
                         key={c.id}
-                        onOpenChange={(open) => {
-                            setOpen(open)
-                            if (open) {
-                                setActive(c)
-                            } else {
-                                setActive(null)
-                            }
+                        onOpenChange={(nextOpen) => {
+                            setOpen(nextOpen)
+                            setActive(nextOpen ? c : null)
                         }}
                     >
                         <ContextMenuTrigger onClick={() => onSelect(c)}>
                             <AnimatedDiv
-                                key={c.id}
                                 mobileVariants={BlogCardAnimation}
                                 variants={fromTopVariant}
                             >
-                                <Card
-                                    key={c.id}
-                                    isHoverable
-                                    aria-label={c?.name}
-                                    className={`group data-[hover=true]:bg-muted/30 relative w-full rounded-xl border bg-transparent p-0 transition-all duration-200 select-none active:scale-[0.98] dark:data-[hover=true]:bg-[#0a0a0a] ${
+                                <Link
+                                    href={href}
+                                    onPress={() => onSelect(c)}
+                                    data-index={index}
+                                    aria-label={c.name}
+                                    className={`hover:bg-default/20 h-full w-full overflow-hidden rounded-lg border bg-transparent transition-all duration-200 select-none hover:scale-[1] ${
                                         selectedIndex === index
                                             ? 'border-purple-400/60 bg-purple-50/30 ring-1 ring-purple-400/30 dark:border-purple-400/50 dark:bg-purple-950/20'
                                             : focus?.name === c.name
                                               ? 'border-indigo-400/40 bg-indigo-50/20 ring-1 ring-indigo-400/20 dark:border-indigo-400/30 dark:bg-indigo-950/15'
                                               : ''
                                     }`}
-                                    shadow='none'
-                                    onPress={() => onSelect(c)}
-                                    {...cardProps}
-                                    data-index={index}
                                 >
-                                    <div
-                                        className={bg}
-                                        style={{
-                                            width: `${progress}%`,
-                                        }}
-                                    />
-
-                                    <CardBody className='flex flex-row items-center gap-2 p-2'>
+                                    <div className='flex w-full items-center p-2'>
+                                        <div className={bg} style={{ width: `${progress}%` }} />
                                         <Thumbnail
-                                            name={c?.name as string}
-                                            src={c?.thumbnails?.[0]?.large?.url}
+                                            className='mr-1'
+                                            name={c.name as string}
+                                            src={c.thumbnails?.[0]?.large?.url}
                                             type='List'
                                         />
                                         <div className='min-w-0 flex-1 space-y-1'>
-                                            <h2 className='truncate text-start text-sm font-medium'>
-                                                {c?.name}
+                                            <h2 className='truncate text-start text-[14px] font-medium'>
+                                                {c.name}
                                             </h2>
-                                            <div className='text-muted-foreground flex flex-nowrap gap-x-2 gap-y-0.5 text-[10px] sm:text-xs'>
+                                            <div className='text-muted-foreground flex flex-nowrap gap-x-2 gap-y-0.5 text-[10px] sm:text-[12px]'>
                                                 {[
-                                                    c?.size && (
+                                                    c.size ? (
                                                         <span
                                                             key='size'
                                                             className='flex items-center gap-1'
@@ -129,8 +115,8 @@ export function List({
                                                             <span className='text-[10px]'>📦</span>
                                                             {formatBytes(c.size)}
                                                         </span>
-                                                    ),
-                                                    c?.folder?.childCount && (
+                                                    ) : null,
+                                                    c.folder?.childCount ? (
                                                         <span
                                                             key='count'
                                                             className='flex items-center gap-1'
@@ -138,8 +124,8 @@ export function List({
                                                             <span className='text-[10px]'>📁</span>
                                                             {formatCount(c.folder.childCount)}
                                                         </span>
-                                                    ),
-                                                    c?.lastModifiedDateTime && (
+                                                    ) : null,
+                                                    c.lastModifiedDateTime ? (
                                                         <span
                                                             key='date'
                                                             className='flex items-center gap-1'
@@ -147,76 +133,61 @@ export function List({
                                                             <span className='text-[10px]'>🕒</span>
                                                             {formatDateTime(c.lastModifiedDateTime)}
                                                         </span>
-                                                    ),
+                                                    ) : null,
                                                 ]
                                                     .filter(Boolean)
-                                                    .map((item, index) => (
+                                                    .map((detail, detailIndex) => (
                                                         <span
-                                                            key={index}
+                                                            key={detailIndex}
                                                             className='inline-flex items-center'
                                                         >
-                                                            {item}
+                                                            {detail}
                                                         </span>
                                                     ))}
                                             </div>
                                         </div>
                                         <div className='mr-2 flex items-center gap-2'>
-                                            {isFolder(c) && (
-                                                <Button
-                                                    isIconOnly
-                                                    className='border'
-                                                    size='sm'
-                                                    startContent={<FaFolder size={18} />}
-                                                    title='Open folder'
-                                                    variant='light'
+                                            {isFolder(c) ? (
+                                                <SpaceButton
+                                                    icon={<FaFolder size={18} />}
+                                                    label='Open folder'
                                                     onPress={() => onSelect(c)}
                                                 />
-                                            )}
-                                            {isPreviewable(c) && (
-                                                <Button
-                                                    isIconOnly
-                                                    className='border'
-                                                    size='sm'
-                                                    startContent={<FaEye size={18} />}
-                                                    title='View file'
-                                                    variant='light'
+                                            ) : null}
+                                            {isPreviewable(c) ? (
+                                                <SpaceButton
+                                                    icon={<FaEye size={18} />}
+                                                    label='View file'
                                                     onPress={() => onSelect(c)}
                                                 />
-                                            )}
-                                            {download && (
-                                                <Button
-                                                    isIconOnly
-                                                    className={`bg-background border ${download.borderColor}`}
-                                                    color={download.color}
-                                                    isLoading={download.isLoading}
-                                                    size='sm'
-                                                    startContent={download.icon}
-                                                    title={download.title}
-                                                    variant='light'
+                                            ) : null}
+                                            {download ? (
+                                                <SpaceButton
+                                                    className={download.borderColor}
+                                                    icon={download.icon}
+                                                    isPending={Boolean(download.isLoading)}
+                                                    label={download.title}
                                                     onPress={() => onSelect(c)}
                                                 />
-                                            )}
-                                            {selectedIndex === index && (
-                                                <Button
-                                                    isIconOnly
-                                                    className='bg-background border'
-                                                    size='sm'
-                                                    startContent={<CornerDownLeft size={18} />}
-                                                    title='Select item'
-                                                    variant='light'
+                                            ) : null}
+                                            {selectedIndex === index ? (
+                                                <SpaceButton
+                                                    className='bg-background'
+                                                    icon={<CornerDownLeft size={18} />}
+                                                    label='Selected item'
                                                 />
-                                            )}
+                                            ) : null}
                                         </div>
-                                    </CardBody>
-                                </Card>
+                                    </div>
+                                </Link>
                             </AnimatedDiv>
                         </ContextMenuTrigger>
                         <Menu
                             c={c}
                             open={active?.id === c.id && open}
-                            setOpen={(open) => {
+                            setOpen={(nextOpen) => {
                                 setActive(c)
-                                setOpen(open)
+                                setOpen(nextOpen)
                             }}
                             userRole={userRole}
                             onDelete={handleDelete}
@@ -226,8 +197,7 @@ export function List({
                     </ContextMenu>
                 )
             })}
-            {loadMore && <ListSkeleton />}
-
+            {loadMore ? <ListSkeleton /> : null}
             {menuManager()}
         </div>
     )

@@ -1,6 +1,6 @@
-'use client'
+﻿'use client'
 
-import { Button, Form, Input } from '@heroui/react'
+import { Button, Form, InputGroup } from '@heroui/react'
 import Link from 'next/link'
 
 import { sendOtp } from '@/actions/user'
@@ -84,30 +84,29 @@ export function StepPhone({
                     We will send you an OTP to verify your number.
                 </DrawerDescription>
             </DrawerHeader>
-            <Input
-                autoFocus
-                required
-                className='px-4'
-                maxLength={10}
-                name='phone'
-                placeholder='9927XXXXXX'
-                startContent={<span className='text-muted-foreground text-sm'>+91</span>}
-                type='tel'
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-            />
+            <div className='w-full px-4'>
+                <InputGroup className='w-full'>
+                    <InputGroup.Prefix>
+                        <span className='text-muted-foreground text-sm'>+91</span>
+                    </InputGroup.Prefix>
+                    <InputGroup.Input
+                        autoFocus
+                        maxLength={10}
+                        name='phone'
+                        placeholder='9927XXXXXX'
+                        required
+                        type='tel'
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                    />
+                </InputGroup>
+            </div>
             <DrawerFooter className='w-full'>
-                <Button
-                    color={isPhoneValid ? 'primary' : 'default'}
-                    isDisabled={!isPhoneValid}
-                    isLoading={loading}
-                    type='submit'
-                >
+                <Button isDisabled={!isPhoneValid} isPending={loading} type='submit' variant='primary'>
                     {loading ? 'Sending...' : 'Send OTP'}
-                </Button>{' '}
+                </Button>
                 <div className='mx-auto flex' id='recaptcha-container' />
                 <Link
-                    passHref
                     className='text-muted-foreground hover:text-primary text-center text-xs'
                     href='/terms'
                     target='_blank'
@@ -118,3 +117,6 @@ export function StepPhone({
         </Form>
     )
 }
+
+
+

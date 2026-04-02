@@ -1,5 +1,5 @@
 'use client'
-import { Tab, Tabs } from '@heroui/react'
+import { Tabs } from '@heroui/react'
 import { useTheme } from 'next-themes'
 import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -17,25 +17,26 @@ function ThemeSwitcher() {
 
     return (
         <Tabs
-            disableAnimation={!mounted}
-            aria-label='Theme Switcher'
-            classNames={{
-                base: 'rounded-full border',
-                tabContent: 'group-data-[selected=true]:text-none text-black dark:text-white',
-                tabList: 'bg-background gap-1',
-                tab: 'px-2',
-                cursor: 'dark:bg-default/20 border-[0.5px] shadow-none',
-            }}
-            radius='full'
-            selectedKey={selectedTheme}
-            size='sm'
-            data-selected={selectedTheme}
-            variant='light'
+            className='rounded-full border'
+            selectedKey={selectedTheme ?? 'system'}
+            variant='secondary'
             onSelectionChange={(key) => setTheme(String(key))}
         >
-            {siteConfig.themes.map((t) => (
-                <Tab key={t.theme} aria-label={t.description} title={<t.icon size={14} />} />
-            ))}
+            <Tabs.ListContainer>
+                <Tabs.List aria-label='Theme Switcher' className='bg-background gap-1 rounded-full p-1'>
+                    {siteConfig.themes.map((t) => (
+                        <Tabs.Tab
+                            key={t.theme}
+                            id={t.theme}
+                            aria-label={t.description}
+                            className='px-2 text-black dark:text-white'
+                        >
+                            <t.icon size={14} />
+                            <Tabs.Indicator className='dark:bg-default/20 rounded-full border-[0.5px] shadow-none' />
+                        </Tabs.Tab>
+                    ))}
+                </Tabs.List>
+            </Tabs.ListContainer>
         </Tabs>
     )
 }

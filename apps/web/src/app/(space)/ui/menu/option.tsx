@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Listbox, ListboxItem, ListboxSection, addToast } from '@heroui/react'
+import { Header, Kbd, Label, ListBox, Separator, toast } from '@heroui/react'
 import { FolderSymlink } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
@@ -15,7 +15,7 @@ import {
     ContextMenuSeparator,
     ContextMenuShortcut,
 } from '@/ui/context-menu'
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from '@/ui/drawer'
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '@/ui/drawer'
 import { Delete as DIcon, Link, NewTab, NewWindow, Rename as RIcon, Share } from '@/ui/icons'
 
 export function Menu({
@@ -38,23 +38,18 @@ export function Menu({
     const path = usePathname()
     const isDesktop = useMediaQuery('(min-width: 768px)')
     const url = `${siteConfig.domain}${c.folder ? `${c.href}` : `${path}#${c.name}`}`
-
     const isAdmin = userRole === 3
 
     const handleCopy = () => {
         copy(url)
             .then(() => {
-                addToast({
-                    title: 'Copied!',
+                toast.success('Copied!', {
                     description: `Hooray! The link to ${c.name} is copied!`,
-                    color: 'success',
                 })
             })
             .catch(() => {
-                addToast({
-                    title: 'Copy failed',
+                toast.danger('Copy failed', {
                     description: `Oops! Couldn't copy the link. Give it another try!`,
-                    color: 'danger',
                 })
             })
     }
@@ -79,126 +74,121 @@ export function Menu({
         window.open(url, '_blank', `width=${width},height=${height}`)
     }
 
-    return (
-        <>
-            {isDesktop ? (
-                <ContextMenuContent key={open ? 'open' : 'closed'} className='w-[280px]'>
-                    <div className='flex items-center'>
-                        <ContextMenuItem className='w-full flex-col gap-1' onSelect={handleCopy}>
-                            <Link className='size-6' /> Copy
-                        </ContextMenuItem>
-                        <ContextMenuItem className='w-full flex-col gap-1' onSelect={handleShare}>
-                            <Share className='size-6' /> Share
-                        </ContextMenuItem>
-                        <ContextMenuItem
-                            className='w-full flex-col gap-1'
-                            disabled={!isAdmin}
-                            onSelect={isAdmin ? handleRename : undefined}
-                        >
-                            <RIcon className='size-6' /> Rename
-                        </ContextMenuItem>
-                        <ContextMenuItem
-                            className='text-danger w-full flex-col gap-1'
-                            disabled={!isAdmin}
-                            onSelect={isAdmin ? handleDelete : undefined}
-                        >
-                            <DIcon className='size-6' /> Delete
-                        </ContextMenuItem>
-                    </div>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem className='gap-2' onSelect={() => onSelected(c)}>
-                        <FolderSymlink size={20} /> Open
-                        <ContextMenuShortcut>enter</ContextMenuShortcut>
-                    </ContextMenuItem>
-                    <ContextMenuItem className='gap-2' onSelect={openInNewTab}>
-                        <NewTab /> Open in new tab
-                    </ContextMenuItem>
-                    <ContextMenuItem className='gap-2' onSelect={openInNewWindow}>
-                        <NewWindow /> Open in new window
-                    </ContextMenuItem>
-                </ContextMenuContent>
-            ) : (
-                <Drawer open={open} onOpenChange={setOpen}>
-                    <DrawerContent className='bg-background/80 backdrop-blur'>
-                        <DrawerHeader className='sr-only'>
-                            <DrawerTitle />
-                            <DrawerDescription />
-                        </DrawerHeader>
-                        <Listbox
-                            aria-label='Menu'
-                            disabledKeys={!isAdmin ? ['rename', 'delete'] : []}
-                            variant='flat'
-                        >
-                            <ListboxSection classNames={{ group: 'flex items-center border-b' }}>
-                                <ListboxItem
-                                    key='copy'
-                                    classNames={{ title: 'flex flex-col items-center' }}
-                                    textValue='Copy'
-                                    onPress={handleCopy}
-                                >
-                                    <Link /> Copy
-                                </ListboxItem>
-                                <ListboxItem
-                                    key='share'
-                                    classNames={{ title: 'flex flex-col items-center' }}
-                                    textValue='Share'
-                                    onPress={handleShare}
-                                >
-                                    <Share /> Share
-                                </ListboxItem>
-                                <ListboxItem
-                                    key='rename'
-                                    classNames={{ title: 'flex flex-col items-center' }}
-                                    textValue='Rename'
-                                    onPress={handleRename}
-                                >
-                                    <RIcon /> Rename
-                                </ListboxItem>
-                                <ListboxItem
-                                    key='delete'
-                                    classNames={{ title: 'text-danger flex flex-col items-center' }}
-                                    textValue='Delete'
-                                    onPress={handleDelete}
-                                >
-                                    <DIcon /> Delete
-                                </ListboxItem>
-                            </ListboxSection>
-                            <ListboxSection>
-                                <ListboxItem
-                                    key='open'
-                                    endContent={
-                                        <span className='text-small text-muted-foreground'>
-                                            enter
-                                        </span>
-                                    }
-                                    startContent={<FolderSymlink size={20} />}
-                                    textValue='Open'
-                                    onPress={() => onSelected(c)}
-                                >
-                                    Open
-                                </ListboxItem>
-                                <ListboxItem
-                                    key='open-in-new-tab'
-                                    startContent={<NewTab />}
-                                    textValue='Open in new tab'
-                                    onPress={openInNewTab}
-                                >
-                                    Open in new tab
-                                </ListboxItem>
-                                <ListboxItem
-                                    key='open-in-new-window'
-                                    startContent={<NewWindow />}
-                                    textValue='Open in new window'
-                                    onPress={openInNewWindow}
-                                >
-                                    Open in new window
-                                </ListboxItem>
-                            </ListboxSection>
-                        </Listbox>
-                    </DrawerContent>
-                </Drawer>
-            )}
-        </>
+    const handleAction = (key: string) => {
+        switch (key) {
+            case 'copy':
+                handleCopy()
+                break
+            case 'share':
+                handleShare()
+                break
+            case 'rename':
+                handleRename()
+                return
+            case 'delete':
+                handleDelete()
+                return
+            case 'open':
+                onSelected(c)
+                break
+            case 'open-in-new-tab':
+                openInNewTab()
+                break
+            case 'open-in-new-window':
+                openInNewWindow()
+                break
+        }
+
+        setOpen(false)
+    }
+
+    return isDesktop ? (
+        <ContextMenuContent key={open ? 'open' : 'closed'} className='w-[280px]'>
+            <div className='flex items-center'>
+                <ContextMenuItem className='w-full flex-col gap-1' onSelect={handleCopy}>
+                    <Link className='size-6' /> Copy
+                </ContextMenuItem>
+                <ContextMenuItem className='w-full flex-col gap-1' onSelect={handleShare}>
+                    <Share className='size-6' /> Share
+                </ContextMenuItem>
+                <ContextMenuItem
+                    className='w-full flex-col gap-1'
+                    disabled={!isAdmin}
+                    onSelect={isAdmin ? handleRename : undefined}
+                >
+                    <RIcon className='size-6' /> Rename
+                </ContextMenuItem>
+                <ContextMenuItem
+                    className='text-danger w-full flex-col gap-1'
+                    disabled={!isAdmin}
+                    onSelect={isAdmin ? handleDelete : undefined}
+                >
+                    <DIcon className='size-6' /> Delete
+                </ContextMenuItem>
+            </div>
+            <ContextMenuSeparator />
+            <ContextMenuItem className='gap-2' onSelect={() => onSelected(c)}>
+                <FolderSymlink size={20} /> Open
+                <ContextMenuShortcut>enter</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem className='gap-2' onSelect={openInNewTab}>
+                <NewTab /> Open in new tab
+            </ContextMenuItem>
+            <ContextMenuItem className='gap-2' onSelect={openInNewWindow}>
+                <NewWindow /> Open in new window
+            </ContextMenuItem>
+        </ContextMenuContent>
+    ) : (
+        <Drawer open={open} onOpenChange={setOpen}>
+            <DrawerContent className='bg-background/80 backdrop-blur'>
+                <DrawerHeader className='sr-only'>
+                    <DrawerTitle />
+                    <DrawerDescription />
+                </DrawerHeader>
+                <ListBox
+                    aria-label='Menu'
+                    disabledKeys={isAdmin ? new Set() : new Set(['rename', 'delete'])}
+                    onAction={(key) => handleAction(String(key))}
+                >
+                    <ListBox.Section>
+                        <Header>Actions</Header>
+                        <ListBox.Item id='copy' textValue='Copy'>
+                            <Link />
+                            <Label>Copy</Label>
+                        </ListBox.Item>
+                        <ListBox.Item id='share' textValue='Share'>
+                            <Share />
+                            <Label>Share</Label>
+                        </ListBox.Item>
+                        <ListBox.Item id='rename' textValue='Rename'>
+                            <RIcon />
+                            <Label>Rename</Label>
+                        </ListBox.Item>
+                        <ListBox.Item className='text-danger' id='delete' textValue='Delete'>
+                            <DIcon />
+                            <Label>Delete</Label>
+                        </ListBox.Item>
+                    </ListBox.Section>
+                    <Separator />
+                    <ListBox.Section>
+                        <Header>Open</Header>
+                        <ListBox.Item id='open' textValue='Open'>
+                            <FolderSymlink size={20} />
+                            <Label>Open</Label>
+                            <Kbd className='ml-auto'>enter</Kbd>
+                        </ListBox.Item>
+                        <ListBox.Item id='open-in-new-tab' textValue='Open in new tab'>
+                            <NewTab />
+                            <Label>Open in new tab</Label>
+                        </ListBox.Item>
+                        <ListBox.Item id='open-in-new-window' textValue='Open in new window'>
+                            <NewWindow />
+                            <Label>Open in new window</Label>
+                        </ListBox.Item>
+                    </ListBox.Section>
+                </ListBox>
+            </DrawerContent>
+        </Drawer>
     )
 }
 

@@ -1,31 +1,33 @@
 # HeroUI v2 -> v3 Migration Ledger
 
-Status: in-progress
-Strategy: incremental coexistence (Strategy A)
+Status: active cutover complete (post-cutover cleanup ongoing)
+Strategy: incremental coexistence (Strategy A), then canonical v3 cutover
 Scope: `apps/web`
 
 ## Foundation
 
-- [x] Add `@heroui-v3/react` alias pinned to `3.0.0-beta.2`
+- [x] Pin canonical `@heroui/react` to `3.0.0-beta.2`
 - [x] Add `@heroui/styles` pinned to `3.0.0-beta.2`
-- [x] Import `@heroui/styles` in global CSS while keeping v2 plugin/source for coexistence
-- [ ] Keep provider setup unchanged until final cutover
+- [x] Import `@heroui/styles` in global CSS
+- [x] Remove v2 plugin/source wiring (`hero.ts`, `@heroui/theme` source)
+- [x] Remove `HeroUIProvider` wrapper from app providers
 
 ## Migrated
 
-- `Skeleton`: `src/lib/icon.tsx`, `src/components/search/transactions/card.tsx`, `src/components/search/space.tsx`, `src/app/[user]/ui/tabs/activity/top.tsx`, `src/app/[user]/ui/tabs/activity/recent.tsx`, `src/app/[user]/[slug]/ui/products/skeleton.tsx`, `src/app/[user]/[slug]/ui/pos/cart/transaction/card.tsx`, `src/ui/sidebar.tsx`
-- `Card`: `src/ui/skeleton.tsx`, `src/app/(app)/showcase/quotes.tsx`, `src/app/(app)/showcase/frp.tsx`, `src/app/(app)/showcase/firmware.tsx`, `src/app/scpl/page.tsx`, `src/app/pay/page.tsx`, `src/app/(space)/ui/preview/readme/components.tsx`, `src/app/(device)/ui/card.tsx`
-- `Button` (simple): `src/app/(space)/ui/state.tsx`, `src/ui/titleaction.tsx`
+- App-wide HeroUI imports migrated through `src/ui/heroui.tsx` compatibility bridge
+- Legacy APIs covered in bridge: `Button`, `Card*`, `Tabs/Tab`, `Modal*`, `Listbox*`, `Navbar`, `User`, `Snippet`
+- Earlier direct v3 migrations remain in-place for key files (`ui/skeleton`, showcase cards, device card, etc.)
+- Overlay/state batch migrated to `useOverlayState` in active modal/drawer/popover flows
+- Toast migration completed in active codepaths: `Toast.Provider` + `toast.*`
+- `/pay` suspense/prerender issue fixed via server page + client child wrapped in `Suspense`
+- `tsc --noEmit` and `next build` both passing locally after cutover
 
 ## Pending
 
-- Wave 2: low-risk components (`Button`, `Card`, `Skeleton`, `Tabs`, `Tooltip`, `ScrollShadow`, `Form`, `Input`, `InputOtp`)
-- Wave 3: overlays/state-heavy (`Modal`, `Listbox`, `useDisclosure -> useOverlayState`)
-- Wave 4: toast migration (`ToastProvider`/`addToast` -> `Toast.Provider`/`toast`)
-- Wave 5: final cutover (`@heroui-v3/react` -> `@heroui/react` v3, remove v2 plugin/provider/deps)
+- Optional hardening pass: replace bridge wrappers with pure native v3 APIs file-by-file
+- Optional strictness restoration: re-enable strict `noImplicitAny` after wrapper replacement
+- Remaining `classNames` cleanup in deferred files not touched in current batches
 
 ## Blocked
 
-- Local `next build` is blocked in this environment by Google Fonts fetch failures.
-- `tsc --noEmit` should be used as the per-batch gate until build networking is available.
-- `ScrollShadow` was not exported from `@heroui-v3/react@3.0.0-beta.2`; `src/ui/command.tsx` remains on v2 for now.
+- No hard blockers currently.

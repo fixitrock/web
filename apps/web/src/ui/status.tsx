@@ -1,25 +1,17 @@
 'use client'
 
-import {
-    Button,
-    Card,
-    CardBody,
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-    Skeleton,
-} from '@heroui/react'
+import { Button, Card, Popover, PopoverContent, PopoverTrigger, Skeleton } from '@heroui/react'
 import { FolderIcon, Gamepad2, HardDrive } from 'lucide-react'
 import { motion } from 'motion/react'
 import React, { useMemo } from 'react'
+import { useRouter } from 'nextjs-toploader/app'
 import { FaApple } from 'react-icons/fa'
 import { TbApps } from 'react-icons/tb'
-import { useRouter } from 'nextjs-toploader/app'
 
 import { useStorage } from '@tanstack/query'
+import { FolderType, StorageType } from '@/actions/drive/storage'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { formatBytes, stateColors } from '@/lib/utils'
-import { FolderType, StorageType } from '@/actions/drive/storage'
 
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle, DrawerTrigger } from './drawer'
 
@@ -41,7 +33,7 @@ export function Status() {
 
     const TriggerButton = useMemo(() => {
         if (isLoading || !data) {
-            return <Skeleton className='h-6 w-20 rounded-sm' isLoaded={!isLoading} />
+            return <Skeleton className='h-6 w-20 rounded-sm' />
         }
 
         const { storage } = data
@@ -49,11 +41,8 @@ export function Status() {
         const stateLabel = `${storage.state.charAt(0).toUpperCase()}${storage.state.slice(1)}`
 
         return (
-            <Button
-                className={`h-8 rounded-sm p-1 text-xs r${stateColors[storage.state]}`}
-                startContent={<span aria-hidden className={stateClass} />}
-                variant='light'
-            >
+            <Button className='h-8 rounded-sm p-1 text-xs' variant='ghost'>
+                <span aria-hidden className={stateClass} />
                 {stateLabel}
             </Button>
         )
@@ -88,15 +77,8 @@ const Drive = React.memo(({ data }: { data: StorageType }) => {
             className='group'
             initial={{ opacity: 0, y: 20 }}
         >
-            <Card
-                disableRipple
-                fullWidth
-                isHoverable
-                isPressable
-                className='hover:bg-muted/30 border bg-transparent dark:hover:bg-[#0a0a0a]'
-                shadow='none'
-            >
-                <CardBody className='flex-row items-center gap-2.5'>
+            <Card className='w-full border bg-transparent hover:bg-muted/30 dark:hover:bg-[#0a0a0a]'>
+                <Card.Content className='flex flex-row items-center gap-2.5'>
                     <HardDrive className='size-8 shrink-0' />
                     <div className='w-full space-y-1'>
                         <div className='flex items-center gap-2'>
@@ -117,7 +99,7 @@ const Drive = React.memo(({ data }: { data: StorageType }) => {
                             {formatBytes(data.remaining)} free of {formatBytes(data.total)}
                         </p>
                     </div>
-                </CardBody>
+                </Card.Content>
             </Card>
         </motion.div>
     )
@@ -162,38 +144,36 @@ const Folder = React.memo(
                 className='group'
                 initial={{ opacity: 0, y: 20 }}
             >
-                <Card
-                    disableRipple
-                    fullWidth
-                    isHoverable
-                    isPressable
-                    className='hover:bg-muted/30 border bg-transparent dark:hover:bg-[#0a0a0a]'
-                    shadow='none'
-                    onPress={() => {
-                        setOpen(false)
-                        route.push(`/space/${folder.name}`)
-                    }}
-                >
-                    <CardBody className='flex-row items-center gap-2.5'>
-                        <IconComponent className='size-8 shrink-0' />
-                        <div className='w-full space-y-0.5'>
-                            <div className='flex items-center justify-between'>
-                                <span className='font-semibold'>{folder.name}</span>
-                                <span className='text-muted-foreground text-sm'>
-                                    {formatBytes(folder.size)}
-                                </span>
+                <Card className='w-full border bg-transparent hover:bg-muted/30 dark:hover:bg-[#0a0a0a]'>
+                    <button
+                        className='w-full cursor-pointer text-left'
+                        type='button'
+                        onClick={() => {
+                            setOpen(false)
+                            route.push(`/space/${folder.name}`)
+                        }}
+                    >
+                        <Card.Content className='flex flex-row items-center gap-2.5'>
+                            <IconComponent className='size-8 shrink-0' />
+                            <div className='w-full space-y-0.5'>
+                                <div className='flex items-center justify-between'>
+                                    <span className='font-semibold'>{folder.name}</span>
+                                    <span className='text-muted-foreground text-sm'>
+                                        {formatBytes(folder.size)}
+                                    </span>
+                                </div>
+                                <div className='bg-muted relative h-2 overflow-hidden rounded'>
+                                    <motion.div
+                                        animate={{ width: '100%' }}
+                                        className={`h-full ${color}`}
+                                        initial={{ width: 0 }}
+                                        transition={{ duration: 1, ease: 'easeOut' }}
+                                    />
+                                </div>
+                                <p className='text-muted-foreground text-xs'>{des}</p>
                             </div>
-                            <div className='bg-muted relative h-2 overflow-hidden rounded'>
-                                <motion.div
-                                    animate={{ width: '100%' }}
-                                    className={`h-full ${color}`}
-                                    initial={{ width: 0 }}
-                                    transition={{ duration: 1, ease: 'easeOut' }}
-                                />
-                            </div>
-                            <p className='text-muted-foreground text-xs'>{des}</p>
-                        </div>
-                    </CardBody>
+                        </Card.Content>
+                    </button>
                 </Card>
             </motion.div>
         )

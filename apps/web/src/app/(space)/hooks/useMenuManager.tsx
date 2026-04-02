@@ -1,8 +1,8 @@
-'use client'
+﻿'use client'
 
 import React from 'react'
 import { usePathname } from 'next/navigation'
-import { addToast } from '@heroui/react'
+import { toast } from '@heroui/react'
 
 import { DriveItem } from '@/types/drive'
 import { useDriveStore } from '@/zustand/store'
@@ -28,10 +28,8 @@ export function useMenuManager() {
     }
 
     const handleRenameSuccess = (item: DriveItem, newName: string) => {
-        addToast({
-            title: 'Renamed successfully!',
+        toast.success('Renamed successfully!', {
             description: `"${item.name}" has been renamed to "${newName}"`,
-            color: 'success',
         })
 
         const currentChildren = driveStore.children
@@ -43,19 +41,11 @@ export function useMenuManager() {
     }
 
     const handleRenameError = (error: string) => {
-        addToast({
-            title: 'Rename failed',
-            description: error,
-            color: 'danger',
-        })
+        toast.danger('Rename failed', { description: error })
     }
 
     const handleDeleteSuccess = (item: DriveItem) => {
-        addToast({
-            title: 'Deleted successfully!',
-            description: `"${item.name}" has been deleted`,
-            color: 'success',
-        })
+        toast.success('Deleted successfully!', { description: `"${item.name}" has been deleted` })
 
         const currentChildren = driveStore.children
         const updatedChildren = currentChildren.filter((child) => child.id !== item.id)
@@ -64,11 +54,7 @@ export function useMenuManager() {
     }
 
     const handleDeleteError = (error: string) => {
-        addToast({
-            title: 'Delete failed',
-            description: error,
-            color: 'danger',
-        })
+        toast.danger('Delete failed', { description: error })
     }
 
     const menuManager = () =>
@@ -100,3 +86,6 @@ export function useMenuManager() {
         menuManager,
     }
 }
+
+
+

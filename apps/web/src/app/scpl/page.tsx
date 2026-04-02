@@ -1,7 +1,7 @@
-'use client'
+﻿'use client'
 
 import Image from 'next/image'
-import { Card } from '@heroui-v3/react'
+import { Card } from '@heroui/react'
 import Link from 'next/link'
 import { SiSupabase } from 'react-icons/si'
 import { TbDatabaseStar, TbPlugConnectedX } from 'react-icons/tb'
@@ -27,13 +27,11 @@ export default function Page() {
                 />
             ) : (
                 data?.map((f) => (
-                    <Card
-                        key={f.id}
-                        aria-label={f.title}
-                        asChild
-                        className='w-full rounded-2xl border bg-transparent p-2 shadow-none'
-                    >
-                        <Link passHref href={f.link} target='_blank'>
+                    <Link key={f.id} href={f.link} target='_blank'>
+                        <Card
+                            aria-label={f.title}
+                            className='w-full rounded-2xl border bg-transparent p-2 shadow-none'
+                        >
                             <Card.Header className='mb-px p-2'>
                                 <h1 className='line-clamp-1 text-start text-[13px]'>{f.title}</h1>
                             </Card.Header>
@@ -47,10 +45,12 @@ export default function Page() {
                             <Card.Footer className='text-muted-foreground justify-end p-2 text-xs'>
                                 <p>{formatDateTime(f.created_at)}</p>
                             </Card.Footer>
-                        </Link>
-                    </Card>
+                        </Card>
+                    </Link>
                 ))
             )}
         </section>
     )
 }
+
+

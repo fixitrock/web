@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import * as React from 'react'
 import { Check, ChevronDown } from 'lucide-react'
 import { Button } from '@heroui/react'
@@ -36,7 +36,6 @@ export function Category({
                 <Button
                     aria-expanded={open}
                     className='bg-background min-w-50 justify-between border'
-                    role='combobox'
                     size='sm'
                 >
                     <span className='truncate'>{currentLabel}</span>
@@ -87,3 +86,6 @@ export function Category({
         </Popover>
     )
 }
+
+
+

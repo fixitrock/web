@@ -1,6 +1,6 @@
-'use client'
+﻿'use client'
 
-import { Card } from '@heroui-v3/react'
+import { Card } from '@heroui/react'
 import Autoplay from 'embla-carousel-autoplay'
 import Link from 'next/link'
 import React from 'react'
@@ -34,7 +34,7 @@ export default function Firmware() {
             >
                 <CarouselContent>
                     {isLoading ? (
-                        <GridSkeleton className='min-w-[300px]' length={6} />
+                        <GridSkeleton className='min-w-75' length={6} />
                     ) : error ? (
                         <ErrorState
                             icons={[TbDatabaseStar, ImOnedrive, TbPlugConnectedX]}
@@ -43,7 +43,7 @@ export default function Firmware() {
                         />
                     ) : (
                         data?.value.map((c: DriveItem) => (
-                            <CarouselItem key={c.id} className='basis-[300px]'>
+                            <CarouselItem key={c.id} className='basis-75'>
                                 <ContextMenu
                                     key={c.id}
                                     onOpenChange={(open) => {
@@ -102,3 +102,5 @@ export default function Firmware() {
         </TitleAction>
     )
 }
+
+

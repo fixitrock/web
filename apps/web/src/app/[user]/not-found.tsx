@@ -2,9 +2,11 @@
 
 import { Button } from '@heroui/react'
 import { Undo2, User } from 'lucide-react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function UserNotFound() {
+    const router = useRouter()
+
     return (
         <div className='flex min-h-screen items-center justify-center dark:from-gray-900 dark:to-gray-800'>
             <div className='relative px-4 text-center'>
@@ -21,7 +23,8 @@ export default function UserNotFound() {
                     <p className='mx-auto mb-8 text-balance text-gray-600 dark:text-gray-400'>
                         The user profile you're looking for doesn't exist or is not available.
                     </p>
-                    <Button as={Link} color='primary' href='/' startContent={<Undo2 size={20} />}>
+                    <Button variant='primary' onPress={() => router.push('/')}>
+                        <Undo2 size={20} />
                         Home
                     </Button>
                 </div>

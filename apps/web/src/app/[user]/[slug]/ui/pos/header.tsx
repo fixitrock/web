@@ -1,19 +1,25 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { RefreshCcw, CalendarClock, Minimize2, Maximize2, Plus, ShoppingCart } from 'lucide-react'
-import { Button, Tab, Tabs } from '@heroui/react'
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react'
+import {
+    CalendarClock,
+    Maximize2,
+    Minimize2,
+    Plus,
+    RefreshCcw,
+    ShoppingCart,
+} from 'lucide-react'
+import { Button, Tabs } from '@heroui/react'
+import { useEffect, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { useCartStore, usePosTypeStore } from '@/zustand/store'
-import { useMounted } from '@/hooks'
 import { usePathname, useRouter } from 'next/navigation'
+
+import { useCartStore, usePosTypeStore } from '@/zustand/store'
 import { useProductStore } from '@/zustand/store/product'
 
 export function PosHeader() {
     const { type, setType } = usePosTypeStore()
     const [isFs, setIsFs] = useState(false)
-    const { mounted } = useMounted()
     const { setMode } = useProductStore()
     const { showCart, setShowCart, getTotalItems } = useCartStore()
     const router = useRouter()
@@ -32,6 +38,7 @@ export function PosHeader() {
         },
         [openAddProduct]
     )
+
     useEffect(() => {
         const onChange = () => setIsFs(Boolean(document.fullscreenElement))
 
@@ -56,16 +63,23 @@ export function PosHeader() {
             </div>
             <div className='flex items-center gap-2'>
                 <Tabs
-                    disableAnimation={!mounted}
                     aria-label='Price Type'
-                    classNames={{ cursor: 'bg-default/25 dark:bg-default/30 shadow-none' }}
-                    radius='full'
                     selectedKey={type}
-                    variant='light'
+                    variant='secondary'
                     onSelectionChange={(key) => setType(key as 'retail' | 'wholesale')}
                 >
-                    <Tab key='retail' title='Retail' />
-                    <Tab key='wholesale' title='Wholesale' />
+                    <Tabs.ListContainer>
+                        <Tabs.List aria-label='Price Type' className='bg-default/15'>
+                            <Tabs.Tab id='retail'>
+                                Retail
+                                <Tabs.Indicator className='w-full' />
+                            </Tabs.Tab>
+                            <Tabs.Tab id='wholesale'>
+                                Wholesale
+                                <Tabs.Indicator className='w-full' />
+                            </Tabs.Tab>
+                        </Tabs.List>
+                    </Tabs.ListContainer>
                 </Tabs>
                 <Button
                     isIconOnly
@@ -73,32 +87,34 @@ export function PosHeader() {
                     className='bg-background border md:hidden'
                     size='sm'
                     onPress={() => window.location.reload()}
-                    startContent={<RefreshCcw aria-hidden='true' className='size-4' />}
-                />
+                >
+                    <RefreshCcw aria-hidden='true' className='size-4' />
+                </Button>
                 <Button
                     aria-label='Refresh products'
                     className='bg-background hidden border md:flex'
                     size='sm'
                     onPress={() => window.location.reload()}
-                    startContent={<RefreshCcw aria-hidden='true' className='size-4' />}
                 >
+                    <RefreshCcw aria-hidden='true' className='mr-2 size-4' />
                     Refresh
                 </Button>
                 <Button
                     isIconOnly
                     aria-label='Add Product'
-                    onPress={openAddProduct}
                     className='bg-background border md:hidden'
                     size='sm'
-                    startContent={<Plus className='size-4' />}
-                />
+                    onPress={openAddProduct}
+                >
+                    <Plus className='size-4' />
+                </Button>
                 <Button
                     aria-label='Add Product'
-                    onPress={openAddProduct}
                     className='bg-background hidden border md:flex'
                     size='sm'
-                    startContent={<Plus className='size-4' />}
+                    onPress={openAddProduct}
                 >
+                    <Plus className='mr-2 size-4' />
                     Add Product
                 </Button>
                 <Button
@@ -106,16 +122,17 @@ export function PosHeader() {
                     aria-label='Toggle cart'
                     className='bg-background border md:hidden'
                     size='sm'
-                    startContent={<ShoppingCart className='size-4' />}
                     onPress={() => setShowCart(!showCart)}
-                />
+                >
+                    <ShoppingCart className='size-4' />
+                </Button>
                 <Button
                     aria-label='Toggle cart'
                     className='bg-background hidden border md:flex'
                     size='sm'
-                    startContent={<ShoppingCart className='size-4' />}
                     onPress={() => setShowCart(!showCart)}
                 >
+                    <ShoppingCart className='mr-2 size-4' />
                     Cart {getTotalItems()}
                 </Button>
                 <Button
@@ -123,15 +140,14 @@ export function PosHeader() {
                     aria-label='Enter fullscreen'
                     className='bg-background border'
                     size='sm'
-                    startContent={
-                        isFs ? (
-                            <Minimize2 aria-hidden='true' className='size-4' />
-                        ) : (
-                            <Maximize2 aria-hidden='true' className='size-4' />
-                        )
-                    }
                     onPress={onToggleFullscreen}
-                />
+                >
+                    {isFs ? (
+                        <Minimize2 aria-hidden='true' className='size-4' />
+                    ) : (
+                        <Maximize2 aria-hidden='true' className='size-4' />
+                    )}
+                </Button>
             </div>
         </header>
     )
@@ -163,7 +179,6 @@ function DateTimeDisplay() {
                 <span>{dayName},</span>
                 <span>{monthName}</span>
                 <span>{dateNum},</span>
-
                 <NumberFlow format={{ minimumIntegerDigits: 2 }} trend={0} value={hours} />
                 <NumberFlow
                     format={{ minimumIntegerDigits: 2 }}

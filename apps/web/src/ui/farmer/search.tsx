@@ -1,8 +1,8 @@
-'use client'
+﻿'use client'
 
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from '../drawer'
-import { Modal, ModalContent } from '@heroui/react'
+import { Modal } from '@heroui/react'
 import { useSearchStore } from '@/zustand/store'
 
 interface AnimatedSearchProps {
@@ -35,44 +35,19 @@ function ModalContentWrapper({ children }: AnimatedSearchProps) {
 
     if (isDesktop) {
         return (
-            <Modal
-                ref={ref}
-                hideCloseButton
-                placement='top-center'
-                backdrop='opaque'
-                classNames={{
-                    base: [
-                        'flex h-[70dvh] max-h-[calc(100%_-_10px)] max-w-160 flex-col md:h-[60dvh]',
-                        'p-0.5',
-                        `rounded-[18px] border bg-white md:w-160 ${SHELL_CLASSES}`,
-                    ],
-                }}
-                isOpen={isOpen}
-                shadow='none'
-                motionProps={{
-                    transition: { type: 'spring', stiffness: 350, damping: 35 },
-                    variants: {
-                        enter: {
-                            y: 0,
-                            opacity: 1,
-                            transition: {
-                                duration: 0.3,
-                                ease: 'easeOut',
-                            },
-                        },
-                        exit: {
-                            y: '50dvh',
-                            opacity: 0,
-                            transition: {
-                                duration: 0.25,
-                                ease: 'easeInOut',
-                            },
-                        },
-                    },
-                }}
-                onClose={onClose}
-            >
-                <ModalContent>{children}</ModalContent>
+            <Modal>
+                <Modal.Backdrop isOpen={isOpen} onOpenChange={onClose} variant='opaque'>
+                    <Modal.Container
+                        className={`h-[70dvh] max-h-[calc(100%-10px)] max-w-160 rounded-[18px] border bg-white p-0.5 md:h-[60dvh] md:w-160 ${SHELL_CLASSES}`}
+                        placement='top'
+                    >
+                        <Modal.Dialog className='flex h-full flex-col overflow-hidden'>
+                            <div ref={ref} className='flex h-full flex-col overflow-hidden'>
+                                {children}
+                            </div>
+                        </Modal.Dialog>
+                    </Modal.Container>
+                </Modal.Backdrop>
             </Modal>
         )
     }
@@ -89,3 +64,7 @@ function ModalContentWrapper({ children }: AnimatedSearchProps) {
         </Drawer>
     )
 }
+
+
+
+

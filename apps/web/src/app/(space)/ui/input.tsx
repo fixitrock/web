@@ -1,126 +1,134 @@
 'use client'
 
-import { Button, Input as Drive } from '@heroui/react'
-import { Loader, Search, Undo2 } from 'lucide-react'
-import Link from 'next/link'
-import React, { useEffect, useRef, useState } from 'react'
+import { Button, InputGroup } from '@heroui/react'
+import { Search, Undo2, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import * as React from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
-
-type DriveInputProps = Omit<
-    React.ComponentPropsWithoutRef<typeof Drive>,
-    'endContent' | 'onChange' | 'startContent' | 'type' | 'value'
->
 
 type InputProps = {
     value?: string
     hotKey?: string
-    base?: string
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
-    onInput?: React.FormEventHandler<HTMLInputElement>
-    onValueChange?: (value: string) => void
     end?: React.ReactNode
     href?: string
-} & DriveInputProps
+    placeholder?: string
+    onChange?: React.ChangeEventHandler<HTMLInputElement>
+    onInput?: React.FormEventHandler<HTMLInputElement>
+    disabled?: boolean
+}
 
 export function Input({
     value = '',
     hotKey,
     end,
     href,
+    placeholder,
     onChange,
     onInput,
-    onValueChange,
-    ...inputProps
+    disabled,
 }: InputProps) {
-    const inputRef = useRef<HTMLInputElement>(null)
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const inputRef = React.useRef<HTMLInputElement>(null)
+    const router = useRouter()
 
-    useEffect(() => {
-        if (value) {
-            setIsLoading(true)
-            const timer = setTimeout(() => {
-                setIsLoading(false)
-            }, 300)
+    const focusInput = React.useCallback(() => {
+        inputRef.current?.focus()
+    }, [])
 
-            return () => clearTimeout(timer)
-        }
-        setIsLoading(false)
-    }, [value])
+    const clearValue = React.useCallback(() => {
+        const input = inputRef.current
+
+        if (!input || disabled || !value) return
+
+        const nativeSetter = Object.getOwnPropertyDescriptor(
+            window.HTMLInputElement.prototype,
+            'value'
+        )?.set
+
+        nativeSetter?.call(input, '')
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+        focusInput()
+    }, [disabled, focusInput, value])
 
     useHotkeys(
-        hotKey || '',
+        hotKey ?? '',
         (event) => {
-            if (hotKey) {
-                event.preventDefault()
-                inputRef.current?.focus()
-            }
+            event.preventDefault()
+            focusInput()
         },
-        [hotKey]
+        {
+            enabled: Boolean(hotKey) && !disabled,
+            enableOnFormTags: false,
+            preventDefault: true,
+        },
+        [focusInput, hotKey, disabled]
     )
 
     return (
-        <Drive
-            ref={inputRef}
-            fullWidth
-            className='bg-transparent'
-            classNames={{
-                inputWrapper:
-                    'min-h-9.5 rounded-full border bg-transparent shadow-none group-data-[focus=true]:bg-transparent data-[hover=true]:bg-transparent',
-
-                input: 'truncate overflow-hidden',
-                innerWrapper: 'px-1.5',
-            }}
-            endContent={
-                <div className='flex items-center gap-0.5'>
-                    {!value && hotKey && (
+        <InputGroup className='border-border flex w-full shrink-0 items-center border bg-transparent shadow-none sm:w-fit'>
+            <InputGroup.Prefix>
+                {href ? (
+                    <>
                         <Button
                             isIconOnly
-                            className='bg-default/20 dark:bg-default/40 hidden h-5 w-5 min-w-5! rounded border text-[12px] sm:block'
-                            radius='none'
+                            aria-label='Go back'
+                            className='size-7 sm:hidden'
+                            isDisabled={disabled}
                             size='sm'
-                            variant='light'
+                            variant='ghost'
+                            onPress={() => router.push(href)}
+                        >
+                            <Undo2 aria-hidden='true' className='size-4' />
+                        </Button>
+                        <Search
+                            aria-hidden='true'
+                            className='text-muted-foreground hidden size-4 shrink-0 sm:block'
+                        />
+                    </>
+                ) : (
+                    <Search aria-hidden='true' className='text-muted-foreground size-4 shrink-0' />
+                )}
+            </InputGroup.Prefix>
+
+            <InputGroup.Input
+                ref={inputRef}
+                disabled={disabled}
+                placeholder={placeholder}
+                value={value}
+                onChange={onChange}
+                onInput={onInput}
+            />
+
+            <InputGroup.Suffix>
+                {value ? (
+                    <Button
+                        isIconOnly
+                        aria-label='Clear search'
+                        className='size-5'
+                        isDisabled={disabled}
+                        size='sm'
+                        variant='ghost'
+                        onPress={clearValue}
+                    >
+                        <X aria-hidden='true' className='size-4' />
+                    </Button>
+                ) : (
+                    hotKey && (
+                        <Button
+                            isIconOnly
+                            aria-label={`Shortcut ${hotKey.toUpperCase()}`}
+                            className='bg-default/20 dark:bg-default/40 hidden size-5 rounded border sm:block'
+                            isDisabled={disabled}
+                            size='sm'
+                            variant='ghost'
+                            onPress={focusInput}
                         >
                             {hotKey.toUpperCase()}
                         </Button>
-                    )}
+                    )
+                )}
 
-                    <div className='flex items-center gap-0.5'>{end}</div>
-                </div>
-            }
-            size='sm'
-            startContent={
-                <>
-                    {isLoading ? (
-                        <Loader className='text-muted-foreground h-4 w-4 shrink-0 animate-spin' />
-                    ) : (
-                        <>
-                            {href ? (
-                                <>
-                                    <Button
-                                        as={Link}
-                                        className='h-8 w-12 min-w-0 p-0 sm:hidden'
-                                        href={href}
-                                        radius='full'
-                                        size='sm'
-                                        variant='light'
-                                    >
-                                        <Undo2 size={18} />
-                                    </Button>
-                                    <Search className='hidden h-4 w-4 shrink-0 sm:block' />
-                                </>
-                            ) : (
-                                <Search className='h-4 w-4 shrink-0' />
-                            )}
-                        </>
-                    )}
-                </>
-            }
-            type='search'
-            value={value}
-            onChange={onChange}
-            onInput={onInput}
-            onValueChange={onValueChange}
-            {...inputProps}
-        />
+                {end && <div className='flex items-center gap-0.5'>{end}</div>}
+            </InputGroup.Suffix>
+        </InputGroup>
     )
 }

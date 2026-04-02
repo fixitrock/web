@@ -1,7 +1,7 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
-import { Button, Form, InputOtp } from '@heroui/react'
+import { Button, Form, InputOTP } from '@heroui/react'
 import { Timer } from 'lucide-react'
 import { useEffect } from 'react'
 
@@ -37,14 +37,13 @@ export function StepOtp({
 }: StepOtpProps) {
     const [secondsLeft, setSecondsLeft] = useState(RESEND_TIMEOUT)
 
-    // Timer logic
-    useState(() => {
+    useEffect(() => {
         const interval = setInterval(() => {
             setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0))
         }, 1000)
 
         return () => clearInterval(interval)
-    })
+    }, [])
 
     // Auto-verify OTP when full OTP is entered
     useEffect(() => {
@@ -130,22 +129,33 @@ export function StepOtp({
                     </button>
                 </DrawerDescription>
             </DrawerHeader>
-            <InputOtp
+            <InputOTP
                 autoFocus
                 autoSave=''
                 className='mx-auto flex w-full items-center justify-center'
-                classNames={{ segmentWrapper: 'gap-x-5' }}
-                length={OTP_LENGTH}
+                maxLength={OTP_LENGTH}
                 value={otp}
-                onValueChange={setOtp}
-            />
+                onChange={setOtp}
+            >
+                <InputOTP.Group>
+                    <InputOTP.Slot index={0} />
+                    <InputOTP.Slot index={1} />
+                    <InputOTP.Slot index={2} />
+                </InputOTP.Group>
+                <InputOTP.Separator />
+                <InputOTP.Group>
+                    <InputOTP.Slot index={3} />
+                    <InputOTP.Slot index={4} />
+                    <InputOTP.Slot index={5} />
+                </InputOTP.Group>
+            </InputOTP>
             <DrawerFooter className='flex w-full flex-col items-center space-y-2'>
                 <Button
                     fullWidth
-                    color={loading ? 'primary' : otp.length < OTP_LENGTH ? 'default' : 'primary'}
                     isDisabled={otp.length < OTP_LENGTH}
-                    isLoading={loading}
+                    isPending={loading}
                     type='submit'
+                    variant='primary'
                 >
                     {loading ? 'Verifying...' : 'Verify OTP'}
                 </Button>
@@ -170,3 +180,7 @@ export function StepOtp({
         </Form>
     )
 }
+
+
+
+

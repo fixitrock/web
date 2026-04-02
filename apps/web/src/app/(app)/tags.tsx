@@ -3,13 +3,14 @@ import type { Navigation } from '../login/types'
 import type { SVGProps } from 'react'
 
 import { Button } from '@heroui/react'
-import Link from 'next/link'
 import * as Icons from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 import { siteConfig } from '@/config/site'
 import { Eva } from '@/ui/eva'
 
 export function Tags({ navigation = [] }: { navigation?: Navigation[] }) {
+    const router = useRouter()
     const suggestion = siteConfig.suggestion.filter((s) => s.title !== 'Home')
     const navigationWithIcons = navigation.map((nav) => {
         let iconComp: React.ElementType<SVGProps<SVGSVGElement>> | undefined
@@ -38,19 +39,14 @@ export function Tags({ navigation = [] }: { navigation?: Navigation[] }) {
                     return (
                         <Button
                             key={s.href}
-                            passHref
                             aria-label={s.title}
-                            as={Link}
-                            className='h-8 border-1'
-                            href={s.href}
-                            radius='full'
-                            startContent={
-                                Icon ? (
-                                    <Icon className='text-muted-foreground mx-auto size-4' />
-                                ) : null
-                            }
-                            variant='light'
+                            className='h-8 rounded-full border'
+                            variant='ghost'
+                            onPress={() => router.push(s.href)}
                         >
+                            {Icon ? (
+                                <Icon className='text-muted-foreground mx-auto size-4' />
+                            ) : null}
                             {s.title}
                         </Button>
                     )

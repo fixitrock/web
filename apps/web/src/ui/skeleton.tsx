@@ -1,5 +1,5 @@
-'use client'
-import { Card, Skeleton } from '@heroui-v3/react'
+﻿'use client'
+import { Card, Skeleton } from '@heroui/react'
 import { Quote } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
@@ -17,17 +17,14 @@ export const GridSkeleton = ({ length = 15, className }: GridSkeletonProps) => {
     return (
         <>
             {Array.from({ length }).map((_, i) => (
-                <Card
-                    key={i}
-                    className={cn('rounded-2xl border bg-transparent shadow-none', className)}
-                >
-                    <MagicCard className='items-stretch'>
-                        <Card.Header className='justify-between gap-x-2 p-2'>
-                            <Skeleton className='h-4 flex-1 rounded-xl' />
-                            <Skeleton className='h-6 w-6 rounded-lg' />
+                <Card key={i} className={cn('rounded-xl border bg-transparent p-0', className)}>
+                    <MagicCard className='items-stretch p-2'>
+                        <Card.Header className='flex-row items-center justify-between'>
+                            <Skeleton className='h-4 w-20 rounded-xl' />
+                            <Skeleton className='h-6 w-6 rounded-full' />
                         </Card.Header>
-                        <Skeleton className='aspect-square h-40 w-full rounded-2xl' />
-                        <Card.Footer className='mt-[2px] justify-between p-2'>
+                        <Skeleton className='my-1 aspect-square h-40 w-full rounded-2xl' />
+                        <Card.Footer className='justify-between pt-1'>
                             <Skeleton className='h-4 w-20 rounded-xl' />
                             <Skeleton className='h-4 w-20 rounded-xl' />
                         </Card.Footer>
@@ -108,7 +105,7 @@ export const ListSkeleton = () => {
         <>
             {Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className='flex items-center gap-2 rounded-lg border p-1'>
-                    <Skeleton className='size-10 shrink-0 rounded-lg' />
+                    <Skeleton className='mx-1.5 size-10 shrink-0 rounded-lg' />
                     <div className='flex grow flex-col gap-y-2'>
                         <Skeleton className='h-4 w-auto rounded-lg sm:max-w-lg' />
                         <span className='text-muted-foreground flex items-center gap-2 text-xs'>
@@ -193,3 +190,5 @@ export function TransactionSkeleton({ length = 10 }: { length?: number }) {
         </>
     )
 }
+
+

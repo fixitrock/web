@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Image from 'next/image'
 import { ChevronDown, TrendingDown, TrendingUp } from 'lucide-react'
@@ -107,13 +107,13 @@ export function TransactionHistory({
             {hasMore && (
                 <div className='mb-0.5 flex items-center justify-center'>
                     <Button
-                        isLoading={isFetchingNextPage}
-                        radius='full'
+                        isPending={isFetchingNextPage}
+                        className='rounded-full'
                         size='sm'
-                        startContent={!isFetchingNextPage && <ChevronDown size={14} />}
-                        variant='flat'
+                        variant='secondary'
                         onPress={() => fetchNextPage()}
                     >
+                        {!isFetchingNextPage ? <ChevronDown size={14} /> : null}
                         {isFetchingNextPage ? 'Loading . . .' : 'Show More'}
                     </Button>
                 </div>
@@ -121,3 +121,6 @@ export function TransactionHistory({
         </div>
     )
 }
+
+
+

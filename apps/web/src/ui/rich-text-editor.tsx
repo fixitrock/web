@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@heroui/react'
@@ -68,9 +68,8 @@ function ToolbarButton({ icon, isActive, onPress, disabled, title }: ToolbarButt
         <Button
             isIconOnly
             size='sm'
-            variant='light'
+            variant='ghost'
             aria-label={title}
-            title={title}
             className={cn('h-8 w-8 min-w-0 border', isActive ? 'bg-default-200' : 'bg-transparent')}
             isDisabled={disabled}
             onPress={onPress}
@@ -137,7 +136,7 @@ export function RichTextEditor({
 
                 const html = clipboard.getData('text/html')
 
-                // 🔥 Fix broken HTML tables (tr/td without table)
+                // ðŸ”¥ Fix broken HTML tables (tr/td without table)
                 if (html?.includes('<td') || html?.includes('<tr')) {
                     event.preventDefault()
 
@@ -152,7 +151,7 @@ export function RichTextEditor({
                     return true
                 }
 
-                // 🔥 Convert tab text
+                // ðŸ”¥ Convert tab text
                 const text = clipboard.getData('text/plain')
                 const tableFromText = convertTabTextToTable(text)
 
@@ -293,3 +292,6 @@ export function RichTextEditor({
         </div>
     )
 }
+
+
+

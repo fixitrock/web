@@ -1,16 +1,25 @@
 'use client'
 
-import { Button, Form, Input, Radio, RadioGroup } from '@heroui/react'
-import { AtSign, Loader, UserRound } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import {
+    Button,
+    Description,
+    FieldError,
+    Form,
+    InputGroup,
+    Label,
+    Radio,
+    RadioGroup,
+    TextField,
+} from '@heroui/react'
+import { AtSign, Check, Loader, UserRound, X } from 'lucide-react'
+import { type ReactNode, useEffect, useState, useTransition } from 'react'
 
 import { checkUsername, createUser } from '@/actions/user'
-import { useDebounce } from '@/hooks/useDebounce'
 import { User } from '@/app/login/types'
+import { useDebounce } from '@/hooks/useDebounce'
 import { Dob } from '@/ui/dob'
 import { DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle } from '@/ui/drawer'
 import { usePinCodeStore } from '@/zustand/store/pincode'
-import { useTransition } from 'react'
 
 interface StepDetailsProps {
     user: Partial<User>
@@ -24,19 +33,68 @@ const USERNAME_REGEX = /^[a-z0-9_]+$/
 const MIN_LENGTH = 3
 const MAX_LENGTH = 15
 
+type FieldInputProps = {
+    label: string
+    value: string
+    onChange: (value: string) => void
+    placeholder: string
+    required?: boolean
+    invalid?: boolean
+    error?: string
+    description?: string
+    prefix?: ReactNode
+    suffix?: ReactNode
+    maxLength?: number
+    autoFocus?: boolean
+}
+
+function FieldInput({
+    label,
+    value,
+    onChange,
+    placeholder,
+    required = false,
+    invalid = false,
+    error,
+    description,
+    prefix,
+    suffix,
+    maxLength,
+    autoFocus = false,
+}: FieldInputProps) {
+    return (
+        <TextField isInvalid={invalid} isRequired={required}>
+            <Label>{label}</Label>
+            <InputGroup>
+                {prefix ? <InputGroup.Prefix>{prefix}</InputGroup.Prefix> : null}
+                <InputGroup.Input
+                    autoFocus={autoFocus}
+                    maxLength={maxLength}
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={(event) => onChange(event.target.value)}
+                />
+                {suffix ? <InputGroup.Suffix>{suffix}</InputGroup.Suffix> : null}
+            </InputGroup>
+            {description ? <Description>{description}</Description> : null}
+            {error ? <FieldError>{error}</FieldError> : null}
+        </TextField>
+    )
+}
+
 export function StepDetails({ user, setUser, loading, setLoading, setError }: StepDetailsProps) {
     const [hasSubmitted, setHasSubmitted] = useState(false)
     const username = user.username ?? ''
     const name = user.name ?? ''
     const gender = user.gender
-    const debouncedUsername = useDebounce(username ?? '', 400)
+    const debouncedUsername = useDebounce(username, 400)
     const [checkingUsername, setCheckingUsername] = useState(false)
     const [usernameChecked, setUsernameChecked] = useState(false)
     const [isUsernameUnique, setIsUsernameUnique] = useState<boolean | null>(null)
     const [dob, setDob] = useState('')
     const [dobError, setDobError] = useState('')
 
-    const fetchPincode = usePinCodeStore((state) => state.fetchPincode)
+    const fetchPincode = usePinCodeStore((store) => store.fetchPincode)
     const [isPendingPincode, startPincodeTransition] = useTransition()
     const [pincode, setPincode] = useState('')
     const [city, setCity] = useState('')
@@ -48,6 +106,17 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
     const isValidLength = username.length >= MIN_LENGTH && username.length <= MAX_LENGTH
     const showUsernameError = hasSubmitted || username.length > 0
     const showNameError = hasSubmitted || name.length > 0
+    const usernameError = !showUsernameError
+        ? undefined
+        : !username
+          ? 'Username is required'
+          : !isValidFormat
+            ? 'Only lowercase letters, numbers, and underscores allowed'
+            : !isValidLength
+              ? `Must be at least ${MIN_LENGTH} characters`
+              : isUsernameUnique === false
+                ? 'This username is already taken'
+                : undefined
 
     useEffect(() => {
         if (!debouncedUsername || !isValidFormat || !isValidLength) {
@@ -56,6 +125,7 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
 
             return
         }
+
         setCheckingUsername(true)
         checkUsername(debouncedUsername).then((res) => {
             setIsUsernameUnique(res.available)
@@ -91,6 +161,7 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
 
             return
         }
+
         const isFormValid =
             name.trim() &&
             isValidFormat &&
@@ -104,6 +175,7 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
             state.trim()
 
         if (!isFormValid) return
+
         setLoading(true)
         try {
             const res = await createUser({
@@ -131,16 +203,16 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
         }
     }
 
-    const handleUsernameChange = (val: string) => {
-        const cleaned = val.toLowerCase().replace(/[^a-z0-9_]/g, '')
+    const handleUsernameChange = (value: string) => {
+        const cleaned = value.toLowerCase().replace(/[^a-z0-9_]/g, '')
 
         setUser({ username: cleaned.slice(0, MAX_LENGTH) })
     }
 
     return (
         <Form
-            onSubmit={async (e) => {
-                e.preventDefault()
+            onSubmit={async (event) => {
+                event.preventDefault()
                 await handleSave()
             }}
         >
@@ -151,121 +223,102 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
                 </DrawerDescription>
             </DrawerHeader>
             <div className='w-full space-y-10 px-2'>
-                <Input
+                <FieldInput
                     autoFocus
-                    isRequired
-                    errorMessage={showNameError && !name.trim() ? 'Name is required' : undefined}
-                    isInvalid={showNameError && !name.trim()}
+                    error={showNameError && !name.trim() ? 'Name is required' : undefined}
+                    invalid={showNameError && !name.trim()}
                     label='Name'
-                    labelPlacement='outside'
                     placeholder='Enter your full name'
-                    startContent={<UserRound className='text-muted-foreground' size={18} />}
+                    prefix={<UserRound className='text-muted-foreground' size={18} />}
+                    required
                     value={name}
-                    onChange={(e) => setUser({ name: e.target.value })}
+                    onChange={(value) => setUser({ name: value })}
                 />
-                <Input
-                    isRequired
+                <FieldInput
                     description='Choose wisely - username is permanent!'
-                    endContent={
-                        checkingUsername ? (
-                            <Loader className='text-muted-foreground h-4 w-4 shrink-0 animate-spin' />
-                        ) : usernameChecked ? (
-                            isUsernameUnique ? (
-                                <span>✅</span>
-                            ) : (
-                                <span>❌</span>
-                            )
-                        ) : null
-                    }
-                    errorMessage={
-                        !showUsernameError
-                            ? undefined
-                            : !username
-                              ? 'Username is required'
-                              : !isValidFormat
-                                ? 'Only lowercase letters, numbers, and underscores allowed'
-                                : !isValidLength
-                                  ? `Must be at least ${MIN_LENGTH} characters`
-                                  : isUsernameUnique === false
-                                    ? 'This username is already taken'
-                                    : undefined
-                    }
-                    isInvalid={
+                    error={usernameError}
+                    invalid={
                         showUsernameError &&
                         (!isValidFormat || !isValidLength || isUsernameUnique === false)
                     }
                     label='Username'
-                    labelPlacement='outside'
                     placeholder='Enter a username'
-                    startContent={<AtSign className='text-muted-foreground' size={18} />}
+                    prefix={<AtSign className='text-muted-foreground' size={18} />}
+                    required
+                    suffix={
+                        checkingUsername ? (
+                            <Loader className='text-muted-foreground h-4 w-4 shrink-0 animate-spin' />
+                        ) : usernameChecked ? (
+                            isUsernameUnique ? (
+                                <Check className='text-success h-4 w-4 shrink-0' />
+                            ) : (
+                                <X className='text-danger h-4 w-4 shrink-0' />
+                            )
+                        ) : null
+                    }
                     value={username}
-                    onChange={(e) => handleUsernameChange(e.target.value)}
+                    onChange={handleUsernameChange}
                 />
             </div>
             <div className='space-y-4 px-2'>
                 <div className='flex items-center gap-3'>
-                    <Input
-                        isRequired
-                        endContent={
+                    <FieldInput
+                        label='Pincode'
+                        maxLength={6}
+                        placeholder='203205'
+                        required
+                        suffix={
                             isPendingPincode ? (
                                 <Loader className='text-muted-foreground h-4 w-4 shrink-0 animate-spin' />
                             ) : null
                         }
-                        label='Pincode'
-                        labelPlacement='outside'
-                        maxLength={6}
-                        placeholder='203205'
                         value={pincode}
-                        onChange={(e) => handlePincodeChange(e.target.value)}
+                        onChange={handlePincodeChange}
                     />
-                    <Input
-                        isRequired
+                    <FieldInput
                         label='Town/City'
-                        labelPlacement='outside'
                         placeholder='ex. Sikandrabad'
+                        required
                         value={city}
-                        onChange={(e) => setCity(e.target.value)}
+                        onChange={setCity}
                     />
                 </div>
                 <div className='flex items-center gap-3'>
-                    <Input
-                        isRequired
+                    <FieldInput
                         label='District'
-                        labelPlacement='outside'
                         placeholder='District'
+                        required
                         value={district}
-                        onChange={(e) => setDistrict(e.target.value)}
+                        onChange={setDistrict}
                     />
-                    <Input
-                        isRequired
+                    <FieldInput
                         label='State'
-                        labelPlacement='outside'
                         placeholder='State'
+                        required
                         value={state}
-                        onChange={(e) => setState(e.target.value)}
+                        onChange={setState}
                     />
                 </div>
             </div>
             <div className='space-y-4 px-2'>
                 <Dob
-                    isRequired
                     description='Enter your birth date (must be 18+)'
+                    isRequired
                     label='Date of Birth'
                     value={dob}
-                    onChange={(val) => {
-                        setDob(val)
-                        setUser({ dob: val })
+                    onChange={(value) => {
+                        setDob(value)
+                        setUser({ dob: value })
                     }}
                     onError={setDobError}
                 />
                 <RadioGroup
                     isRequired
-                    classNames={{ label: 'text-muted-forground' }}
-                    label='Gender'
                     orientation='horizontal'
                     value={gender}
-                    onValueChange={(val) => setUser({ gender: val as 'male' | 'female' | 'other' })}
+                    onChange={(value) => setUser({ gender: value as 'male' | 'female' | 'other' })}
                 >
+                    <Label>Gender</Label>
                     <Radio value='male'>Male</Radio>
                     <Radio value='female'>Female</Radio>
                     <Radio value='other'>Other</Radio>
@@ -273,7 +326,6 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
             </div>
             <DrawerFooter className='w-full'>
                 <Button
-                    color='primary'
                     isDisabled={
                         loading ||
                         !name.trim() ||
@@ -287,8 +339,9 @@ export function StepDetails({ user, setUser, loading, setLoading, setError }: St
                         !district.trim() ||
                         !state.trim()
                     }
-                    isLoading={loading}
+                    isPending={loading}
                     type='submit'
+                    variant='primary'
                 >
                     {loading ? 'Saving...' : 'Create Account'}
                 </Button>

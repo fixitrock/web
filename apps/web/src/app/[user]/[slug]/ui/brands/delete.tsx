@@ -13,7 +13,7 @@
 //     Image,
 // } from '@heroui/react'
 // import { Trash2, X, Building2 } from 'lucide-react'
-// import { addToast } from '@heroui/react'
+// import { toast } from '@heroui/react'
 
 // import { Brand } from '@/types/brands'
 // import { bucketUrl } from '@/supabase/bucket'
@@ -66,7 +66,7 @@
 //                             radius='full'
 //                             size='sm'
 //                             startContent={<X size={18} />}
-//                             variant='light'
+//                             variant='ghost'
 //                             onPress={onClose}
 //                         />
 //                     </ModalHeader>
@@ -120,7 +120,7 @@
 //                             className='w-full border font-medium'
 //                             radius='full'
 //                             type='button'
-//                             variant='light'
+//                             variant='ghost'
 //                             onPress={onClose}
 //                         >
 //                             Cancel / रद्द करें
@@ -131,3 +131,5 @@
 //         </Modal>
 //     )
 // }
+
+

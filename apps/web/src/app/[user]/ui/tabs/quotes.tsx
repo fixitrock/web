@@ -1,14 +1,15 @@
 'use client'
 
-import { Card, CardBody, CardHeader, Button, CardFooter, User as HeroUser } from '@heroui/react'
-import { Bookmark, Heart, MessageCircle, MoreHorizontal, Quote, Share } from 'lucide-react'
 import { useState } from 'react'
+import { Bookmark, Heart, MessageCircle, MoreHorizontal, Quote, Share } from 'lucide-react'
+import { Button, Card } from '@heroui/react'
+import { User as HeroUser } from '@heroui/user'
 
-import { useQuote } from '@tanstack/query'
-import { cn, formatDateTime, userAvatar } from '@/lib/utils'
 import { User } from '@/app/login/types'
 import { Verified } from '@/ui/icons'
 import { QuoteSkeleton } from '@/ui/skeleton'
+import { cn, formatDateTime, userAvatar } from '@/lib/utils'
+import { useQuote } from '@tanstack/query'
 
 interface QuoteCardProps {
     quote: {
@@ -26,8 +27,6 @@ function QuoteCard({ quote, user }: QuoteCardProps) {
     const [isLiked, setIsLiked] = useState(false)
     const [isBookmarked, setIsBookmarked] = useState(false)
 
-    const handleLike = () => setIsLiked(!isLiked)
-
     const handleShare = async () => {
         if (navigator.share) {
             await navigator.share({
@@ -36,47 +35,38 @@ function QuoteCard({ quote, user }: QuoteCardProps) {
                 url: window.location.href,
             })
         } else {
-            navigator.clipboard.writeText(`"${quote.quote}" - @${quote.username}`)
+            await navigator.clipboard.writeText(`"${quote.quote}" - @${quote.username}`)
         }
     }
 
     return (
-        <Card
-            className='rounded-none border-b bg-transparent p-0 md:rounded-xl md:border'
-            shadow='none'
-        >
-            <CardHeader className='flex w-full justify-between'>
+        <Card className='rounded-none border-b bg-transparent p-0 md:rounded-xl md:border md:shadow-none'>
+            <Card.Header className='flex w-full justify-between'>
                 <HeroUser
                     avatarProps={{
                         src: userAvatar(user),
                         fallback: user.name,
-                        className: '',
                     }}
-                    classNames={{
-                        base: 'flex justify-start px-2 sm:px-0',
-                        name: 'flex items-center gap-1 text-sm font-semibold',
-                        description: 'text-muted-foreground text-xs',
-                    }}
-                    description={`@${user.username} · ${formatDateTime(quote.lastModifiedDateTime)}`}
+                    className='flex justify-start px-2 text-sm font-semibold sm:px-0'
+                    description={`@${user.username} - ${formatDateTime(quote.lastModifiedDateTime)}`}
                     name={
-                        <>
+                        <span className='flex items-center gap-1'>
                             {user.name}
-                            {user.verified && <Verified className='size-4' />}
-                        </>
+                            {user.verified ? <Verified className='size-4' /> : null}
+                        </span>
                     }
                 />
                 <Button
                     isIconOnly
                     className='text-default-400 hover:text-default-600 transition-colors'
-                    radius='full'
                     size='sm'
-                    variant='light'
+                    variant='ghost'
                 >
                     <MoreHorizontal size={18} />
                 </Button>
-            </CardHeader>
+            </Card.Header>
 
-            <CardBody className='relative h-52 p-0 px-2 select-none'>
+            <Card.Content className='relative h-52 p-0 px-2 select-none'>
                 <div className='bg-surface dark:bg-muted/30 relative flex h-full w-full items-center justify-center overflow-hidden rounded-xl'>
                     <Quote
                         className='text-muted-foreground pointer-events-none absolute top-4 left-4 rotate-185'
@@ -99,25 +89,22 @@ function QuoteCard({ quote, user }: QuoteCardProps) {
                                           : 'text-sm md:text-base lg:text-lg'
                                 )}
                             >
-                                <span
-                                    className={cn('wrap-break-word hyphens-auto', 'line-clamp-4')}
-                                >
+                                <span className={cn('wrap-break-word hyphens-auto', 'line-clamp-4')}>
                                     {quote.quote}
                                 </span>
                             </p>
                         </blockquote>
                     </div>
                 </div>
-            </CardBody>
+            </Card.Content>
 
-            <CardFooter className='flex w-full items-center justify-between'>
+            <Card.Footer className='flex w-full items-center justify-between'>
                 <Button
                     className='text-default-500 transition-all duration-200 hover:bg-blue-500/10 hover:text-blue-500'
-                    radius='full'
                     size='sm'
-                    startContent={<MessageCircle size={18} />}
-                    variant='light'
+                    variant='ghost'
                 >
+                    <MessageCircle size={18} />
                     <span className='text-sm'>{quote.comments ?? 0}</span>
                 </Button>
 
@@ -128,23 +115,22 @@ function QuoteCard({ quote, user }: QuoteCardProps) {
                             ? 'text-red-500 hover:bg-red-500/10 hover:text-red-600'
                             : 'text-default-500 hover:bg-red-500/10 hover:text-red-500'
                     )}
-                    radius='full'
                     size='sm'
-                    startContent={<Heart className={cn(isLiked && 'fill-current')} size={18} />}
-                    variant='light'
-                    onPress={handleLike}
+                    variant='ghost'
+                    onPress={() => setIsLiked((current) => !current)}
                 >
+                    <Heart className={cn(isLiked && 'fill-current')} size={18} />
                     <span className='text-sm'>{quote.likes ?? 0}</span>
                 </Button>
 
                 <Button
                     className='text-default-500 transition-colors duration-200 hover:bg-green-500/10 hover:text-green-500'
-                    radius='full'
                     size='sm'
-                    startContent={<Share size={18} />}
-                    variant='light'
+                    variant='ghost'
                     onPress={handleShare}
-                />
+                >
+                    <Share size={18} />
+                </Button>
 
                 <Button
                     className={cn(
@@ -153,15 +139,13 @@ function QuoteCard({ quote, user }: QuoteCardProps) {
                             ? 'text-blue-500 hover:bg-blue-500/10 hover:text-blue-600'
                             : 'text-default-500 hover:bg-blue-500/10 hover:text-blue-500'
                     )}
-                    radius='full'
                     size='sm'
-                    startContent={
-                        <Bookmark className={cn(isBookmarked && 'fill-current')} size={18} />
-                    }
-                    variant='light'
-                    onPress={() => setIsBookmarked(!isBookmarked)}
-                />
-            </CardFooter>
+                    variant='ghost'
+                    onPress={() => setIsBookmarked((current) => !current)}
+                >
+                    <Bookmark className={cn(isBookmarked && 'fill-current')} size={18} />
+                </Button>
+            </Card.Footer>
         </Card>
     )
 }
@@ -171,11 +155,7 @@ export function Quotes({ user }: { user: User }) {
 
     return (
         <div className='grid grid-cols-1 pt-3 md:grid-cols-2 md:gap-4 lg:grid-cols-3 2xl:grid-cols-4'>
-            {isLoading ? (
-                <QuoteSkeleton />
-            ) : (
-                data?.map((q) => <QuoteCard key={q.id} quote={q} user={user} />)
-            )}
+            {isLoading ? <QuoteSkeleton /> : data?.map((quote) => <QuoteCard key={quote.id} quote={quote} user={user} />)}
         </div>
     )
 }

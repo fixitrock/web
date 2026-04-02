@@ -1,30 +1,81 @@
 'use client'
-import { useForm, SubmitHandler } from 'react-hook-form'
+
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-    Button,
-    Form,
-    Input,
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    Skeleton,
-    useDisclosure,
-    User,
-} from '@heroui/react'
-import { useEffect, useRef, useState, useTransition } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Loader, XIcon } from 'lucide-react'
+import { useEffect, useRef, useState, useTransition } from 'react'
+import type { ReactNode } from 'react'
+import { SubmitHandler, useForm, type UseFormRegisterReturn } from 'react-hook-form'
+import {
+    Button,
+    FieldError,
+    Form,
+    InputGroup,
+    Label,
+    Modal,
+    Skeleton,
+    TextField,
+    useOverlayState,
+} from '@heroui/react'
+import { User } from '@heroui/user'
 
-import { useCustomerSearch, useAddCustomer } from '@/hooks/tanstack/query'
-import { useDebounce } from '@/hooks'
-import { logWarning, userAvatar } from '@/lib/utils'
-import { usePinCodeStore } from '@/zustand/store/pincode'
-import { CustomerInput, CustomerSchema } from '@/types'
 import { ErrorMessage } from '@/components/error'
+import { useDebounce } from '@/hooks'
+import { useAddCustomer, useCustomerSearch } from '@/hooks/tanstack/query'
+import { logWarning, userAvatar } from '@/lib/utils'
+import { CustomerInput, CustomerSchema } from '@/types'
 import { useCartStore } from '@/zustand/store'
+import { usePinCodeStore } from '@/zustand/store/pincode'
+
+type FieldInputProps = {
+    label: string
+    value?: string
+    placeholder: string
+    required?: boolean
+    error?: string
+    disabled?: boolean
+    readOnly?: boolean
+    maxLength?: number
+    type?: string
+    endContent?: ReactNode
+    onChange?: (value: string) => void
+    inputProps?: UseFormRegisterReturn
+}
+
+function FieldInput({
+    label,
+    value,
+    placeholder,
+    required = false,
+    error,
+    disabled = false,
+    readOnly = false,
+    maxLength,
+    type,
+    endContent,
+    onChange,
+    inputProps,
+}: FieldInputProps) {
+    return (
+        <TextField isInvalid={Boolean(error)} isRequired={required}>
+            <Label>{label}</Label>
+            <InputGroup>
+                <InputGroup.Input
+                    {...inputProps}
+                    disabled={disabled}
+                    maxLength={maxLength}
+                    placeholder={placeholder}
+                    readOnly={readOnly}
+                    type={type}
+                    value={value}
+                    onChange={(event) => onChange?.(event.target.value)}
+                />
+                {endContent ? <InputGroup.Suffix>{endContent}</InputGroup.Suffix> : null}
+            </InputGroup>
+            {error ? <FieldError>{error}</FieldError> : null}
+        </TextField>
+    )
+}
 
 export function AddCustomer({
     isOpen,
@@ -56,7 +107,7 @@ export function AddCustomer({
 
     const { mutate: addCustomer, isPending: isPendingSubmit } = useAddCustomer()
     const [isPendingPincode, startPincodeTransition] = useTransition()
-    const fetchPincode = usePinCodeStore((state) => state.fetchPincode)
+    const fetchPincode = usePinCodeStore((store) => store.fetchPincode)
 
     const [pincode, setPincode] = useState('')
     const [city, setCity] = useState('')
@@ -68,9 +119,8 @@ export function AddCustomer({
         if (phoneNumber) setValue('phone', phoneNumber)
     }, [phoneNumber, setValue])
 
-    const handleChange = (value: string) => {
-        const sanitized = value.replace(/\D/g, '')
-
+    const handlePincodeChange = (value: string) => {
+        const sanitized = value.replace(/\D/g, '').slice(0, 6)
         setPincode(sanitized)
 
         if (sanitized.length === 6) {
@@ -96,7 +146,9 @@ export function AddCustomer({
             setState('')
         }
     }
-    const hasData = !!(district && state)
+
+    const hasPincodeData = Boolean(district && state)
+
     const onSubmit: SubmitHandler<CustomerInput> = async (values) => {
         const payload: CustomerInput = {
             ...values,
@@ -113,6 +165,7 @@ export function AddCustomer({
             onSuccess: (customer) => {
                 reset()
                 onOpenChange(false)
+
                 if (customer) {
                     setSelectedCustomer(customer)
                     setQuery(customer.phone)
@@ -124,129 +177,118 @@ export function AddCustomer({
     }
 
     return (
-        <Modal
-            hideCloseButton
-            className='bg-background rounded-2xl border'
-            isOpen={isOpen}
-            scrollBehavior='inside'
-            onOpenChange={onOpenChange}
-        >
-            <Form onSubmit={handleSubmit(onSubmit)}>
-                <ModalContent>
-                    <ModalHeader className='flex items-center border-b p-3'>
-                        <h2 className='line-clamp-1'>Add Customer</h2>
-                        <Button
-                            isIconOnly
-                            className='ml-auto border'
-                            radius='full'
-                            size='sm'
-                            startContent={<XIcon className='h-4 w-4' />}
-                            variant='light'
-                            onPress={() => onOpenChange(false)}
-                        />
-                    </ModalHeader>
-
-                    <ModalBody className='gap-4 p-3'>
-                        <div className='flex items-center gap-3'>
-                            <Input
-                                {...register('name')}
-                                isRequired
-                                errorMessage={errors.name?.message}
-                                isInvalid={!!errors.name}
-                                label='Name'
-                                labelPlacement='outside'
-                                placeholder='ex. Rock Star'
-                                size='sm'
-                            />
-                            <Input
-                                {...register('phone')}
-                                isRequired
-                                errorMessage={errors.phone?.message}
-                                isInvalid={!!errors.phone}
-                                label='Phone'
-                                labelPlacement='outside'
-                                maxLength={10}
-                                placeholder='9927241144'
-                                size='sm'
-                                type='tel'
-                            />
-                        </div>
-
-                        <div className='flex items-center gap-3'>
-                            <Input
-                                isRequired
-                                endContent={
-                                    isPendingPincode ? (
-                                        <Loader className='text-muted-foreground h-4 w-4 shrink-0 animate-spin' />
-                                    ) : null
-                                }
-                                label='Pincode'
-                                labelPlacement='outside'
-                                maxLength={6}
-                                placeholder='Enter your pincode'
-                                size='sm'
-                                type='tel'
-                                value={pincode}
-                                onChange={(e) => handleChange(e.target.value)}
-                            />
-                            <Input
-                                isRequired
-                                label='Town/City'
-                                labelPlacement='outside'
-                                placeholder='ex. Sikandrabad'
-                                size='sm'
-                                value={city}
-                                onChange={(e) => setCity(e.target.value)}
-                            />
-                        </div>
-
-                        <div className='flex items-center gap-3'>
-                            <Input
-                                isDisabled={!hasData && !isPendingPincode}
-                                isReadOnly={hasData}
-                                label='District'
-                                labelPlacement='outside'
-                                placeholder='District'
-                                size='sm'
-                                value={district}
-                                onChange={(e) => setDistrict(e.target.value)}
-                            />
-                            <Input
-                                isDisabled={!hasData && !isPendingPincode}
-                                isReadOnly={hasData}
-                                label='State'
-                                labelPlacement='outside'
-                                placeholder='State'
-                                size='sm'
-                                value={state}
-                                onChange={(e) => setState(e.target.value)}
-                            />
-                        </div>
-                        <ErrorMessage errors={errors} />
-                    </ModalBody>
-
-                    <ModalFooter className='border-t p-3'>
-                        <Button
-                            fullWidth
-                            className='border'
-                            variant='light'
-                            onPress={() => onOpenChange(false)}
+        <Modal>
+            <Modal.Backdrop isOpen={isOpen} variant='blur' onOpenChange={onOpenChange}>
+                <Modal.Container
+                    className='overflow-hidden rounded-2xl border bg-background'
+                    scroll='inside'
+                    size='lg'
+                >
+                    <Modal.Dialog>
+                        <Form
+                            onSubmit={(event) => {
+                                event.preventDefault()
+                                void handleSubmit(onSubmit)(event)
+                            }}
                         >
-                            Cancel
-                        </Button>
-                        <Button fullWidth color='primary' isLoading={isPendingSubmit} type='submit'>
-                            Add Customer
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Form>
+                            <Modal.Header className='flex items-center border-b p-3'>
+                                <Modal.Heading>Add Customer</Modal.Heading>
+                                <Button
+                                    isIconOnly
+                                    className='ml-auto border'
+                                    size='sm'
+                                    variant='ghost'
+                                    onPress={() => onOpenChange(false)}
+                                >
+                                    <XIcon className='h-4 w-4' />
+                                </Button>
+                            </Modal.Header>
+
+                            <Modal.Body className='gap-4 p-3'>
+                                <div className='grid gap-4 md:grid-cols-2'>
+                                    <FieldInput
+                                        error={errors.name?.message}
+                                        inputProps={register('name')}
+                                        label='Name'
+                                        placeholder='ex. Rock Star'
+                                        required
+                                    />
+                                    <FieldInput
+                                        error={errors.phone?.message}
+                                        inputProps={register('phone')}
+                                        label='Phone'
+                                        maxLength={10}
+                                        placeholder='9927241144'
+                                        required
+                                        type='tel'
+                                    />
+                                </div>
+
+                                <div className='grid gap-4 md:grid-cols-2'>
+                                    <FieldInput
+                                        endContent={
+                                            isPendingPincode ? (
+                                                <Loader className='text-muted-foreground h-4 w-4 shrink-0 animate-spin' />
+                                            ) : null
+                                        }
+                                        label='Pincode'
+                                        maxLength={6}
+                                        placeholder='Enter your pincode'
+                                        required
+                                        type='tel'
+                                        value={pincode}
+                                        onChange={handlePincodeChange}
+                                    />
+                                    <FieldInput
+                                        label='Town/City'
+                                        placeholder='ex. Sikandrabad'
+                                        required
+                                        value={city}
+                                        onChange={setCity}
+                                    />
+                                </div>
+
+                                <div className='grid gap-4 md:grid-cols-2'>
+                                    <FieldInput
+                                        disabled={!hasPincodeData && !isPendingPincode}
+                                        label='District'
+                                        placeholder='District'
+                                        readOnly={hasPincodeData}
+                                        value={district}
+                                        onChange={setDistrict}
+                                    />
+                                    <FieldInput
+                                        disabled={!hasPincodeData && !isPendingPincode}
+                                        label='State'
+                                        placeholder='State'
+                                        readOnly={hasPincodeData}
+                                        value={state}
+                                        onChange={setState}
+                                    />
+                                </div>
+
+                                <ErrorMessage errors={errors} />
+                            </Modal.Body>
+
+                            <Modal.Footer className='border-t p-3'>
+                                <Button fullWidth className='border' variant='ghost' onPress={() => onOpenChange(false)}>
+                                    Cancel
+                                </Button>
+                                <Button fullWidth isPending={isPendingSubmit} type='submit' variant='primary'>
+                                    Add Customer
+                                </Button>
+                            </Modal.Footer>
+                        </Form>
+                    </Modal.Dialog>
+                </Modal.Container>
+            </Modal.Backdrop>
         </Modal>
     )
 }
 
 export function Customer() {
     const [open, setOpen] = useState(false)
-    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const overlayState = useOverlayState({})
     const [query, setQuery] = useState('')
     const containerRef = useRef<HTMLDivElement>(null)
     const debouncedQuery = useDebounce(query, 400)
@@ -257,6 +299,7 @@ export function Customer() {
     useEffect(() => {
         if (!selectedCustomer) setQuery('')
     }, [selectedCustomer])
+
     useEffect(() => {
         setOpen(shouldSearch)
     }, [shouldSearch])
@@ -295,25 +338,27 @@ export function Customer() {
 
     return (
         <div ref={containerRef} className='relative w-full'>
-            <Input
-                autoComplete='on'
-                classNames={{
-                    inputWrapper:
-                        'bg-default/20 group-data-[focus=true]:bg-default/25 data-[hover=true]:bg-default/25',
-                }}
-                maxLength={10}
-                placeholder='Customer Phone Number'
-                size='sm'
-                startContent={<span className='text-muted-foreground'>+91</span>}
-                type='tel'
-                onClear={clearCustomer}
-                onFocus={handleFocus}
-                onValueChange={(val) => {
-                    const digitsOnly = val.replace(/\D/g, '').slice(0, 10)
+            <TextField>
+                <InputGroup className='bg-default/20 rounded-xl border px-1'>
+                    <InputGroup.Prefix>
+                        <span className='text-muted-foreground text-sm'>+91</span>
+                    </InputGroup.Prefix>
+                    <InputGroup.Input
+                        autoComplete='on'
+                        maxLength={10}
+                        placeholder='Customer Phone Number'
+                        type='tel'
+                        value={query}
+                        onChange={(event) => {
+                            const digitsOnly = event.target.value.replace(/\D/g, '').slice(0, 10)
 
-                    setQuery(digitsOnly)
-                }}
-            />
+                            if (!digitsOnly) clearCustomer()
+                            setQuery(digitsOnly)
+                        }}
+                        onFocus={handleFocus}
+                    />
+                </InputGroup>
+            </TextField>
 
             <AnimatePresence>
                 {open && (
@@ -329,8 +374,8 @@ export function Customer() {
                             <div key='skeleton' className='flex items-center gap-2'>
                                 <Skeleton className='size-10 rounded-full' />
                                 <div className='space-y-1'>
-                                    <Skeleton className='size-5 w-40 rounded-sm' />
-                                    <Skeleton className='size-3 w-30 rounded' />
+                                    <Skeleton className='h-5 w-40 rounded-sm' />
+                                    <Skeleton className='h-3 w-30 rounded' />
                                 </div>
                             </div>
                         ) : data?.length ? (
@@ -342,10 +387,7 @@ export function Customer() {
                                         fallback: user.name?.charAt(0) || '',
                                         className: 'size-10',
                                     }}
-                                    classNames={{
-                                        base: 'focus:bg-default/25 hover:bg-default/25 flex justify-start px-2 py-1',
-                                        name: 'text-md flex items-center gap-1',
-                                    }}
+                                    className='focus:bg-default/25 hover:bg-default/25 flex justify-start px-2 py-1'
                                     description={user.phone.slice(2)}
                                     name={user.name}
                                     onClick={() => handleCustomerSelect(user)}
@@ -357,14 +399,11 @@ export function Customer() {
                                     showFallback: true,
                                     className: 'size-10',
                                 }}
-                                classNames={{
-                                    base: 'focus:bg-default/25 hover:bg-default/25 flex justify-start px-2 py-1',
-                                    name: 'text-md flex items-center gap-1',
-                                }}
-                                name='Create New Customer'
+                                className='focus:bg-default/25 hover:bg-default/25 flex justify-start px-2 py-1'
                                 description='Click to add a new customer.'
+                                name='Create New Customer'
                                 onClick={() => {
-                                    onOpen()
+                                    overlayState.open()
                                     setOpen(false)
                                 }}
                             />
@@ -374,12 +413,12 @@ export function Customer() {
             </AnimatePresence>
 
             <AddCustomer
-                isOpen={isOpen}
+                isOpen={overlayState.isOpen}
                 phoneNumber={query}
                 setQuery={setQuery}
                 setSelectedCustomer={setSelectedCustomer}
                 onCustomerAdded={handleCustomerAdded}
-                onOpenChange={onOpenChange}
+                onOpenChange={overlayState.setOpen}
             />
         </div>
     )

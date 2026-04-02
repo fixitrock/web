@@ -1,16 +1,48 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Badge, Button } from '@heroui/react'
+import { useEffect, useState } from 'react'
+import { Button } from '@heroui/react'
 import { ArrowDownToLine } from 'lucide-react'
 
-import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '@/ui/drawer'
-import { useDownloadStore } from '@/zustand/store/download'
-import { useDownloadWarning } from '@/hooks/useDownloadWarning'
 import { useMediaQuery } from '@/hooks'
+import { useDownloadWarning } from '@/hooks/useDownloadWarning'
+import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover'
+import { useDownloadStore } from '@/zustand/store/download'
 
 import { DownloadContent } from './content'
+
+function DownloadTrigger({
+    activeCount,
+    hasActiveDownloads,
+    onPress,
+}: {
+    activeCount: number
+    hasActiveDownloads: boolean
+    onPress: () => void
+}) {
+    return (
+        <div className='relative'>
+            <Button
+                isIconOnly
+                aria-label={
+                    hasActiveDownloads
+                        ? `${activeCount} active download${activeCount !== 1 ? 's' : ''} - Click to view download manager`
+                        : 'View download history - No active downloads'
+                }
+                className='bg-default/20 rounded-full'
+                size='sm'
+                variant='ghost'
+                onPress={onPress}
+            >
+                <ArrowDownToLine size={18} />
+            </Button>
+            {hasActiveDownloads ? (
+                <span className='bg-success absolute top-0 right-0 size-3 rounded-full border border-background' />
+            ) : null}
+        </div>
+    )
+}
 
 export function Download() {
     useDownloadWarning()
@@ -58,43 +90,22 @@ export function Download() {
         queuedDownloads.length > 0 || activeDownloads.length > 0 || pausedDownloads.length > 0
     const activeCount = queuedDownloads.length + activeDownloads.length + pausedDownloads.length
 
-    if (totalDownloads === 0) {
+    if (totalDownloads === 0 || !mounted) {
         return null
     }
 
-    if (!mounted) {
-        return null
-    }
+    const trigger = (
+        <DownloadTrigger
+            activeCount={activeCount}
+            hasActiveDownloads={hasActiveDownloads}
+            onPress={() => setIsOpen(true)}
+        />
+    )
 
     if (isDesktop) {
         return (
             <Popover open={isOpen} onOpenChange={setIsOpen}>
-                <PopoverTrigger asChild>
-                    <Badge
-                        isOneChar
-                        className='size-3 min-h-0 min-w-0'
-                        color='success'
-                        isInvisible={!hasActiveDownloads}
-                        shape='circle'
-                        size='sm'
-                    >
-                        <Button
-                            isIconOnly
-                            aria-label={
-                                hasActiveDownloads
-                                    ? `${activeCount} active download${activeCount !== 1 ? 's' : ''} - Click to view download manager`
-                                    : 'View download history - No active downloads'
-                            }
-                            className='bg-default/20'
-                            content={activeCount.toString()}
-                            radius='full'
-                            size='sm'
-                            startContent={<ArrowDownToLine size={18} />}
-                            variant='light'
-                            onPress={() => setIsOpen(true)}
-                        />
-                    </Badge>
-                </PopoverTrigger>
+                <PopoverTrigger asChild>{trigger}</PopoverTrigger>
                 <PopoverContent
                     align='end'
                     className='w-[420px] overflow-hidden p-0'
@@ -114,32 +125,7 @@ export function Download() {
 
     return (
         <Drawer open={isOpen} onOpenChange={setIsOpen}>
-            <DrawerTrigger asChild>
-                <Badge
-                    isOneChar
-                    className='size-3 min-h-0 min-w-0'
-                    color='success'
-                    isInvisible={!hasActiveDownloads}
-                    shape='circle'
-                    size='sm'
-                >
-                    <Button
-                        isIconOnly
-                        aria-label={
-                            hasActiveDownloads
-                                ? `${activeCount} active download${activeCount !== 1 ? 's' : ''} - Click to view download manager`
-                                : 'View download history - No active downloads'
-                        }
-                        className='bg-default/20'
-                        content={activeCount.toString()}
-                        radius='full'
-                        size='sm'
-                        startContent={<ArrowDownToLine size={18} />}
-                        variant='light'
-                        onPress={() => setIsOpen(true)}
-                    />
-                </Badge>
-            </DrawerTrigger>
+            <DrawerTrigger asChild>{trigger}</DrawerTrigger>
             <DrawerContent>
                 <DrawerHeader hidden>
                     <DrawerTitle hidden />

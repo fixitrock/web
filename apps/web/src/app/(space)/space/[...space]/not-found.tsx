@@ -3,10 +3,11 @@
 import { Button } from '@heroui/react'
 import { FolderX } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 export default function NotFound() {
     const pathname = usePathname()
+    const router = useRouter()
     const parentPath = pathname.split('/').slice(0, -1).join('/') || '/space'
 
     return (
@@ -19,18 +20,18 @@ export default function NotFound() {
                     </div>
                 </div>
                 <div className='space-y-4'>
-                    <h1 className='text-3xl font-bold tracking-tight'>Oops! File Not Found 😅</h1>
+                    <h1 className='text-3xl font-bold tracking-tight'>Oops! File Not Found</h1>
                     <p className='text-muted-foreground text-lg'>
-                        Looks like this firmware took a wrong turn! Maybe it's still downloading...
-                        somewhere in the cloud? ☁️
+                        Looks like this firmware took a wrong turn. Maybe it is still downloading
+                        somewhere in the cloud?
                     </p>
                 </div>
             </div>
             <div className='flex flex-row gap-3'>
-                <Button as={Link} href={parentPath} variant='flat'>
+                <Button variant='secondary' onPress={() => router.push(parentPath)}>
                     Back to Space
                 </Button>
-                <Button as={Link} href='/' variant='flat'>
+                <Button variant='secondary' onPress={() => router.push('/')}>
                     Home
                 </Button>
             </div>

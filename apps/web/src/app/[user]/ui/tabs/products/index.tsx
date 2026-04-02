@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useUserProducts } from '@/hooks/tanstack/query'
 import { PosEmptyState } from '@/ui/empty'
@@ -105,14 +105,14 @@ export function ProductsTabs({
                             <Button
                                 isIconOnly
                                 className='h-8 w-8 min-w-0 p-0'
-                                radius='full'
                                 size='sm'
-                                startContent={<ListFilter size={18} />}
-                                variant='light'
-                            />
+                                variant='ghost'
+                            >
+                                <ListFilter size={18} />
+                            </Button>
                         }
                         value={effectiveSearch}
-                        onValueChange={handleSearchChange}
+                        onChange={(event) => handleSearchChange(event.target.value)}
                     />
                 </div>
             </div>
@@ -126,10 +126,9 @@ export function ProductsTabs({
                     <div className='mt-4 flex justify-center'>
                         <Button
                             className='bg-default/10 border text-xs font-semibold'
-                            isLoading={isFetchingNextPage}
-                            radius='full'
+                            isPending={isFetchingNextPage}
                             size='sm'
-                            variant='flat'
+                            variant='secondary'
                             onPress={handleLoadMore}
                         >
                             {isFetchingNextPage ? 'Loading . . .' : 'Load More'}
@@ -140,3 +139,6 @@ export function ProductsTabs({
         </div>
     )
 }
+
+
+

@@ -79,9 +79,8 @@ export class ErrorBoundary extends Component<Props, State> {
     getActionButtons(error: Error) {
         const tryAgainButton = (
             <Button
-                color='primary'
                 size='sm'
-                variant='flat'
+                variant='secondary'
                 onPress={() => this.setState({ hasError: false, error: undefined })}
             >
                 Try Again
@@ -100,7 +99,7 @@ export class ErrorBoundary extends Component<Props, State> {
                         isIconOnly
                         className='min-w-unit-8'
                         size='sm'
-                        variant='light'
+                        variant='ghost'
                         onPress={() => this.handleCopyError(error)}
                     >
                         <Copy size={16} />
@@ -115,9 +114,9 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className='flex gap-2'>
                 {tryAgainButton}
                 <Button
-                    color='warning'
+                    className='text-warning'
                     size='sm'
-                    variant='flat'
+                    variant='secondary'
                     onPress={() => {
                         const path =
                             typeof window !== 'undefined' ? window.location.pathname : '/space'

@@ -1,6 +1,6 @@
-'use client'
+﻿'use client'
 
-import { Skeleton } from '@heroui-v3/react'
+import { Skeleton } from '@heroui/react'
 import { Icon as IconifyIcon, loadIcon } from '@iconify/react'
 import { useEffect, useState } from 'react'
 
@@ -44,4 +44,6 @@ function Icon({ icon, className, fallback, ssr = true, base }: Props): React.Rea
 Icon.displayName = 'Icon'
 
 export default Icon
+
+
 

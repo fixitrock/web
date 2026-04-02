@@ -1,7 +1,7 @@
 'use client'
 
 import { Product } from '@/types/product'
-import { Button, Chip, Divider } from '@heroui/react'
+import { Button, Chip, Separator } from '@heroui/react'
 import {
     Drawer,
     DrawerContent,
@@ -87,7 +87,7 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
                             )}
                         </div>
                     </DrawerHeader>
-                    <Divider />
+                    <Separator />
                     <div className='flex flex-col gap-3 py-3'>
                         {product.compatibility && (
                             <div>
@@ -104,7 +104,6 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
                                 items={allBrands}
                                 selectedKey={selected.brand as string}
                                 title='Brand'
-                                size='lg'
                                 onSelectionChange={(key) => setSelected.brand(key as string)}
                             />
                         )}
@@ -114,7 +113,6 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
                                 items={colors}
                                 selectedKey={selected.color as string}
                                 title='Color'
-                                size='lg'
                                 onSelectionChange={(key) => setSelected.color(key as string)}
                             />
                         )}
@@ -124,7 +122,6 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
                                 items={storages}
                                 selectedKey={selected.storage as string}
                                 title='Storage'
-                                size='lg'
                                 onSelectionChange={(key) => setSelected.storage(key as string)}
                             />
                         )}
@@ -139,7 +136,7 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
                     </div>
                 </DrawerBody>
                 <DrawerFooter>
-                    <Button radius='full' className={`${stockStatus?.color} text-white`}>
+                    <Button className={`${stockStatus?.color} text-white`}>
                         {stockStatus?.text}
                     </Button>
                 </DrawerFooter>
@@ -147,3 +144,6 @@ export function ProductModal({ product, isOpen, onOpenChange }: ProductModalProp
         </Drawer>
     )
 }
+
+
+

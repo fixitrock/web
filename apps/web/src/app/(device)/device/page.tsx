@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { Alert, Button, Card, CardBody } from '@heroui/react'
+import { Alert, Button, Card } from '@heroui/react'
 import { Monitor, AlertCircle, Usb, AlertTriangle, Cable, RefreshCw } from 'lucide-react'
 
 import { USBDeviceInfo, useUSBDevices } from '@/lib/usb/useUSB'
@@ -509,27 +509,27 @@ export default function DeviceManager() {
                 </Alert>
             )}
 
-            <Card className='bg-card mx-auto max-w-2xl border' shadow='none'>
-                <CardBody className='p-6'>
+            <Card className='bg-card mx-auto max-w-2xl border'>
+                <Card.Content className='p-6'>
                     <div className='flex flex-col justify-center gap-4 sm:flex-row'>
                         <Button
                             className='flex-1 sm:flex-none'
-                            color='primary'
                             size='lg'
-                            startContent={<Usb className='h-5 w-5' />}
+                            variant='primary'
                             onPress={handleConnectUSBDevice}
                         >
+                            <Usb className='h-5 w-5' />
                             MTP Device
                         </Button>
 
                         {serialAPIAvailable && (
                             <Button
                                 className='flex-1 sm:flex-none'
-                                color='secondary'
                                 size='lg'
-                                startContent={<Cable className='h-5 w-5' />}
+                                variant='secondary'
                                 onPress={handleConnectSerialDevice}
                             >
+                                <Cable className='h-5 w-5' />
                                 Port Device
                             </Button>
                         )}
@@ -551,7 +551,7 @@ export default function DeviceManager() {
                             <span>Processing...</span>
                         </div>
                     )}
-                </CardBody>
+                </Card.Content>
             </Card>
 
             {error && (
@@ -570,7 +570,7 @@ export default function DeviceManager() {
                     {/* <Button
                         size='sm'
                         startContent={<RefreshCw className='h-4 w-4' />}
-                        variant='light'
+                        variant='ghost'
                         onPress={async () => {
                             setIsScanning(true)
                             try {
@@ -588,8 +588,8 @@ export default function DeviceManager() {
                 </div>
 
                 {allDevices.length === 0 ? (
-                    <Card className='bg-card mx-auto max-w-2xl border' shadow='none'>
-                        <CardBody className='py-16 text-center'>
+                    <Card className='bg-card mx-auto max-w-2xl border'>
+                        <Card.Content className='py-16 text-center'>
                             <div className='bg-muted mx-auto mb-6 w-fit rounded-full p-4'>
                                 <Monitor className='text-muted-foreground h-16 w-16' />
                             </div>
@@ -600,7 +600,7 @@ export default function DeviceManager() {
                                 Connect a USB or serial device to get started. The system will
                                 automatically detect and analyze your devices.
                             </p>
-                        </CardBody>
+                        </Card.Content>
                     </Card>
                 ) : (
                     <div className='grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3'>
@@ -630,3 +630,8 @@ export default function DeviceManager() {
         </main>
     )
 }
+
+
+
+
+

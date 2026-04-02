@@ -1,28 +1,48 @@
 'use client'
-import { Minus, Package2, Plus, ScanBarcode, Trash } from 'lucide-react'
-import {
-    Button,
-    Card,
-    CardBody,
-    CardFooter,
-    Input,
-    ScrollShadow,
-    Tooltip,
-    addToast,
-} from '@heroui/react'
-import NumberFlow from '@number-flow/react'
-import { useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
 
+import NumberFlow from '@number-flow/react'
+import { AnimatePresence, motion } from 'motion/react'
+import { Minus, Package2, Plus, ScanBarcode, Trash } from 'lucide-react'
+import { useState } from 'react'
+import { Button, Card, InputGroup, ScrollShadow, Tooltip, toast } from '@heroui/react'
+
+import { cn } from '@/lib/utils'
 import { useCartStore } from '@/zustand/store/cart'
 
 import { Customer } from './customer'
 import { OrderPlace } from './orderplace'
-import { cn } from '@/lib/utils'
 
 type Props = {
     className?: string
 }
+
+function CompactNumberField({
+    value,
+    prefix,
+    placeholder,
+    className,
+    onChange,
+}: {
+    value: string
+    prefix?: string
+    placeholder?: string
+    className?: string
+    onChange: (value: string) => void
+}) {
+    return (
+        <InputGroup className={className}>
+            {prefix ? <InputGroup.Prefix>{prefix}</InputGroup.Prefix> : null}
+            <InputGroup.Input
+                inputMode='numeric'
+                placeholder={placeholder}
+                type='number'
+                value={value}
+                onChange={(event) => onChange(event.target.value)}
+            />
+        </InputGroup>
+    )
+}
+
 export function PosCart({ className }: Props): React.ReactNode {
     const {
         items,
@@ -41,10 +61,7 @@ export function PosCart({ className }: Props): React.ReactNode {
 
     const handleQuantityChange = (id: string, newQuantity: number, maxQuantity: number) => {
         if (newQuantity > maxQuantity) {
-            addToast({
-                title: `Only ${maxQuantity} unit${maxQuantity > 1 ? 's are' : ' is'} available`,
-                color: 'warning',
-            })
+            toast.warning(`Only ${maxQuantity} unit${maxQuantity > 1 ? 's are' : ' is'} available`)
             newQuantity = maxQuantity
         }
 
@@ -65,9 +82,9 @@ export function PosCart({ className }: Props): React.ReactNode {
     }
 
     const toggleAccordionItem = (id: string) => {
-        setExpandedItems((prev) => ({
-            ...prev,
-            [id]: !prev[id],
+        setExpandedItems((previous) => ({
+            ...previous,
+            [id]: !previous[id],
         }))
     }
 
@@ -89,9 +106,7 @@ export function PosCart({ className }: Props): React.ReactNode {
                             </div>
                             <div className='min-w-0'>
                                 <h2 className='line-clamp-1 text-base font-semibold tracking-tight'>
-                                    {selectedCustomer
-                                        ? `${selectedCustomer.name}'s Cart`
-                                        : 'POS Cart'}
+                                    {selectedCustomer ? `${selectedCustomer.name}'s Cart` : 'POS Cart'}
                                 </h2>
                                 <p className='text-muted-foreground line-clamp-1 text-xs'>
                                     {selectedCustomer
@@ -113,134 +128,115 @@ export function PosCart({ className }: Props): React.ReactNode {
                     <EmptyCartState />
                 ) : (
                     items.map((item) => (
-                        <Card
-                            key={item.id}
-                            className='relative rounded-lg border bg-transparent shadow-none'
-                        >
-                            <CardBody className='p-3'>
-                                <div className='flex items-start justify-between'>
+                        <Card key={item.id} className='relative rounded-lg border bg-transparent shadow-none'>
+                            <Card.Content className='p-3'>
+                                <div className='flex items-start justify-between gap-4'>
                                     <div className='flex-1'>
-                                        <h3 className='text-md line-clamp-1 font-semibold'>
-                                            {item.product.name}
-                                        </h3>
-                                        <div className='mt-1 flex items-center gap-2'>
-                                            {item.selectedOptions.brand && (
+                                        <h3 className='text-md line-clamp-1 font-semibold'>{item.product.name}</h3>
+                                        <div className='mt-1 flex flex-wrap items-center gap-2'>
+                                            {item.selectedOptions.brand ? (
                                                 <span className='rounded-sm border px-1 py-0.5 text-[10px]'>
                                                     {item.selectedOptions.brand}
                                                 </span>
-                                            )}
-                                            {item.product.category && (
+                                            ) : null}
+                                            {item.product.category ? (
                                                 <span className='rounded-sm border p-0.5 text-[10px]'>
                                                     {item.product.category}
                                                 </span>
-                                            )}
-                                            {item.selectedOptions.color && (
+                                            ) : null}
+                                            {item.selectedOptions.color ? (
                                                 <span className='rounded-sm border px-1 py-0.5 text-[10px]'>
                                                     {item.selectedOptions.color}
                                                 </span>
-                                            )}
-                                            {item.selectedOptions.storage && (
+                                            ) : null}
+                                            {item.selectedOptions.storage ? (
                                                 <span className='rounded-sm border px-1 py-0.5 text-[10px]'>
                                                     {item.selectedOptions.storage}
                                                 </span>
-                                            )}
+                                            ) : null}
                                         </div>
                                     </div>
+
+                                    <Button
+                                        isIconOnly
+                                        className='absolute top-2 right-2'
+                                        size='sm'
+                                        variant='danger'
+                                        onPress={() => removeItem(item.id)}
+                                    >
+                                        <Trash size={14} />
+                                    </Button>
                                 </div>
 
-                                <div className='mt-3 flex items-center justify-between'>
-                                    <div className='flex items-center gap-2'>
-                                        <Input
-                                            className='max-w-24 min-w-auto'
-                                            classNames={{
-                                                inputWrapper:
-                                                    'h-6 min-h-6 rounded bg-transparent shadow-none group-data-[focus=true]:bg-transparent data-[hover=true]:bg-transparent',
-                                            }}
-                                            placeholder={item.price.toString()}
-                                            size='sm'
-                                            startContent='₹'
-                                            type='number'
-                                            value={item.price.toString()}
-                                            onValueChange={(value) =>
-                                                handlePriceChange(item.id, value)
-                                            }
-                                        />
-                                    </div>
+                                <div className='mt-3 flex items-center justify-between gap-3'>
+                                    <CompactNumberField
+                                        className='max-w-24'
+                                        placeholder={item.price.toString()}
+                                        prefix='Rs'
+                                        value={item.price.toString()}
+                                        onChange={(value) => handlePriceChange(item.id, value)}
+                                    />
 
                                     <div className='flex items-center gap-1.5'>
-                                        <Tooltip
-                                            content='Add IMEI/SN'
-                                            color='foreground'
-                                            size='sm'
-                                            className='border'
-                                            shadow='none'
-                                        >
-                                            <Button
-                                                isIconOnly
-                                                className='bg-background mr-2 size-6 min-w-auto rounded-sm border'
-                                                size='sm'
-                                                startContent={<ScanBarcode size={14} />}
-                                                variant='light'
-                                                onPress={() => toggleAccordionItem(item.id)}
-                                            />
+                                        <Tooltip>
+                                            <Tooltip.Trigger>
+                                                <Button
+                                                    isIconOnly
+                                                    className='bg-background mr-2 size-6 min-w-0 rounded-sm border'
+                                                    size='sm'
+                                                    variant='ghost'
+                                                    onPress={() => toggleAccordionItem(item.id)}
+                                                >
+                                                    <ScanBarcode size={14} />
+                                                </Button>
+                                            </Tooltip.Trigger>
+                                            <Tooltip.Content>
+                                                <p>Add IMEI/SN</p>
+                                            </Tooltip.Content>
                                         </Tooltip>
 
                                         <Button
                                             isIconOnly
-                                            className='bg-background size-6 min-w-auto rounded-sm border'
+                                            className='bg-background size-6 min-w-0 rounded-sm border'
                                             size='sm'
-                                            startContent={<Minus size={14} />}
-                                            variant='light'
+                                            variant='ghost'
                                             onPress={() =>
-                                                handleQuantityChange(
-                                                    item.id,
-                                                    item.quantity - 1,
-                                                    item.variant.quantity
-                                                )
+                                                handleQuantityChange(item.id, item.quantity - 1, item.variant.quantity)
                                             }
-                                        />
+                                        >
+                                            <Minus size={14} />
+                                        </Button>
 
-                                        <Input
-                                            className='w-12 min-w-auto sm:w-14'
-                                            classNames={{
-                                                input: 'truncate overflow-hidden text-center',
-                                                inputWrapper:
-                                                    'bg-default/10 group-data-[focus=true]:bg-default/10 data-[hover=true]:bg-default/10 h-6 min-h-6 rounded',
-                                            }}
-                                            min={0}
-                                            size='sm'
-                                            type='number'
+                                        <CompactNumberField
+                                            className='w-12 sm:w-14'
                                             value={item.quantity.toString()}
-                                            onValueChange={(value) =>
+                                            onChange={(value) =>
                                                 handleQuantityChange(
                                                     item.id,
-                                                    parseInt(value) || 0,
+                                                    parseInt(value, 10) || 0,
                                                     item.variant.quantity
                                                 )
                                             }
                                         />
 
                                         <Button
-                                            isIconOnly
-                                            className='bg-background size-6 min-w-auto rounded-sm border'
                                             isDisabled={item.quantity >= item.variant.quantity}
+                                            isIconOnly
+                                            className='bg-background size-6 min-w-0 rounded-sm border'
                                             size='sm'
-                                            startContent={<Plus size={14} />}
-                                            variant='light'
+                                            variant='ghost'
                                             onPress={() =>
-                                                handleQuantityChange(
-                                                    item.id,
-                                                    item.quantity + 1,
-                                                    item.variant.quantity
-                                                )
+                                                handleQuantityChange(item.id, item.quantity + 1, item.variant.quantity)
                                             }
-                                        />
+                                        >
+                                            <Plus size={14} />
+                                        </Button>
                                     </div>
                                 </div>
-                            </CardBody>
+                            </Card.Content>
 
                             <AnimatePresence>
-                                {expandedItems[item.id] && (
+                                {expandedItems[item.id] ? (
                                     <motion.div
                                         animate={{ height: 'auto', opacity: 1 }}
                                         className='overflow-hidden'
@@ -248,7 +244,7 @@ export function PosCart({ className }: Props): React.ReactNode {
                                         initial={{ height: 0, opacity: 0 }}
                                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                                     >
-                                        <CardFooter className='p-3 pt-0'>
+                                        <Card.Footer className='p-3 pt-0'>
                                             <div className='w-full space-y-2'>
                                                 {(item.serialNumbers || []).map((serial, index) => (
                                                     <motion.div
@@ -259,67 +255,48 @@ export function PosCart({ className }: Props): React.ReactNode {
                                                         initial={{ opacity: 0, y: -10 }}
                                                         transition={{ duration: 0.2 }}
                                                     >
-                                                        <Input
-                                                            classNames={{
-                                                                inputWrapper:
-                                                                    'bg-default/20 group-data-[focus=true]:bg-default/25 data-[hover=true]:bg-default/25',
-                                                            }}
-                                                            placeholder='IMEI / Serial No.'
-                                                            size='sm'
-                                                            value={serial}
-                                                            onValueChange={(value) =>
-                                                                updateSerialNumber(
-                                                                    item.id,
-                                                                    index,
-                                                                    value
-                                                                )
-                                                            }
-                                                        />
+                                                        <InputGroup className='bg-default/20'>
+                                                            <InputGroup.Input
+                                                                placeholder='IMEI / Serial No.'
+                                                                value={serial}
+                                                                onChange={(event) =>
+                                                                    updateSerialNumber(
+                                                                        item.id,
+                                                                        index,
+                                                                        event.target.value
+                                                                    )
+                                                                }
+                                                            />
+                                                        </InputGroup>
 
                                                         {index === item.serialNumbers.length - 1 ? (
                                                             <Button
                                                                 isIconOnly
                                                                 className='bg-background border'
                                                                 size='sm'
-                                                                startContent={<Plus size={14} />}
-                                                                variant='light'
-                                                                onPress={() =>
-                                                                    addSerialNumber(item.id, '')
-                                                                }
-                                                            />
+                                                                variant='ghost'
+                                                                onPress={() => addSerialNumber(item.id, '')}
+                                                            >
+                                                                <Plus size={14} />
+                                                            </Button>
                                                         ) : (
                                                             <Button
                                                                 isIconOnly
                                                                 className='border'
-                                                                color='danger'
                                                                 size='sm'
-                                                                startContent={<Trash size={14} />}
-                                                                variant='light'
-                                                                onPress={() =>
-                                                                    removeSerialNumber(
-                                                                        item.id,
-                                                                        index
-                                                                    )
-                                                                }
-                                                            />
+                                                                variant='danger'
+                                                                onPress={() => removeSerialNumber(item.id, index)}
+                                                            >
+                                                                <Trash size={14} />
+                                                            </Button>
                                                         )}
                                                     </motion.div>
                                                 ))}
                                             </div>
-                                        </CardFooter>
+                                        </Card.Footer>
                                     </motion.div>
-                                )}
+                                ) : null}
                             </AnimatePresence>
-
-                            <Button
-                                isIconOnly
-                                className='absolute top-2 right-2'
-                                color='danger'
-                                size='sm'
-                                startContent={<Trash size={14} />}
-                                variant='light'
-                                onPress={() => removeItem(item.id)}
-                            />
                         </Card>
                     ))
                 )}

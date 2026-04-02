@@ -1,6 +1,7 @@
-'use client'
+﻿'use client'
 
-import { Button, User as HeroUser } from '@heroui/react'
+import { Button } from '@heroui/react'
+import { User as HeroUser } from '@heroui/user'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -51,10 +52,9 @@ export default function UserDrawer({
         <>
             <Button
                 isIconOnly
-                className='bg-default/20'
-                radius='full'
+                className='bg-default/20 rounded-full'
                 size='sm'
-                variant={user ? 'flat' : 'light'}
+                variant={user ? 'tertiary' : 'secondary'}
                 onPress={handlePress}
             >
                 {user ? (
@@ -87,12 +87,17 @@ export default function UserDrawer({
                     <DrawerDescription aria-hidden />
                     <Navigation navigation={navigation} onClose={onClose} />
                     <DrawerFooter className='flex flex-col gap-2 p-2 md:border-t'>
-                        <Button fullWidth color='danger' type='submit' onPress={handleSignOut}>
+                        <Button
+                            fullWidth
+                            variant='danger'
+                            type='submit'
+                            onPress={handleSignOut}
+                        >
                             Logout
                         </Button>
 
                         <p className='text-muted-foreground hidden text-start text-xs md:flex'>
-                            © 2025, Fix it Rock.
+                            (c) 2025, Fix it Rock.
                         </p>
                     </DrawerFooter>
                 </DrawerContent>
@@ -111,10 +116,7 @@ const UserDetails = ({ user }: { user: UserType }) => {
                 fallback: user.name,
                 className: 'w-12 h-12',
             }}
-            classNames={{
-                base: 'flex justify-start px-2 sm:px-0',
-                name: 'text-md flex items-center gap-1',
-            }}
+            className='flex justify-start px-2 text-md sm:px-0'
             description={`@${user.username}`}
             name={
                 <>
@@ -125,3 +127,7 @@ const UserDetails = ({ user }: { user: UserType }) => {
         />
     )
 }
+
+
+
+

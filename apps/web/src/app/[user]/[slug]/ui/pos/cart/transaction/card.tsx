@@ -1,8 +1,8 @@
-'use client'
+﻿'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
-import { Skeleton } from '@heroui-v3/react'
+import { Skeleton } from '@heroui/react'
 
 import { Icon } from '@/lib'
 
@@ -60,7 +60,7 @@ function formatTimestamp(dateString: string) {
     const year = date.getFullYear()
     const time = date.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
 
-    return `${day} ${month} ${year} • ${time}`
+    return `${day} ${month} ${year} â€¢ ${time}`
 }
 function maskId(id: string) {
     if (id.length <= 4) return id
@@ -134,7 +134,7 @@ export function TransactionCard({ transactions }: { transactions?: Transaction[]
                                                     : 'text-green-600'
                                             }`}
                                         >
-                                            {t.type === 'debit' ? '−' : '+'}
+                                            {t.type === 'debit' ? 'âˆ’' : '+'}
                                             {formatPrice(t.amount)}
                                         </p>
                                     </div>
@@ -287,4 +287,6 @@ function formatPrice(amount: number): string {
         minimumFractionDigits: 0,
     }).format(amount)
 }
+
+
 

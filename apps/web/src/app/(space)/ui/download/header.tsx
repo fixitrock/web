@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Button } from '@heroui/react'
 
@@ -17,15 +17,18 @@ export function DownloadHeader({ completedCount, onClearCompleted }: DownloadHea
                 {completedCount > 0 && (
                     <Button
                         isIconOnly
-                        color='danger'
                         size='sm'
-                        startContent={<Delete className='size-5' />}
-                        title='Clear completed downloads'
-                        variant='light'
+                        aria-label='Clear completed downloads'
+                        variant='danger-soft'
                         onPress={onClearCompleted}
-                    />
+                    >
+                        <Delete className='size-5' />
+                    </Button>
                 )}
             </div>
         </div>
     )
 }
+
+
+

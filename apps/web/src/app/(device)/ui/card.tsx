@@ -1,7 +1,7 @@
-'use client'
+﻿'use client'
 
 import { Usb, Cable, Link, Unlink, Smartphone, Zap, HardDrive } from 'lucide-react'
-import { Button, Card } from '@heroui-v3/react'
+import { Button, Card } from '@heroui/react'
 
 import { USBDeviceInfo } from '@/lib/usb/useUSB'
 import { ADBDevice, FastbootDevice, SerialDeviceDetails } from '@/lib/usb/enhanced-serial-detector'
@@ -92,7 +92,7 @@ export function DeviceCard({
     }
 
     const getCurrentModeInfo = () => {
-        let mode = null
+        let mode: { type: string; name: string } | null = null
 
         if (isSerialDevice(device) && device.mode !== 'unknown') {
             mode = { type: device.mode, name: device.mode.toUpperCase() }
@@ -194,7 +194,7 @@ export function DeviceCard({
     return (
         <>
             <Card className='overflow-hidden border-0 bg-white/90 shadow-xl backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl'>
-                <div className='pointer-events-none absolute inset-0 bg-gradient-to-br from-white/50 to-transparent' />
+                <div className='pointer-events-none absolute inset-0 bg-linear-to-br from-white/50 to-transparent' />
 
                 <Card.Header className='relative pb-4'>
                     <CardTitle className='flex items-start justify-between'>
@@ -306,7 +306,7 @@ export function DeviceCard({
                             </Button>
                         ) : (
                             <Button
-                                className='flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+                                className='flex-1 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
                                 isDisabled={isAnalyzing}
                                 size='sm'
                                 onPress={() => {
@@ -326,3 +326,5 @@ export function DeviceCard({
         </>
     )
 }
+
+

@@ -1,20 +1,21 @@
 'use client'
 
-import { Button, useDisclosure } from '@heroui/react'
-import React from 'react'
+import { Button } from '@heroui/react'
 import { ArrowLeft, Camera, Share } from 'lucide-react'
 import Image from 'next/image'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import React from 'react'
 import { FaCamera } from 'react-icons/fa'
 
+import { CanType } from '@/actions/auth'
 import { User } from '@/app/login/types'
-import { Verified } from '@/ui/icons'
+import { fallback } from '@/config/site'
 import { userAvatar } from '@/lib/utils'
 import { bucketUrl } from '@/supabase/bucket'
-import { Actions } from './actions'
+import { Verified } from '@/ui/icons'
+
 import AvatarCover from './add'
-import { CanType } from '@/actions/auth'
-import { fallback } from '@/config/site'
+import { Actions } from './actions'
 
 type ProfileProps = {
     user: User
@@ -25,7 +26,7 @@ const UserInfo = ({ user }: { user: User }) => (
     <div className='flex flex-col gap-1.5'>
         <h1 className='flex flex-col text-2xl leading-tight font-bold md:text-3xl'>
             <span className='flex items-center gap-2'>
-                {user.name} {user.verified && <Verified />}
+                {user.name} {user.verified ? <Verified /> : null}
             </span>
             <p className='text-muted-foreground text-xs'>@{user.username}</p>
         </h1>
@@ -35,6 +36,8 @@ const UserInfo = ({ user }: { user: User }) => (
 export default function Profile({ user, can }: ProfileProps) {
     const [isFollowing, setIsFollowing] = React.useState(false)
     const [editMode, setEditMode] = React.useState<'avatar' | 'cover'>('avatar')
+    const [isEditorOpen, setIsEditorOpen] = React.useState(false)
+    const router = useRouter()
 
     const handleFollow = () => setIsFollowing(!isFollowing)
     const handleMessage = () =>
@@ -43,7 +46,7 @@ export default function Profile({ user, can }: ProfileProps) {
             '_blank'
         )
 
-    function handleShare() {
+    const handleShare = () => {
         if (navigator.share) {
             navigator.share({
                 title: document.title,
@@ -53,22 +56,19 @@ export default function Profile({ user, can }: ProfileProps) {
         }
     }
 
-    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure()
-
     const handleAvatarEdit = () => {
         setEditMode('avatar')
-        onOpen()
+        setIsEditorOpen(true)
     }
 
     const handleCoverEdit = () => {
         setEditMode('cover')
-        onOpen()
+        setIsEditorOpen(true)
     }
 
     return (
         <>
             <div className='relative flex flex-col'>
-                {/* Cover Image */}
                 <div className='relative h-30 w-full overflow-hidden border-b lg:h-50'>
                     <Image
                         alt={`${user.name} cover`}
@@ -82,40 +82,36 @@ export default function Profile({ user, can }: ProfileProps) {
                         className='object-cover'
                         sizes='100vw'
                     />
-                    {can.view.profile && (
+                    {can.view.profile ? (
                         <Button
                             isIconOnly
-                            className='absolute right-3 bottom-3 z-20 bg-black/40 text-white backdrop-blur-sm hover:bg-black/60'
-                            radius='full'
+                            className='absolute right-3 bottom-3 z-20 rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60'
                             size='sm'
-                            startContent={<FaCamera size={18} />}
                             onPress={handleCoverEdit}
-                        />
-                    )}
-                    {/* Mobile Top Buttons */}
+                        >
+                            <FaCamera size={18} />
+                        </Button>
+                    ) : null}
                     <div className='absolute top-0 z-10 flex w-full justify-between p-2 md:hidden'>
                         <Button
                             isIconOnly
-                            passHref
-                            as={Link}
-                            className='bg-black/30 text-white'
-                            href='/'
-                            radius='full'
+                            className='rounded-full bg-black/30 text-white'
                             size='sm'
-                            startContent={<ArrowLeft size={20} />}
-                        />
+                            onPress={() => router.push('/')}
+                        >
+                            <ArrowLeft size={20} />
+                        </Button>
                         <Button
                             isIconOnly
-                            className='bg-black/30 text-white'
-                            radius='full'
+                            className='rounded-full bg-black/30 text-white'
                             size='sm'
-                            startContent={<Share size={20} />}
                             onPress={handleShare}
-                        />
+                        >
+                            <Share size={20} />
+                        </Button>
                     </div>
                 </div>
 
-                {/* Avatar + Actions */}
                 <div className='relative z-10 -mt-16 mb-2 px-[5%] md:-mt-20 lg:px-[10%]'>
                     <div className='flex items-center justify-between gap-4'>
                         <div className='relative shrink-0'>
@@ -128,16 +124,16 @@ export default function Profile({ user, can }: ProfileProps) {
                                     sizes='(max-width: 768px) 112px, 144px'
                                 />
                             </div>
-                            {can.view.profile && (
+                            {can.view.profile ? (
                                 <Button
                                     isIconOnly
-                                    className='absolute right-2 bottom-2 bg-black/30 text-white hover:bg-black/50'
-                                    radius='full'
+                                    className='absolute right-2 bottom-2 rounded-full bg-black/30 text-white hover:bg-black/50'
                                     size='sm'
-                                    startContent={<Camera size={16} />}
                                     onPress={handleAvatarEdit}
-                                />
-                            )}
+                                >
+                                    <Camera size={16} />
+                                </Button>
+                            ) : null}
                         </div>
                         <div className='mt-16 flex w-full flex-1 justify-end md:mt-20'>
                             <div className='hidden w-full md:flex'>
@@ -158,13 +154,12 @@ export default function Profile({ user, can }: ProfileProps) {
                 </div>
             </div>
 
-            {/* Avatar / Cover Editor Modal */}
             <AvatarCover
-                isOpen={isOpen}
+                isOpen={isEditorOpen}
                 mode={editMode}
                 userUpdatedAt={user.updated_at}
-                onClose={onClose}
-                onOpenChange={onOpenChange}
+                onClose={() => setIsEditorOpen(false)}
+                onOpenChange={setIsEditorOpen}
             />
         </>
     )

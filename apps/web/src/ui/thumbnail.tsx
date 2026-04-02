@@ -2,16 +2,18 @@
 
 import Image from 'next/image'
 import Icon from '@/lib/utils/Icon'
+import { cn } from '@/lib/utils'
 
 type ThumbnailProps = {
     src?: string
     name: string
     type: 'Grid' | 'List'
+    className?: string
 }
 
-export function Thumbnail({ src, name, type }: ThumbnailProps) {
+export function Thumbnail({ src, name, type, className }: ThumbnailProps) {
     return (
-        <div className='flex shrink-0 items-center justify-center'>
+        <div className={cn('flex shrink-0 items-center justify-center', className)}>
             {src ? (
                 <Image
                     width={512}

@@ -1,15 +1,17 @@
-import { Modal, ModalBody, ModalContent, ModalHeader } from '@heroui/react'
-import { OrderDetails } from './order-details'
-import { useOrderStore } from '@/zustand/store/orders'
+import { Modal } from '@heroui/react'
+
 import { useIsMobile } from '@/hooks/use-mobile'
+import { useOrderStore } from '@/zustand/store/orders'
 import {
-    DrawerContent,
-    DrawerHeader,
-    DrawerTitle,
     DrawerBody,
+    DrawerContent,
     DrawerDescription,
+    DrawerHeader,
     DrawerNested,
+    DrawerTitle,
 } from '@/ui/drawer'
+
+import { OrderDetails } from './order-details'
 
 export function OrderDetailsDialog() {
     const { selectedOrder, isDetailsOpen, closeDetails } = useOrderStore()
@@ -34,21 +36,23 @@ export function OrderDetailsDialog() {
     }
 
     return (
-        <Modal
-            isOpen={isDetailsOpen}
-            onClose={closeDetails}
-            size='4xl'
-            scrollBehavior='inside'
-            className='bg-background border shadow-none backdrop-blur'
-        >
-            <ModalContent>
-                <ModalHeader className='flex items-center justify-between'>
-                    <p>Order Details</p>
-                </ModalHeader>
-                <ModalBody>
-                    <OrderDetails order={selectedOrder} />
-                </ModalBody>
-            </ModalContent>
+        <Modal>
+            <Modal.Backdrop isOpen={isDetailsOpen} variant='blur' onOpenChange={(open) => !open && closeDetails()}>
+                <Modal.Container
+                    className='rounded-[20px] border bg-background/95 backdrop-blur'
+                    scroll='inside'
+                    size='full'
+                >
+                    <Modal.Dialog>
+                        <Modal.Header className='items-center justify-between border-b'>
+                            <Modal.Heading>Order Details</Modal.Heading>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <OrderDetails order={selectedOrder} />
+                        </Modal.Body>
+                    </Modal.Dialog>
+                </Modal.Container>
+            </Modal.Backdrop>
         </Modal>
     )
 }

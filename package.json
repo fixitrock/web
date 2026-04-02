@@ -5,6 +5,7 @@
         "build": "turbo run build",
         "dev": "turbo run dev",
         "dev:web": "pnpm --filter ./apps/web dev",
+        "install:web": "pnpm --filter ./apps/web install",
         "build:web": "pnpm --filter ./apps/web run build",
         "dev:docs": "pnpm --filter ./apps/docs dev",
         "dev:mobile": "pnpm --filter ./apps/mobile dev",

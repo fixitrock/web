@@ -1,6 +1,6 @@
-'use client'
+﻿'use client'
 
-import { Card } from '@heroui-v3/react'
+import { Card } from '@heroui/react'
 import Autoplay from 'embla-carousel-autoplay'
 import { SiSupabase } from 'react-icons/si'
 import { TbDatabaseStar, TbPlugConnectedX } from 'react-icons/tb'
@@ -26,7 +26,7 @@ export default function Quotes() {
             >
                 <CarouselContent>
                     {isLoading ? (
-                        <QuoteSkeleton className='min-w-[300px]' length={6} />
+                        <QuoteSkeleton className='min-w-75' length={6} />
                     ) : error ? (
                         <ErrorState
                             icons={[TbDatabaseStar, SiSupabase, TbPlugConnectedX]}
@@ -35,15 +35,15 @@ export default function Quotes() {
                         />
                     ) : (
                         data?.slice(0, 6).map((q) => (
-                            <CarouselItem key={q.id} className='basis-[300px]'>
+                            <CarouselItem key={q.id} className='basis-75'>
                                 <Card className='bg-muted flex w-full flex-col justify-between shadow-none select-none'>
                                     <Card.Content className='flex flex-1 flex-col'>
-                                        <p className='flex h-[180px] items-center justify-center text-center text-lg font-semibold text-balance'>
+                                        <p className='flex h-45 items-center justify-center text-center text-lg font-semibold text-balance'>
                                             "{q.quote}"
                                         </p>
                                         <div className='text-muted-foreground flex items-center justify-between text-xs'>
                                             <span>{formatDateTime(q.lastModifiedDateTime)}</span>
-                                            <span>— Rock Star 💕</span>
+                                            <span>â€” Rock Star ðŸ’•</span>
                                         </div>
                                     </Card.Content>
                                 </Card>
@@ -55,3 +55,5 @@ export default function Quotes() {
         </TitleAction>
     )
 }
+
+

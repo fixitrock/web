@@ -1,8 +1,8 @@
-'use client'
+﻿'use client'
 
 import * as React from 'react'
 import { useActionState } from 'react'
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@heroui/react'
+import { Button, Modal } from '@heroui/react'
 
 import { canDelete } from '@/actions/drive'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
@@ -65,52 +65,49 @@ export function Delete({
 
     if (isDesktop) {
         return (
-            <Modal
-                className='bg-background/80 border backdrop-blur'
-                isOpen={open}
-                shadow='none'
-                size='md'
-                onOpenChange={onOpenChange}
-            >
-                <form action={deleteAction}>
-                    <input name='itemId' type='hidden' value={item.id} />
-                    <input name='itemName' type='hidden' value={item.name} />
-                    <input name='currentPath' type='hidden' value={currentPath} />
-                    <ModalContent>
-                        <ModalHeader className='text-muted-foreground mx-auto items-center text-center'>
-                            <Icon className='text-danger size-20' />
-                        </ModalHeader>
-                        <ModalBody>
-                            <h1 className='text-muted-foreground text-center text-balance'>
-                                Are you sure you want to delete
-                                <p className='text-foreground'>{item.name}</p>
-                            </h1>
-                        </ModalBody>
-                        <ModalFooter className='gap-4'>
-                            <Button
-                                fullWidth
-                                className='bg-default/40'
-                                isDisabled={isDeleting}
-                                radius='full'
-                                size='sm'
-                                onPress={() => onOpenChange(false)}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                fullWidth
-                                color='danger'
-                                isDisabled={isDeleting}
-                                isLoading={isDeleting}
-                                radius='full'
-                                size='sm'
-                                type='submit'
-                            >
-                                {isDeleting ? 'Deleting...' : 'Delete'}
-                            </Button>
-                        </ModalFooter>
-                    </ModalContent>
-                </form>
+            <Modal>
+                <Modal.Backdrop isOpen={open} onOpenChange={onOpenChange} variant='blur'>
+                    <Modal.Container className='rounded-[20px] border bg-background/80 backdrop-blur' size='md'>
+                        <Modal.Dialog>
+                            <form action={deleteAction}>
+                                <input name='itemId' type='hidden' value={item.id} />
+                                <input name='itemName' type='hidden' value={item.name} />
+                                <input name='currentPath' type='hidden' value={currentPath} />
+                                <Modal.Header className='text-muted-foreground mx-auto items-center text-center'>
+                                    <Icon className='text-danger size-20' />
+                                </Modal.Header>
+                                <Modal.Body>
+                                    <h1 className='text-muted-foreground text-center text-balance'>
+                                        Are you sure you want to delete
+                                        <p className='text-foreground'>{item.name}</p>
+                                    </h1>
+                                </Modal.Body>
+                                <Modal.Footer className='gap-4'>
+                                    <Button
+                                        fullWidth
+                                        className='bg-default/40 rounded-full'
+                                        isDisabled={isDeleting}
+                                        size='sm'
+                                        variant='secondary'
+                                        onPress={() => onOpenChange(false)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        fullWidth
+                                        isDisabled={isDeleting}
+                                        isPending={isDeleting}
+                                        size='sm'
+                                        type='submit'
+                                        variant='danger'
+                                    >
+                                        {isDeleting ? 'Deleting...' : 'Delete'}
+                                    </Button>
+                                </Modal.Footer>
+                            </form>
+                        </Modal.Dialog>
+                    </Modal.Container>
+                </Modal.Backdrop>
             </Modal>
         )
     }
@@ -131,22 +128,21 @@ export function Delete({
                     <DrawerFooter className='flex-row gap-4'>
                         <Button
                             fullWidth
-                            className='bg-default/40'
+                            className='bg-default/40 rounded-full'
                             isDisabled={isDeleting}
-                            radius='full'
                             size='sm'
+                            variant='secondary'
                             onPress={() => onOpenChange(false)}
                         >
                             Cancel
                         </Button>
                         <Button
                             fullWidth
-                            color='danger'
                             isDisabled={isDeleting}
-                            isLoading={isDeleting}
-                            radius='full'
+                            isPending={isDeleting}
                             size='sm'
                             type='submit'
+                            variant='danger'
                         >
                             {isDeleting ? 'Deleting...' : 'Delete'}
                         </Button>
@@ -156,3 +152,6 @@ export function Delete({
         </Drawer>
     )
 }
+
+
+

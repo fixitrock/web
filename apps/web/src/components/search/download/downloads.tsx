@@ -1,22 +1,47 @@
 'use client'
 
 import React from 'react'
-import { Button, Progress } from '@heroui/react'
-import { FaPlay, FaStop, FaTrash, FaPause } from 'react-icons/fa'
+import { Button, ProgressBar } from '@heroui/react'
+import { FaPause, FaPlay, FaStop, FaTrash } from 'react-icons/fa'
 
+import { useDownloadWarning } from '@/hooks/useDownloadWarning'
+import { useDownload } from '@/hooks/useDownload'
 import { CommandGroup, CommandItem, CommandSeparator, CommandShortcut } from '@/ui/command'
 import { formatBytes } from '@/lib/utils'
-import { useDownloadWarning } from '@/hooks/useDownloadWarning'
-import { DownloadItem, useDownloadStore } from '@/zustand/store'
-import { useDownload } from '@/hooks/useDownload'
 import { Thumbnail } from '@/ui'
+import { DownloadItem, useDownloadStore } from '@/zustand/store'
+
+function ActionIconButton({
+    icon,
+    label,
+    onPress,
+    variant = 'ghost',
+}: {
+    icon: React.ReactNode
+    label: string
+    onPress: () => void
+    variant?: 'ghost' | 'danger-soft' | 'tertiary'
+}) {
+    return (
+        <Button
+            isIconOnly
+            aria-label={label}
+            className='rounded-full'
+            size='sm'
+            variant={variant}
+            onPress={onPress}
+        >
+            {icon}
+        </Button>
+    )
+}
 
 function groupDownloadsByDate(downloads: DownloadItem[]) {
     const groups: Record<string, DownloadItem[]> = {}
     const todayStr = new Date().toDateString()
 
-    for (const d of downloads) {
-        const date = new Date(d.startTime || Date.now())
+    for (const download of downloads) {
+        const date = new Date(download.startTime || Date.now())
         const key =
             date.toDateString() === todayStr
                 ? 'Today'
@@ -27,7 +52,7 @@ function groupDownloadsByDate(downloads: DownloadItem[]) {
                   })
 
         if (!groups[key]) groups[key] = []
-        groups[key].push(d)
+        groups[key].push(download)
     }
 
     return groups
@@ -82,12 +107,13 @@ export function Downloads() {
                 ? Math.ceil(remaining / speed)
                 : 0
 
-        function formatTimeRemaining(sec: number) {
-            if (sec < 60) return `${sec}s left`
-            if (sec < 3600) return `${Math.floor(sec / 60)}m ${sec % 60}s left`
+        function formatTimeRemaining(seconds: number) {
+            if (seconds < 60) return `${seconds}s left`
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s left`
 
-            return `${Math.floor(sec / 3600)}h ${Math.floor((sec % 3600) / 60)}m left`
+            return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m left`
         }
+
         function getSpeedText() {
             if (isCompleted || isPaused || isError || isCancelled) return '0 B/s'
             if (download.status === 'queued') return `Queue #${download.queuePosition || '?'}`
@@ -95,119 +121,102 @@ export function Downloads() {
 
             return speed > 0 ? `${formatBytes(speed)}/s` : 'Calculating speed...'
         }
-        function getStatusText() {
-            if (isCancelled) return 'Cancelled'
-            if (isError) return download.error || 'Error'
-            if (isCompleted) return 'Completed'
-            if (isPaused) return 'Paused'
-            if (download.status === 'queued')
-                return `Queue Position ${download.queuePosition || '?'}`
-            if (progressPercentage === 0 && speed === 0 && downloaded === 0) return 'Starting...'
-            if (speed === 0 && downloaded > 0) return 'Calculating speed...'
 
-            return timeRemaining > 0 ? formatTimeRemaining(timeRemaining) : 'Downloading...'
-        }
         function getProgressColor() {
             if (isCancelled || isError) return 'danger'
             if (isCompleted) return 'success'
             if (isPaused) return 'warning'
-            if (download.status === 'queued') return 'secondary'
-            if (progressPercentage === 0 && speed === 0 && downloaded === 0) return 'secondary'
+            if (download.status === 'queued') return 'default'
+            if (progressPercentage === 0 && speed === 0 && downloaded === 0) return 'default'
 
-            return 'primary'
+            return 'accent'
         }
 
         return {
             downloaded,
             total,
-            speed,
-            isPaused,
             isCompleted,
             isError,
             isCancelled,
             progressPercentage,
             canResume,
             getSpeedText,
-            getStatusText,
             getProgressColor,
+            statusText:
+                isCancelled
+                    ? 'Cancelled'
+                    : isError
+                      ? download.error || 'Error'
+                      : isCompleted
+                        ? 'Completed'
+                        : isPaused
+                          ? 'Paused'
+                          : download.status === 'queued'
+                            ? `Queue Position ${download.queuePosition || '?'}`
+                            : progressPercentage === 0 && speed === 0 && downloaded === 0
+                              ? 'Starting...'
+                              : speed === 0 && downloaded > 0
+                                ? 'Calculating speed...'
+                                : timeRemaining > 0
+                                  ? formatTimeRemaining(timeRemaining)
+                                  : 'Downloading...',
         }
     }
 
     function getActions(download: DownloadItem, status: ReturnType<typeof getDownloadStatus>) {
         if (status.isCompleted) {
             return (
-                <Button
-                    isIconOnly
-                    color='danger'
-                    radius='full'
-                    size='sm'
-                    startContent={<FaTrash className='text-danger' size={14} />}
-                    title='Remove from history'
-                    variant='light'
+                <ActionIconButton
+                    icon={<FaTrash className='text-danger' size={14} />}
+                    label='Remove from history'
+                    variant='danger-soft'
                     onPress={() => removeDownload(download.id)}
                 />
             )
         }
+
         if (status.isCancelled || status.isError) {
             return (
                 <>
-                    {status.canResume && (
-                        <Button
-                            isIconOnly
-                            color='primary'
-                            radius='full'
-                            size='sm'
-                            startContent={<FaPlay size={14} />}
-                            title='Retry download'
-                            variant='light'
+                    {status.canResume ? (
+                        <ActionIconButton
+                            icon={<FaPlay size={14} />}
+                            label='Retry download'
+                            variant='tertiary'
                             onPress={() => resumeDownload(download)}
                         />
-                    )}
-                    <Button
-                        isIconOnly
-                        color='danger'
-                        radius='full'
-                        size='sm'
-                        startContent={<FaTrash className='text-danger' size={14} />}
-                        title='Remove from history'
-                        variant='light'
+                    ) : null}
+                    <ActionIconButton
+                        icon={<FaTrash className='text-danger' size={14} />}
+                        label='Remove from history'
+                        variant='danger-soft'
                         onPress={() => removeDownload(download.id)}
                     />
                 </>
             )
         }
+
         if (download.status === 'queued') {
             return (
-                <Button
-                    isIconOnly
-                    radius='full'
-                    size='sm'
-                    startContent={<FaStop size={14} />}
-                    title='Cancel download'
-                    variant='light'
+                <ActionIconButton
+                    icon={<FaStop size={14} />}
+                    label='Cancel download'
                     onPress={() => cancelDownload(download.id)}
                 />
             )
         }
-        if (status.isPaused) {
+
+        if (download.status === 'paused') {
             return (
                 <>
-                    <Button
-                        isIconOnly
-                        radius='full'
-                        size='sm'
-                        startContent={<FaPlay size={14} />}
-                        title='Resume'
-                        variant='light'
+                    <ActionIconButton
+                        icon={<FaPlay size={14} />}
+                        label='Resume'
                         onPress={() => resumeDownload(download)}
                     />
-                    <Button
-                        isIconOnly
-                        radius='full'
-                        size='sm'
-                        startContent={<FaStop size={14} />}
-                        title='Cancel download'
-                        variant='light'
+                    <ActionIconButton
+                        icon={<FaStop size={14} />}
+                        label='Cancel download'
                         onPress={() => cancelDownload(download.id)}
                     />
                 </>
@@ -216,22 +225,14 @@ export function Downloads() {
 
         return (
             <>
-                <Button
-                    isIconOnly
-                    radius='full'
-                    size='sm'
-                    startContent={<FaPause size={14} />}
-                    title='Pause'
-                    variant='light'
+                <ActionIconButton
+                    icon={<FaPause size={14} />}
+                    label='Pause'
                     onPress={() => pauseDownload(download.id)}
                 />
-                <Button
-                    isIconOnly
-                    radius='full'
-                    size='sm'
-                    startContent={<FaStop size={14} />}
-                    title='Cancel download'
-                    variant='light'
+                <ActionIconButton
+                    icon={<FaStop size={14} />}
+                    label='Cancel download'
                     onPress={() => cancelDownload(download.id)}
                 />
             </>
@@ -242,7 +243,7 @@ export function Downloads() {
         <>
             {sortedDateKeys.map((group, index) => (
                 <React.Fragment key={group}>
-                    <CommandGroup key={group} heading={group}>
+                    <CommandGroup heading={group}>
                         {downloadsByDate[group]?.map((download) => {
                             const status = getDownloadStatus(download)
 
@@ -268,7 +269,7 @@ export function Downloads() {
                                                 </span>
                                             ) : (
                                                 <div className='flex w-full flex-col'>
-                                                    <Progress
+                                                    <ProgressBar
                                                         aria-label={`${download.name} - ${status.progressPercentage}%`}
                                                         className='my-0.5'
                                                         color={status.getProgressColor()}
@@ -292,14 +293,12 @@ export function Downloads() {
                                             )}
                                         </div>
                                     </div>
-                                    <CommandShortcut>
-                                        {getActions(download, status)}
-                                    </CommandShortcut>
+                                    <CommandShortcut>{getActions(download, status)}</CommandShortcut>
                                 </CommandItem>
                             )
                         })}
                     </CommandGroup>
-                    {index < sortedDateKeys.length - 1 && <CommandSeparator />}
+                    {index < sortedDateKeys.length - 1 ? <CommandSeparator /> : null}
                 </React.Fragment>
             ))}
         </>

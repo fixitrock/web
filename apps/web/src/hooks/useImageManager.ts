@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react'
-import { addToast } from '@heroui/react'
+﻿import { useState, useRef, useEffect } from 'react'
+import { toast } from '@heroui/react'
 
 import { Product } from '@/types/products'
 
@@ -93,10 +93,7 @@ export function useImageManager({
 
         // Limit to 4 images total (existing + new)
         if (existingImages.length + images.length + fileArr.length > 4) {
-            addToast({
-                title: 'You can upload up to 4 images only.',
-                color: 'warning',
-            })
+            toast.warning('You can upload up to 4 images only.')
 
             return
         }
@@ -145,3 +142,6 @@ export function useImageManager({
         fileSizeError,
     }
 }
+
+
+

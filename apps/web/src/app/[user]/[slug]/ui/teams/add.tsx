@@ -1,4 +1,4 @@
-// 'use client'
+﻿// 'use client'
 // import { useState, useEffect } from 'react'
 // import {
 //     Modal,
@@ -125,8 +125,8 @@
 //                             <span className='text-lg font-bold'>
 //                                 {mode === 'add' ? 'Add Member' : 'Edit Member'}
 //                             </span>
-//                             <Button isIconOnly variant='light' onPress={() => setOpen(false)}>
-//                                 ✕
+//                             <Button isIconOnly variant='ghost' onPress={() => setOpen(false)}>
+//                                 âœ•
 //                             </Button>
 //                         </ModalHeader>
 //                         <ModalBody className='space-y-4'>
@@ -189,7 +189,7 @@
 //                             )}
 //                         </ModalBody>
 //                         <ModalFooter className='flex justify-end gap-2'>
-//                             <Button variant='light' onPress={() => setOpen(false)}>
+//                             <Button variant='ghost' onPress={() => setOpen(false)}>
 //                                 Cancel
 //                             </Button>
 //                             <Button color='primary' type='submit'>
@@ -202,3 +202,6 @@
 //         </>
 //     )
 // }
+
+
+

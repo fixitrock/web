@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { ChevronRight } from 'lucide-react'
 import * as React from 'react'
@@ -80,11 +80,12 @@ function DrawerContent({
                         <Button
                             isIconOnly
                             aria-label='Close drawer'
-                            radius='full'
+                            className='rounded-full'
                             size='sm'
-                            startContent={<ChevronRight />}
-                            variant='light'
-                        />
+                            variant='ghost'
+                        >
+                            <ChevronRight />
+                        </Button>
                     </DrawerPrimitive.Close>
                 )}
 
@@ -162,3 +163,6 @@ export {
     DrawerTitle,
     DrawerDescription,
 }
+
+
+

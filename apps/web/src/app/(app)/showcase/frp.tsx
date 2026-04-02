@@ -1,7 +1,7 @@
-'use client'
+﻿'use client'
 
 import Image from 'next/image'
-import { Card } from '@heroui-v3/react'
+import { Card } from '@heroui/react'
 import Autoplay from 'embla-carousel-autoplay'
 import Link from 'next/link'
 import { SiSupabase } from 'react-icons/si'
@@ -67,3 +67,5 @@ export default function FRP() {
         </TitleAction>
     )
 }
+
+

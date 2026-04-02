@@ -1,7 +1,7 @@
-'use client'
+﻿'use client'
 import { ShoppingBag, Store } from 'lucide-react'
 import Image from 'next/image'
-import { Skeleton } from '@heroui-v3/react'
+import { Skeleton } from '@heroui/react'
 import { Carousel, CarouselContent, CarouselItem } from '@/ui/carousel'
 import { formatPrice } from '@/lib/utils'
 import TimeAgo from 'react-timeago'
@@ -125,4 +125,6 @@ function NoOrders() {
         </div>
     )
 }
+
+
 

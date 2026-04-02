@@ -461,3 +461,110 @@ export function balanceColor(balance: number, view: 'seller' | 'user' = 'user'):
 
     return 'text-muted-foreground'
 }
+
+type Status = 'pending' | 'clear' | 'settled'
+
+export function transactionStatus(balance: number, view: 'seller' | 'user'): Status {
+    const displayBalance = view === 'seller' ? -balance : balance
+
+    if (displayBalance > 0) return 'pending'
+    if (displayBalance < 0) return 'settled'
+    return 'clear'
+}
+
+export function transactionMsg({
+    name,
+    balance,
+    view,
+    upiId,
+}: {
+    name: string
+    balance: number
+    view: 'seller' | 'user'
+    upiId?: string
+}) {
+    const status = transactionStatus(balance, view)
+    const amount = Math.abs(balance)
+    const formatted = formatPrice(amount)
+
+    const greeting = `Ram Ram ${name} ji 🙏`
+    const divider = `────────────`
+
+    const upiLink =
+        upiId && amount > 0
+            ? generateUpiLink({
+                  upiId,
+                  name,
+                  amount,
+                  note: `Payment for pending balance`,
+              })
+            : null
+
+    if (status === 'pending') {
+        return `${greeting}
+
+🧾 Payment Reminder
+${divider}
+
+Aap par *${formatted}* baki hai 💰
+
+Kripya jaldi payment kar dein 🙏
+
+${
+    upiLink
+        ? `📲 Tap to Pay:
+${upiLink}
+
+(Click karte hi UPI app open ho jayega)`
+        : ''
+}
+
+Dhanyavaad 🙏`
+    }
+
+    if (status === 'settled') {
+        return `${greeting}
+
+🔄 Payment Update
+${divider}
+
+Mujhe aapko *${formatted}* dena hai 💰
+
+Main jaldi settle kar dunga 👍`
+    }
+
+    return `${greeting}
+
+✅ Account Update
+${divider}
+
+Hamara hisaab clear hai 🎉`
+}
+
+export function generateUpiLink({
+    upiId,
+    name,
+    amount,
+    note,
+}: {
+    upiId: string
+    name: string
+    amount?: number
+    note?: string
+}) {
+    const params = new URLSearchParams({
+        pa: upiId, // payee address
+        pn: name, // payee name
+        cu: 'INR',
+    })
+
+    if (amount && amount > 0) {
+        params.append('am', amount.toString())
+    }
+
+    if (note) {
+        params.append('tn', note)
+    }
+
+    return `upi://pay?${params.toString()}`
+}

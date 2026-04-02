@@ -1,54 +1,56 @@
 'use client'
-import type { Navigation } from '@/app/login/types'
+import type { Navigation as NavigationItem } from '@/app/login/types'
 
-import { Listbox, ListboxItem } from '@heroui/react'
-import React from 'react'
+import { Header, Label, ListBox } from '@heroui/react'
 import * as Icons from 'lucide-react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import React from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 
 type NavLinksProps = {
-    navigation: Navigation[]
+    navigation: NavigationItem[]
     onClose?: () => void
 }
 
 export function Navigation({ navigation, onClose }: NavLinksProps) {
     const pathname = usePathname()
-    const handleClick = () => {
+    const router = useRouter()
+
+    const handleAction = (key: React.Key) => {
         if (onClose) onClose()
+        router.push(String(key))
     }
 
     return (
-        <Listbox
+        <ListBox
             aria-label='Navigation'
             className='w-full'
-            items={navigation}
-            selectedKeys={pathname}
-            variant='flat'
+            selectedKeys={new Set([pathname])}
+            selectionMode='single'
+            onAction={handleAction}
         >
-            {navigation.map((n) => {
-                const iconName = n.icon.charAt(0).toUpperCase() + n.icon.slice(1)
-                const LucideIcon = Icons[iconName as keyof typeof Icons] as
-                    | React.ElementType
-                    | undefined
+            <ListBox.Section>
+                <Header className='sr-only'>Navigation</Header>
+                {navigation.map((item) => {
+                    const iconName = item.icon.charAt(0).toUpperCase() + item.icon.slice(1)
+                    const LucideIcon = Icons[iconName as keyof typeof Icons] as
+                        | React.ElementType
+                        | undefined
 
-                return (
-                    <ListboxItem
-                        key={n.href}
-                        as={Link}
-                        className='data-[hover=true]:bg-muted/50'
-                        href={n.href}
-                        startContent={
-                            LucideIcon ? (
+                    return (
+                        <ListBox.Item
+                            key={item.href}
+                            id={item.href}
+                            className='data-[focused=true]:bg-muted/50 data-[hovered=true]:bg-muted/50'
+                            textValue={item.title}
+                        >
+                            {LucideIcon ? (
                                 <LucideIcon className='text-muted-foreground mx-auto' size={18} />
-                            ) : null
-                        }
-                        onPress={handleClick}
-                    >
-                        {n.title}
-                    </ListboxItem>
-                )
-            })}
-        </Listbox>
+                            ) : null}
+                            <Label>{item.title}</Label>
+                        </ListBox.Item>
+                    )
+                })}
+            </ListBox.Section>
+        </ListBox>
     )
 }

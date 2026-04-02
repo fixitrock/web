@@ -1,16 +1,8 @@
-'use client'
+﻿'use client'
 
 import * as React from 'react'
 import { useActionState } from 'react'
-import {
-    Button,
-    Modal,
-    ModalContent,
-    Input,
-    ModalFooter,
-    ModalHeader,
-    ModalBody,
-} from '@heroui/react'
+import { Button, FieldError, InputGroup, Label, Modal, TextField } from '@heroui/react'
 
 import { canRename } from '@/actions/drive'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
@@ -96,76 +88,80 @@ export function Rename({
 
     if (isDesktop) {
         return (
-            <Modal
-                className='bg-background/80 border backdrop-blur'
-                isOpen={open}
-                shadow='none'
-                size='md'
-                onOpenChange={onOpenChange}
-            >
-                <form action={renameAction}>
-                    <input name='itemId' type='hidden' value={item.id} />
-                    <input name='currentPath' type='hidden' value={currentPath} />
-                    <input name='extension' type='hidden' value={extension} />
+            <Modal>
+                <Modal.Backdrop isOpen={open} onOpenChange={onOpenChange} variant='blur'>
+                    <Modal.Container className='rounded-[20px] border bg-background/80 backdrop-blur' size='md'>
+                        <Modal.Dialog>
+                            <form action={renameAction}>
+                                <input name='itemId' type='hidden' value={item.id} />
+                                <input name='currentPath' type='hidden' value={currentPath} />
+                                <input name='extension' type='hidden' value={extension} />
 
-                    <ModalContent>
-                        <ModalHeader className='flex-col'>
-                            <h3 className='text-foreground font-semibold'>
-                                Rename {item.folder ? 'folder' : 'file'}
-                            </h3>
-                            <p className='text-muted-foreground text-sm'>
-                                Enter a new name for{' '}
-                                <span className='text-foreground'>"{item.name}"</span>
-                            </p>
-                        </ModalHeader>
-                        <ModalBody>
-                            <Input
-                                isRequired
-                                endContent={
-                                    extension && (
-                                        <p className='text-muted-foreground'>{extension}</p>
-                                    )
-                                }
-                                isDisabled={isRenaming}
-                                name='newName'
-                                placeholder={nameWithoutExt}
-                                size='sm'
-                                startContent={
-                                    <Icon className='mx-auto size-5! shrink-0' name={item.name} />
-                                }
-                                value={newName}
-                                onValueChange={setNewName}
-                            />
-                        </ModalBody>
-                        <ModalFooter className='gap-4'>
-                            <Button
-                                fullWidth
-                                className='bg-default/40'
-                                isDisabled={isRenaming}
-                                radius='full'
-                                size='sm'
-                                onPress={() => onOpenChange(false)}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                fullWidth
-                                color='primary'
-                                isDisabled={
-                                    isRenaming ||
-                                    !newName.trim() ||
-                                    newName.trim() === nameWithoutExt
-                                }
-                                isLoading={isRenaming}
-                                radius='full'
-                                size='sm'
-                                type='submit'
-                            >
-                                Rename
-                            </Button>
-                        </ModalFooter>
-                    </ModalContent>
-                </form>
+                                <Modal.Header className='flex-col'>
+                                    <Modal.Heading className='text-foreground font-semibold'>
+                                        Rename {item.folder ? 'folder' : 'file'}
+                                    </Modal.Heading>
+                                    <p className='text-muted-foreground text-sm'>
+                                        Enter a new name for{' '}
+                                        <span className='text-foreground'>"{item.name}"</span>
+                                    </p>
+                                </Modal.Header>
+                                <Modal.Body>
+                                    <TextField
+                                        isDisabled={isRenaming}
+                                        isInvalid={!newName.trim()}
+                                        isRequired
+                                        name='newName'
+                                    >
+                                        <Label className='sr-only'>New name</Label>
+                                        <InputGroup>
+                                            <InputGroup.Prefix>
+                                                <Icon className='mx-auto size-5! shrink-0' name={item.name} />
+                                            </InputGroup.Prefix>
+                                            <InputGroup.Input
+                                                placeholder={nameWithoutExt}
+                                                value={newName}
+                                                onChange={(event) => setNewName(event.target.value)}
+                                            />
+                                            {extension ? (
+                                                <InputGroup.Suffix>
+                                                    <p className='text-muted-foreground'>{extension}</p>
+                                                </InputGroup.Suffix>
+                                            ) : null}
+                                        </InputGroup>
+                                        {!newName.trim() ? <FieldError>Name is required</FieldError> : null}
+                                    </TextField>
+                                </Modal.Body>
+                                <Modal.Footer className='gap-4'>
+                                    <Button
+                                        fullWidth
+                                        className='bg-default/40 rounded-full'
+                                        isDisabled={isRenaming}
+                                        size='sm'
+                                        variant='secondary'
+                                        onPress={() => onOpenChange(false)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        fullWidth
+                                        isDisabled={
+                                            isRenaming ||
+                                            !newName.trim() ||
+                                            newName.trim() === nameWithoutExt
+                                        }
+                                        isPending={isRenaming}
+                                        size='sm'
+                                        type='submit'
+                                        variant='primary'
+                                    >
+                                        Rename
+                                    </Button>
+                                </Modal.Footer>
+                            </form>
+                        </Modal.Dialog>
+                    </Modal.Container>
+                </Modal.Backdrop>
             </Modal>
         )
     }
@@ -184,44 +180,53 @@ export function Rename({
                     <input name='currentPath' type='hidden' value={currentPath} />
                     <input name='extension' type='hidden' value={extension} />
 
-                    <Input
-                        autoFocus
-                        isRequired
-                        className='px-4'
-                        endContent={
-                            extension && <p className='text-muted-foreground'>{extension}</p>
-                        }
-                        isDisabled={isRenaming}
-                        name='newName'
-                        placeholder={nameWithoutExt}
-                        size='sm'
-                        startContent={
-                            <Icon className='mx-auto size-5! shrink-0' name={item.name} />
-                        }
-                        value={newName}
-                        onValueChange={setNewName}
-                    />
+                    <div className='px-4'>
+                        <TextField
+                            isDisabled={isRenaming}
+                            isInvalid={!newName.trim()}
+                            isRequired
+                            name='newName'
+                        >
+                            <Label className='sr-only'>New name</Label>
+                            <InputGroup>
+                                <InputGroup.Prefix>
+                                    <Icon className='mx-auto size-5! shrink-0' name={item.name} />
+                                </InputGroup.Prefix>
+                                <InputGroup.Input
+                                    autoFocus
+                                    placeholder={nameWithoutExt}
+                                    value={newName}
+                                    onChange={(event) => setNewName(event.target.value)}
+                                />
+                                {extension ? (
+                                    <InputGroup.Suffix>
+                                        <p className='text-muted-foreground'>{extension}</p>
+                                    </InputGroup.Suffix>
+                                ) : null}
+                            </InputGroup>
+                            {!newName.trim() ? <FieldError>Name is required</FieldError> : null}
+                        </TextField>
+                    </div>
                     <DrawerFooter className='flex-row gap-4'>
                         <Button
                             fullWidth
-                            className='bg-default/40'
+                            className='bg-default/40 rounded-full'
                             isDisabled={isRenaming}
-                            radius='full'
                             size='sm'
+                            variant='secondary'
                             onPress={() => onOpenChange(false)}
                         >
                             Cancel
                         </Button>
                         <Button
                             fullWidth
-                            color='primary'
                             isDisabled={
                                 isRenaming || !newName.trim() || newName.trim() === nameWithoutExt
                             }
-                            isLoading={isRenaming}
-                            radius='full'
+                            isPending={isRenaming}
                             size='sm'
                             type='submit'
+                            variant='primary'
                         >
                             Rename
                         </Button>
@@ -231,3 +236,6 @@ export function Rename({
         </Drawer>
     )
 }
+
+
+

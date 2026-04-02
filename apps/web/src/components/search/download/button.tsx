@@ -1,11 +1,11 @@
 'use client'
 
-import { Badge, Button } from '@heroui/react'
+import { Button } from '@heroui/react'
 import { ArrowDownToLine } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 
-import { useDownloadStore, useSearchStore } from '@/zustand/store'
 import { useDownloadWarning } from '@/hooks/useDownloadWarning'
+import { useDownloadStore, useSearchStore } from '@/zustand/store'
 
 export function Download() {
     useDownloadWarning()
@@ -16,6 +16,7 @@ export function Download() {
     useEffect(() => {
         setMounted(true)
     }, [])
+
     React.useEffect(() => {
         if (!hasDownloads()) return
 
@@ -37,35 +38,27 @@ export function Download() {
         }
     }, [hasDownloads, isOpen, onClose, onOpen, setTab])
 
-    if (!mounted) {
-        return null
-    }
-
-    if (!hasDownloads()) {
+    if (!mounted || !hasDownloads()) {
         return null
     }
 
     return (
-        <Badge
-            isOneChar
-            className='size-3 min-h-0 min-w-0'
-            color='success'
-            isInvisible={!badge()}
-            shape='circle'
-            size='sm'
-        >
+        <div className='relative'>
             <Button
                 isIconOnly
-                className='bg-default/20'
-                radius='full'
+                className='bg-default/20 rounded-full'
                 size='sm'
-                startContent={<ArrowDownToLine size={18} />}
-                variant='light'
+                variant='ghost'
                 onPress={() => {
                     setTab('downloads')
                     if (!isOpen) onOpen()
                 }}
-            />
-        </Badge>
+            >
+                <ArrowDownToLine size={18} />
+            </Button>
+            {badge() ? (
+                <span className='bg-success absolute top-0 right-0 size-3 rounded-full border border-background' />
+            ) : null}
+        </div>
     )
 }

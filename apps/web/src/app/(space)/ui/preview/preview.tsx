@@ -1,5 +1,5 @@
 'use client'
-import { Modal, ModalContent, ModalHeader } from '@heroui/react'
+import { Modal } from '@heroui/react'
 import { Dispatch, SetStateAction } from 'react'
 
 import { useMediaQuery } from '@/hooks/useMediaQuery'
@@ -20,18 +20,19 @@ export function Preview({ open, setOpen, data }: PreviewProps) {
     return (
         <>
             {isDesktop ? (
-                <Modal
-                    hideCloseButton
-                    className='max-w-5xl'
-                    isOpen={open}
-                    placement='center'
-                    scrollBehavior='inside'
-                    onOpenChange={setOpen}
-                >
-                    <ModalContent className='overflow-auto border p-2 dark:bg-black'>
-                        <Switch file={data} />
-                        <ModalHeader aria-hidden className='hidden' />
-                    </ModalContent>
+                <Modal>
+                    <Modal.Backdrop isOpen={open} variant='blur' onOpenChange={setOpen}>
+                        <Modal.Container
+                            className='max-w-5xl rounded-[20px] border bg-background p-2 dark:bg-black'
+                            placement='center'
+                            scroll='inside'
+                            size='full'
+                        >
+                            <Modal.Dialog>
+                                <Switch file={data} />
+                            </Modal.Dialog>
+                        </Modal.Container>
+                    </Modal.Backdrop>
                 </Modal>
             ) : (
                 <Drawer open={open} onOpenChange={setOpen}>

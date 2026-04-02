@@ -1,37 +1,111 @@
 'use client'
 
 import Image from 'next/image'
-import {
-    Button,
-    Chip,
-    Input,
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    Textarea,
-    ScrollShadow,
-} from '@heroui/react'
-import { CirclePlus, Eye, Plus, Settings2, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useCreateBrand, useUpdateBrand } from '@/hooks/tanstack/mutation'
-import { useCategoryStore } from '@/zustand/store'
+import { Button, Chip, InputGroup, Label, Modal, ScrollShadow, TextField } from '@heroui/react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { CirclePlus, Eye, Plus, Settings2, X } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+
+import { useCreateBrand, useUpdateBrand } from '@/hooks/tanstack/mutation'
 import { bucketUrl } from '@/supabase/bucket'
+import { useCategoryStore } from '@/zustand/store'
 
 interface AddEditProps {
     isOpen: boolean
     onClose: () => void
     type: 'add' | 'edit'
 }
+
+const FIELD_GROUP_CLASS =
+    'bg-default/20 transition-colors hover:bg-default/25 focus-within:bg-default/25'
+
+function Field({
+    label,
+    value,
+    placeholder,
+    required = false,
+    onChange,
+    suffix,
+}: {
+    label: string
+    value: string
+    placeholder: string
+    required?: boolean
+    onChange: (value: string) => void
+    suffix?: React.ReactNode
+}) {
+    return (
+        <TextField isRequired={required}>
+            <Label>{label}</Label>
+            <InputGroup className={FIELD_GROUP_CLASS}>
+                <InputGroup.Input
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={(event) => onChange(event.target.value)}
+                />
+                {suffix ? <InputGroup.Suffix>{suffix}</InputGroup.Suffix> : null}
+            </InputGroup>
+        </TextField>
+    )
+}
+
+function TextAreaField({
+    label,
+    value,
+    placeholder,
+    onChange,
+}: {
+    label: string
+    value: string
+    placeholder: string
+    onChange: (value: string) => void
+}) {
+    return (
+        <TextField>
+            <Label>{label}</Label>
+            <InputGroup className={FIELD_GROUP_CLASS}>
+                <InputGroup.TextArea
+                    placeholder={placeholder}
+                    rows={4}
+                    value={value}
+                    onChange={(event) => onChange(event.target.value)}
+                />
+            </InputGroup>
+        </TextField>
+    )
+}
+
+function KeywordChip({ keyword, onRemove }: { keyword: string; onRemove: () => void }) {
+    return (
+        <div className='inline-flex items-center gap-1 rounded-full border pr-1'>
+            <Chip variant='secondary'>
+                <Chip.Label>{keyword}</Chip.Label>
+            </Chip>
+            <Button
+                isIconOnly
+                aria-label={`Remove ${keyword}`}
+                className='size-6 min-w-0 rounded-full'
+                size='sm'
+                variant='ghost'
+                onPress={onRemove}
+            >
+                <X size={14} />
+            </Button>
+        </div>
+    )
+}
+
 export default function AddEdit({ isOpen, onClose, type }: AddEditProps) {
     const { form, updateForm, resetForm, editingCategory } = useCategoryStore()
     const { mutateAsync: createMutate, isPending: isCreating } = useCreateBrand()
     const { mutateAsync: updateMutate, isPending: isUpdating } = useUpdateBrand()
-
     const [keywordInput, setKeywordInput] = useState('')
     const [previewUrl, setPreviewUrl] = useState('')
+
+    const title = type === 'add' ? 'Add Brand' : 'Edit Brand'
+    const submitLabel = type === 'add' ? 'Add Brand' : 'Update Brand'
+    const icon = type === 'add' ? <CirclePlus size={20} /> : <Settings2 size={20} />
+    const isPending = isCreating || isUpdating
 
     useEffect(() => {
         if (form.imageUrl && form.imageUrl.trim() !== '') {
@@ -43,230 +117,195 @@ export default function AddEdit({ isOpen, onClose, type }: AddEditProps) {
         } else {
             setPreviewUrl('')
         }
-    }, [form.imageUrl])
+    }, [form.imageUrl, form.updated_at])
+
+    const keywords = useMemo(() => form.keywords || [], [form.keywords])
+
+    const handleClose = () => {
+        resetForm()
+        setKeywordInput('')
+        onClose()
+    }
+
+    const addKeyword = () => {
+        const value = keywordInput.trim()
+
+        if (!value) return
+        if (keywords.includes(value)) {
+            setKeywordInput('')
+
+            return
+        }
+
+        updateForm({ keywords: [...keywords, value] })
+        setKeywordInput('')
+    }
+
+    const removeKeyword = (keyword: string) => {
+        updateForm({ keywords: keywords.filter((entry) => entry !== keyword) })
+    }
+
     const handleSubmit = async () => {
         try {
             if (type === 'add') {
                 await createMutate({
-                    name: form.name!,
-                    description: form.description!,
-                    keywords: form.keywords || [],
+                    name: form.name || '',
+                    description: form.description || '',
+                    keywords,
                     imageUrl: form.imageUrl || '',
                 })
             } else if (type === 'edit' && editingCategory) {
                 await updateMutate({
                     ...editingCategory,
-                    name: form.name!,
-                    description: form.description!,
-                    keywords: form.keywords || [],
+                    name: form.name || '',
+                    description: form.description || '',
+                    keywords,
                     imageUrl: form.imageUrl || '',
                 })
             }
 
-            resetForm()
-            onClose()
-        } catch (err) {
-            console.error(err)
+            handleClose()
+        } catch (error) {
+            console.error(error)
         }
     }
-    const Title = type === 'add' ? 'Add Brand' : 'Edit Brand'
-    const Submit = type === 'add' ? 'Add Brand' : 'Update Brand'
-    const Icon = type === 'add' ? <CirclePlus size={20} /> : <Settings2 size={20} />
 
     return (
-        <Modal
-            hideCloseButton
-            className='bg-background max-h-[50vh] border shadow-none backdrop-blur'
-            isOpen={isOpen}
-            placement='center'
-            scrollBehavior='inside'
-            onClose={() => {
-                resetForm()
-                onClose()
-            }}
-        >
-            <ModalContent className='overflow-hidden'>
-                <ModalHeader className='flex-1 items-center justify-between rounded-t-xl border-b p-2 select-none'>
-                    <p className='flex items-center gap-2 text-lg font-semibold'>
-                        {Icon} {Title}
-                    </p>
-                    <Button
-                        isIconOnly
-                        aria-label='Close modal'
-                        className='border'
-                        radius='full'
-                        size='sm'
-                        startContent={<X size={18} />}
-                        variant='light'
-                        onPress={() => {
-                            resetForm()
-                            onClose()
-                        }}
-                    />
-                </ModalHeader>
-
-                <ModalBody className='p-0'>
-                    <ScrollShadow className='flex flex-col gap-3 px-3 py-2'>
-                        <Input
-                            size='sm'
-                            classNames={{
-                                inputWrapper:
-                                    'bg-default/20 group-data-[focus=true]:bg-default/25 data-[hover=true]:bg-default/25',
+        <Modal>
+            <Modal.Backdrop isOpen={isOpen} variant='blur' onOpenChange={(open) => !open && handleClose()}>
+                <Modal.Container
+                    className='rounded-[20px] border bg-background/95 backdrop-blur'
+                    placement='center'
+                    scroll='inside'
+                    size='lg'
+                >
+                    <Modal.Dialog>
+                        <form
+                            onSubmit={async (event) => {
+                                event.preventDefault()
+                                await handleSubmit()
                             }}
-                            label='Name'
-                            labelPlacement='outside'
-                            placeholder='e.g., Apple'
-                            value={form.name || ''}
-                            onChange={(e) => updateForm({ name: e.target.value })}
-                            isRequired
-                        />
-                        <div className='space-y-2'>
-                            <Input
-                                classNames={{
-                                    inputWrapper:
-                                        'bg-default/20 group-data-[focus=true]:bg-default/25 data-[hover=true]:bg-default/25',
-                                }}
-                                size='sm'
-                                label='Keywords'
-                                labelPlacement='outside'
-                                placeholder='Add keyword and press enter'
-                                value={keywordInput}
-                                onChange={(e) => setKeywordInput(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && keywordInput.trim()) {
-                                        e.preventDefault()
-                                        updateForm({
-                                            keywords: [
-                                                ...(form.keywords || []),
-                                                keywordInput.trim(),
-                                            ],
-                                        })
-                                        setKeywordInput('')
-                                    }
-                                }}
-                                endContent={
-                                    <Button
-                                        radius='full'
-                                        size='sm'
-                                        isDisabled={!keywordInput.trim()}
-                                        className='size-6 min-h-auto min-w-auto shrink-0 items-center p-0'
-                                        startContent={<Plus size={18} />}
-                                        onPress={() => {
-                                            if (keywordInput.trim()) {
-                                                updateForm({
-                                                    keywords: [
-                                                        ...(form.keywords || []),
-                                                        keywordInput.trim(),
-                                                    ],
-                                                })
-                                                setKeywordInput('')
-                                            }
-                                        }}
-                                    />
-                                }
-                            />
-
-                            {form.keywords && (
-                                <motion.div
-                                    className='flex flex-wrap gap-1'
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
-                                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                        >
+                            <Modal.Header className='items-center justify-between border-b p-3'>
+                                <div className='flex items-center gap-2 text-lg font-semibold'>
+                                    {icon}
+                                    <span>{title}</span>
+                                </div>
+                                <Button
+                                    isIconOnly
+                                    aria-label='Close modal'
+                                    className='rounded-full border'
+                                    size='sm'
+                                    variant='ghost'
+                                    onPress={handleClose}
                                 >
-                                    <AnimatePresence>
-                                        {form.keywords.map((kw) => (
-                                            <motion.div
-                                                key={kw}
-                                                layout
-                                                initial={{ opacity: 0, scale: 0.8, y: -5 }}
-                                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                exit={{ opacity: 0, scale: 0.8, y: 0 }}
-                                                transition={{
-                                                    type: 'spring',
-                                                    stiffness: 500,
-                                                    damping: 30,
-                                                }}
-                                            >
-                                                <Chip
-                                                    variant='flat'
-                                                    onClose={() =>
-                                                        updateForm({
-                                                            keywords: form.keywords?.filter(
-                                                                (k) => k !== kw
-                                                            ),
-                                                        })
+                                    <X size={18} />
+                                </Button>
+                            </Modal.Header>
+
+                            <Modal.Body className='p-0'>
+                                <ScrollShadow className='flex max-h-[65vh] flex-col gap-4 px-4 py-3'>
+                                    <Field
+                                        label='Name'
+                                        placeholder='e.g., Apple'
+                                        required
+                                        value={form.name || ''}
+                                        onChange={(value) => updateForm({ name: value })}
+                                    />
+
+                                    <TextField>
+                                        <Label>Keywords</Label>
+                                        <InputGroup className={FIELD_GROUP_CLASS}>
+                                            <InputGroup.Input
+                                                placeholder='Add keyword and press enter'
+                                                value={keywordInput}
+                                                onChange={(event) => setKeywordInput(event.target.value)}
+                                                onKeyDown={(event) => {
+                                                    if (event.key === 'Enter') {
+                                                        event.preventDefault()
+                                                        addKeyword()
                                                     }
+                                                }}
+                                            />
+                                            <InputGroup.Suffix>
+                                                <Button
+                                                    isIconOnly
+                                                    aria-label='Add keyword'
+                                                    className='size-7 min-w-0 rounded-full'
+                                                    isDisabled={!keywordInput.trim()}
+                                                    size='sm'
+                                                    variant='secondary'
+                                                    onPress={addKeyword}
                                                 >
-                                                    {kw}
-                                                </Chip>
-                                            </motion.div>
-                                        ))}
-                                    </AnimatePresence>
-                                </motion.div>
-                            )}
-                        </div>
-                        <Textarea
-                            size='sm'
-                            classNames={{
-                                inputWrapper:
-                                    'bg-default/20 group-data-[focus=true]:bg-default/25 data-[hover=true]:bg-default/25',
-                            }}
-                            label='Description'
-                            labelPlacement='outside'
-                            placeholder='Describe this brand . . .'
-                            value={form.description || ''}
-                            onChange={(e) => updateForm({ description: e.target.value })}
-                        />
+                                                    <Plus size={18} />
+                                                </Button>
+                                            </InputGroup.Suffix>
+                                        </InputGroup>
+                                    </TextField>
 
-                        <div className='space-y-2'>
-                            <Input
-                                classNames={{
-                                    inputWrapper:
-                                        'bg-default/20 group-data-[focus=true]:bg-default/25 data-[hover=true]:bg-default/25',
-                                }}
-                                size='sm'
-                                label='Image URL'
-                                labelPlacement='outside'
-                                placeholder='Enter image URL (e.g. https://fixitrock.com/icon.png)'
-                                value={form.imageUrl || ''}
-                                onChange={(e) => updateForm({ imageUrl: e.target.value })}
-                            />
-                            {previewUrl && (
-                                <ImagePreview
-                                    src={previewUrl}
-                                    alt={form.name || 'Category image'}
-                                    onRemove={() => updateForm({ imageUrl: '' })}
-                                />
-                            )}
-                        </div>
-                    </ScrollShadow>
-                </ModalBody>
+                                    {keywords.length ? (
+                                        <motion.div
+                                            className='flex flex-wrap gap-2'
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: 'auto', opacity: 1 }}
+                                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                        >
+                                            <AnimatePresence>
+                                                {keywords.map((keyword) => (
+                                                    <motion.div
+                                                        key={keyword}
+                                                        layout
+                                                        initial={{ opacity: 0, scale: 0.8, y: -5 }}
+                                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                        exit={{ opacity: 0, scale: 0.8, y: 0 }}
+                                                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                                                    >
+                                                        <KeywordChip
+                                                            keyword={keyword}
+                                                            onRemove={() => removeKeyword(keyword)}
+                                                        />
+                                                    </motion.div>
+                                                ))}
+                                            </AnimatePresence>
+                                        </motion.div>
+                                    ) : null}
 
-                <ModalFooter className='flex-row-reverse border-t p-2'>
-                    <Button
-                        className='w-full'
-                        color='primary'
-                        isLoading={isCreating || isUpdating}
-                        radius='full'
-                        onPress={handleSubmit}
-                        size='sm'
-                    >
-                        {Submit}
-                    </Button>
-                    <Button
-                        className='w-full border'
-                        radius='full'
-                        variant='light'
-                        size='sm'
-                        onPress={() => {
-                            resetForm()
-                            onClose()
-                        }}
-                    >
-                        Cancel
-                    </Button>
-                </ModalFooter>
-            </ModalContent>
+                                    <TextAreaField
+                                        label='Description'
+                                        placeholder='Describe this brand...'
+                                        value={form.description || ''}
+                                        onChange={(value) => updateForm({ description: value })}
+                                    />
+
+                                    <Field
+                                        label='Image URL'
+                                        placeholder='Enter image URL (e.g. https://fixitrock.com/icon.png)'
+                                        value={form.imageUrl || ''}
+                                        onChange={(value) => updateForm({ imageUrl: value })}
+                                    />
+
+                                    {previewUrl ? (
+                                        <ImagePreview
+                                            alt={form.name || 'Brand image'}
+                                            src={previewUrl}
+                                            onRemove={() => updateForm({ imageUrl: '' })}
+                                        />
+                                    ) : null}
+                                </ScrollShadow>
+                            </Modal.Body>
+
+                            <Modal.Footer className='flex-row-reverse gap-2 border-t p-3'>
+                                <Button fullWidth isPending={isPending} size='sm' type='submit' variant='primary'>
+                                    {submitLabel}
+                                </Button>
+                                <Button fullWidth size='sm' variant='secondary' onPress={handleClose}>
+                                    Cancel
+                                </Button>
+                            </Modal.Footer>
+                        </form>
+                    </Modal.Dialog>
+                </Modal.Container>
+            </Modal.Backdrop>
         </Modal>
     )
 }
@@ -319,3 +358,4 @@ const ImagePreview = ({
         </div>
     )
 }
+

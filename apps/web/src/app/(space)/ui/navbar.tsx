@@ -2,14 +2,14 @@
 
 import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button, Link, Navbar as Header } from '@heroui/react'
+import { Button } from '@heroui/react'
 import { ChevronLeft } from 'lucide-react'
 
 import { Input, SortBy, SwitchLayout } from '@/app/(space)/ui'
-import { cn } from '@/lib/utils'
 import { SortField, SortOrder } from '@/types/drive'
 
 import { formatTitle } from '../utils'
+import StickyTop from '@/ui/farmer/sticky'
 
 interface NavbarProps {
     title?: string
@@ -62,45 +62,29 @@ export function Navbar({
     const lastSegment = title?.split('/').pop()
 
     return (
-        <Header
-            shouldHideOnScroll
-            className={cn('', className)}
-            classNames={{
-                wrapper: 'h-auto p-0 py-2',
-            }}
-            maxWidth='full'
-        >
-            <div className='hidden items-center gap-1.5 select-none sm:flex'>
-                <Button
-                    as={Link}
-                    className='h-8 w-8 min-w-0 p-0'
-                    href={backHref}
-                    radius='full'
-                    size='sm'
-                    variant='light'
-                >
+        <StickyTop>
+            <div className='hidden flex-1 items-center gap-1.5 select-none sm:flex'>
+                <Button isIconOnly size='sm' variant='ghost' onPress={() => router.push(backHref)}>
                     <ChevronLeft size={20} />
                 </Button>
                 <h1 className='truncate text-base font-bold sm:text-lg'>
                     {formatTitle(lastSegment)}
                 </h1>
             </div>
-            <div className='ml-auto flex w-full items-center sm:max-w-87.5'>
-                <Input
-                    end={
-                        <>
-                            <SwitchLayout />
-                            <span className='text-muted-foreground text-xs'>|</span>
-                            <SortBy sort={handleSort} />
-                        </>
-                    }
-                    hotKey='F'
-                    href={backHref}
-                    placeholder={`Search in ${formatTitle(lastSegment)} . . .`}
-                    value={query}
-                    onInput={(e) => handleQueryChange(e.currentTarget.value)}
-                />
-            </div>
-        </Header>
+            <Input
+                end={
+                    <>
+                        <SwitchLayout />
+                        <span className='text-muted-foreground text-xs'>|</span>
+                        <SortBy sort={handleSort} />
+                    </>
+                }
+                hotKey='F'
+                href={backHref}
+                placeholder={`Search in ${formatTitle(lastSegment)} . . .`}
+                value={query}
+                onInput={(e) => handleQueryChange(e.currentTarget.value)}
+            />
+        </StickyTop>
     )
 }

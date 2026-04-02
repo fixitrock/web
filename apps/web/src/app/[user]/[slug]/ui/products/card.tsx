@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { CanType } from '@/actions/auth'
 import { Input } from '@/app/(space)/ui'
@@ -6,7 +6,8 @@ import { useDebounce } from '@/hooks'
 import { useUserProducts } from '@/hooks/tanstack/query'
 import { formatPrice, getProductImage } from '@/lib/utils'
 import { Product, Products } from '@/types/product'
-import { Navbar, Button, Card, useDisclosure } from '@heroui/react'
+import { Button, Card, useOverlayState } from '@heroui/react'
+import { Navbar } from '@heroui/navbar'
 import { Plus } from 'lucide-react'
 import { useState, memo } from 'react'
 import { ProductGridSkeleton } from './skeleton'
@@ -17,39 +18,46 @@ import AnimatedDiv from '@/ui/farmer/div'
 import { BlogCardAnimation, fromLeftVariant } from '@/lib/FramerMotionVariants'
 
 const ProductCard = memo(({ product }: { product: Product }) => {
-    const { isOpen, onOpen, onOpenChange } = useDisclosure()
+    const overlayState = useOverlayState()
     const imageUrl = getProductImage(product)
 
     return (
         <div className='relative'>
-            <Card
-                isPressable
-                className='bg-background size-full gap-2 rounded-xl border p-1.5 will-change-transform'
-                shadow='none'
-                onPress={onOpen}
+            <button
+                className='w-full text-left'
+                type='button'
+                onClick={overlayState.open}
             >
-                <div className='bg-default/10 relative aspect-square w-full overflow-hidden rounded-lg'>
-                    {imageUrl && (
-                        <Image
-                            alt={product.name}
-                            src={imageUrl}
-                            fill
-                            className='object-cover select-none'
-                            sizes='(max-width: 640px) 140px, 220px'
-                        />
-                    )}
-                </div>
-                <div className='flex flex-1 flex-col'>
-                    <h3 className='line-clamp-1 text-start text-sm font-semibold'>
-                        {product.name}
-                    </h3>
-                    <div className='text-muted-foreground flex w-full justify-between text-xs'>
-                        <span>{product.category}</span>
-                        <span>{formatPrice(product.variants?.[0]?.price ?? 0)}</span>
+                <Card className='bg-background size-full gap-2 rounded-xl border p-1.5 will-change-transform shadow-none'>
+                    <div className='bg-default/10 relative aspect-square w-full overflow-hidden rounded-lg'>
+                        {imageUrl ? (
+                            <Image
+                                alt={product.name}
+                                className='object-cover select-none'
+                                fill
+                                sizes='(max-width: 640px) 140px, 220px'
+                                src={imageUrl}
+                            />
+                        ) : null}
                     </div>
-                </div>
-            </Card>
-            <ProductModal isOpen={isOpen} product={product} onOpenChange={onOpenChange} />
+                    <Card.Content className='p-0'>
+                        <div className='flex flex-1 flex-col'>
+                            <h3 className='line-clamp-1 text-start text-sm font-semibold'>
+                                {product.name}
+                            </h3>
+                            <div className='text-muted-foreground flex w-full justify-between text-xs'>
+                                <span>{product.category}</span>
+                                <span>{formatPrice(product.variants?.[0]?.price ?? 0)}</span>
+                            </div>
+                        </div>
+                    </Card.Content>
+                </Card>
+            </button>
+            <ProductModal
+                isOpen={overlayState.isOpen}
+                product={product}
+                onOpenChange={overlayState.setOpen}
+            />
         </div>
     )
 })
@@ -92,9 +100,7 @@ export function ProductsPage({ can, username }: { can: CanType; username: string
     return (
         <div className='flex flex-col gap-2'>
             <Navbar
-                classNames={{
-                    wrapper: 'h-auto w-full p-0 py-2',
-                }}
+                className='h-auto w-full p-0 py-2'
                 maxWidth='full'
             >
                 <div className='hidden items-center gap-1 md:flex md:w-[50%] lg:w-[70%]'>
@@ -107,7 +113,7 @@ export function ProductsPage({ can, username }: { can: CanType; username: string
                         placeholder='Search Products . . . '
                         hotKey='P'
                         value={query}
-                        onValueChange={(value) => setQuery(value)}
+                        onChange={(event) => setQuery(event.target.value)}
                         end={
                             <>
                                 {/* {query && (
@@ -117,7 +123,7 @@ export function ProductsPage({ can, username }: { can: CanType; username: string
                                                 radius='full'
                                                 size='sm'
                                                 startContent={<X size={18} />}
-                                                variant='light'
+                                                variant='ghost'
                                                 onPress={() => setQuery('')}
                                             />
                                         )} */}
@@ -125,12 +131,12 @@ export function ProductsPage({ can, username }: { can: CanType; username: string
                                     <Button
                                         isIconOnly
                                         className='border-1.5 bg-default/20 h-6.5 w-6.5 min-w-auto border-dashed p-0 md:hidden'
-                                        radius='full'
                                         size='sm'
-                                        startContent={<Plus size={20} />}
-                                        variant='light'
+                                        variant='ghost'
                                         // onPress={addModal.onOpen}
-                                    />
+                                    >
+                                        <Plus size={20} />
+                                    </Button>
                                 )}
                             </>
                         }
@@ -138,7 +144,7 @@ export function ProductsPage({ can, username }: { can: CanType; username: string
                     {can.create.product && (
                         <Button
                             className='bg-default/20 hidden min-w-fit rounded-md border border-dashed md:flex'
-                            variant='light'
+                            variant='ghost'
                             // onPress={addModal.onOpen}
                             size='sm'
                         >
@@ -155,3 +161,6 @@ export function ProductsPage({ can, username }: { can: CanType; username: string
         </div>
     )
 }
+
+
+

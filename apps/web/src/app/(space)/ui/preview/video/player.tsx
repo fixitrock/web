@@ -22,8 +22,8 @@ export const VideoPlayer: React.FC<CustomVideoPlayerProps> = ({
     width,
 }) => {
     const [isPlaying, setIsPlaying] = useState<boolean>(false)
-    const [progress, setProgress] = useState<number>(0)
-    const [bufferedProgress, setBufferedProgress] = useState<number>(0) // Buffered progress
+    const [ProgressBar, setProgress] = useState<number>(0)
+    const [bufferedProgress, setBufferedProgress] = useState<number>(0) // Buffered ProgressBar
     const [volume, setVolume] = useState<number>(1)
     const [currentVolume, setCurrentVolume] = useState<number>(1)
     const [isMuted, setIsMuted] = useState<boolean>(false)
@@ -71,7 +71,7 @@ export const VideoPlayer: React.FC<CustomVideoPlayerProps> = ({
         }
 
         video.addEventListener('loadedmetadata', handleLoadedMetadata)
-        video.addEventListener('progress', handleProgress)
+        video.addEventListener('ProgressBar', handleProgress)
         video.addEventListener('timeupdate', updateProgress)
         video.addEventListener('ended', handleVideoEnd)
 
@@ -83,7 +83,7 @@ export const VideoPlayer: React.FC<CustomVideoPlayerProps> = ({
             video.removeEventListener('timeupdate', updateProgress)
             video.removeEventListener('ended', handleVideoEnd)
             video.removeEventListener('loadedmetadata', handleLoadedMetadata)
-            video.removeEventListener('progress', handleProgress)
+            video.removeEventListener('ProgressBar', handleProgress)
         }
     }, [autoplay])
 
@@ -264,7 +264,7 @@ export const VideoPlayer: React.FC<CustomVideoPlayerProps> = ({
                                     className='[&_[data-slot=slider-thumb]]:hidden'
                                     max={100}
                                     min={0}
-                                    value={[progress]}
+                                    value={[ProgressBar]}
                                     onValueChange={handleProgressChange}
                                 />
                             </div>
@@ -274,8 +274,7 @@ export const VideoPlayer: React.FC<CustomVideoPlayerProps> = ({
                             <div className='flex w-full max-w-32'>
                                 <Button
                                     isIconOnly
-                                    className='bg-transparent'
-                                    radius='full'
+                                    className='bg-transparent rounded-full'
                                     onPress={toggleMute}
                                 >
                                     {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
@@ -292,16 +291,16 @@ export const VideoPlayer: React.FC<CustomVideoPlayerProps> = ({
                             <div className='flex w-full items-center justify-end'>
                                 <Button
                                     isIconOnly
-                                    radius='full'
-                                    variant='light'
+                                    className='rounded-full'
+                                    variant='ghost'
                                     onPress={togglePip}
                                 >
                                     <RiPictureInPictureFill size={20} />
                                 </Button>
                                 <Button
                                     isIconOnly
-                                    radius='full'
-                                    variant='light'
+                                    className='rounded-full'
+                                    variant='ghost'
                                     onPress={toggleFullscreen}
                                 >
                                     {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
@@ -314,3 +313,7 @@ export const VideoPlayer: React.FC<CustomVideoPlayerProps> = ({
         </>
     )
 }
+
+
+
+

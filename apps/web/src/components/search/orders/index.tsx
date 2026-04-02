@@ -1,7 +1,8 @@
 'use client'
 
 import { Package, Printer, Share2, Download, RotateCcw } from 'lucide-react'
-import { Skeleton, Button, Divider, Snippet } from '@heroui/react'
+import { Skeleton, Button, Separator } from '@heroui/react'
+import { Snippet } from '@heroui/snippet'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CommandEmpty, CommandGroup, CommandItem, CommandShortcut } from '@/ui/command'
 import { useMyOrders } from '@/hooks/tanstack/query'
@@ -84,11 +85,10 @@ export function Orders() {
                         <div className='flex justify-center py-4'>
                             <Button
                                 size='sm'
-                                variant='flat'
-                                radius='full'
+                                variant='tertiary'
                                 onPress={() => fetchNextPage()}
-                                isLoading={isFetchingNextPage}
-                                className='bg-default/10 text-xs font-bold'
+                                isPending={isFetchingNextPage}
+                                className='bg-default/10 rounded-full text-xs font-bold'
                             >
                                 Load More Orders
                             </Button>
@@ -146,10 +146,6 @@ function ExpandableOrderItem({
                                 symbol=''
                                 size='sm'
                                 variant='flat'
-                                classNames={{
-                                    copyButton: 'size-5 min-w-auto',
-                                    base: 'gap-0.5',
-                                }}
                                 codeString={formatPhone(order.phone)}
                                 className='text-muted-foreground bg-transparent p-0 text-[10px]'
                             >
@@ -237,15 +233,15 @@ function ExpandableOrderItem({
                                                 </div>
                                             </div>
                                             {idx < products.length - 1 && (
-                                                <Divider className='bg-default/10' />
+                                                <Separator className='bg-default/10' />
                                             )}
                                         </div>
                                     )
                                 })}
                             </div>
 
-                            {/* Divider & Total */}
-                            <Divider className='bg-default-200' />
+                            {/* Separator & Total */}
+                            <Separator className='bg-default-200' />
                             <div className='flex items-center justify-between px-1'>
                                 <span className='text-muted-foreground text-[10px] font-bold tracking-tighter uppercase'>
                                     Subtotal
@@ -261,39 +257,38 @@ function ExpandableOrderItem({
                                     <Button
                                         size='sm'
                                         isIconOnly
-                                        variant='flat'
-                                        radius='full'
+                                        variant='tertiary'
                                         className='bg-background size-7 min-w-0 shrink-0 border'
-                                        startContent={<Printer className='size-4' />}
-                                    />
+                                    >
+                                        <Printer className='size-4' />
+                                    </Button>
                                     <Button
                                         size='sm'
                                         isIconOnly
-                                        variant='flat'
-                                        radius='full'
+                                        variant='tertiary'
                                         className='bg-background size-7 min-w-0 shrink-0 border'
-                                        startContent={<Share2 className='size-4' />}
-                                    />
+                                    >
+                                        <Share2 className='size-4' />
+                                    </Button>
                                     <Button
                                         size='sm'
                                         isIconOnly
-                                        variant='flat'
-                                        radius='full'
+                                        variant='tertiary'
                                         className='bg-background size-7 min-w-0 shrink-0 border'
-                                        startContent={<Download className='size-4' />}
-                                    />
+                                    >
+                                        <Download className='size-4' />
+                                    </Button>
                                 </div>
                                 {order.canReturn && (
                                     <Button
                                         size='sm'
                                         isIconOnly
-                                        color='danger'
-                                        variant='flat'
-                                        radius='full'
+                                        variant='danger-soft'
                                         className='bg-background size-7 min-w-0 shrink-0 border'
-                                        startContent={<RotateCcw className='size-4' />}
                                         onPress={() => openReturn(order as unknown as Order)}
-                                    />
+                                    >
+                                        <RotateCcw className='size-4' />
+                                    </Button>
                                 )}
                             </div>
                         </div>
@@ -346,3 +341,8 @@ function maskIdentifier(value: string) {
 
     return `${'*'.repeat(trimmedValue.length - 1)}${trimmedValue.slice(-4)}`
 }
+
+
+
+
+

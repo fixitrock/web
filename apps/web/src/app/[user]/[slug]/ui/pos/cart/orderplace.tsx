@@ -1,10 +1,14 @@
 'use client'
 
-import { Button, Input, useDisclosure, Card, ScrollShadow, addToast } from '@heroui/react'
-import React, { useMemo, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { IndianRupee, Check } from 'lucide-react'
+import React, { useCallback, useMemo } from 'react'
 
+import { AnimatePresence, motion } from 'framer-motion'
+import { Check, IndianRupee } from 'lucide-react'
+import { Button, InputGroup, ScrollShadow, toast, useOverlayState } from '@heroui/react'
+
+import { useOrder } from '@/hooks/tanstack/mutation'
+import { useMediaQuery } from '@/hooks'
+import { cn, formatPrice, logWarning } from '@/lib/utils'
 import {
     Drawer,
     DrawerContent,
@@ -13,17 +17,12 @@ import {
     DrawerHeader,
     DrawerTitle,
 } from '@/ui/drawer'
-import { useMediaQuery } from '@/hooks'
-import { cn, logWarning, formatPrice } from '@/lib/utils'
-import { useCartStore, PaymentMethodType } from '@/zustand/store/cart'
 import { CreditCard, GooglePay, PrinterIcon, RupeeBag, WhatsAppIcon } from '@/ui/icons'
-import { useOrder } from '@/hooks/tanstack/mutation'
+import { PaymentMethodType, useCartStore } from '@/zustand/store/cart'
 
 export function OrderPlace() {
-    const { isOpen, onOpenChange, onOpen, onClose } = useDisclosure()
+    const { isOpen, open, close, setOpen } = useOverlayState()
     const isDesktop = useMediaQuery('(min-width: 786px)')
-
-    // Cart Store
     const {
         getTotalItems,
         getTotalPrice,
@@ -39,27 +38,18 @@ export function OrderPlace() {
         selectedReceiptOption,
         setReceiptOption,
     } = useCartStore()
-
     const { addOrder } = useOrder()
-    const displayAmount = useMemo(() => paidAmount || getTotalPrice(), [paidAmount, getTotalPrice])
 
+    const displayAmount = useMemo(() => paidAmount || getTotalPrice(), [paidAmount, getTotalPrice])
     const isValidAmount = useMemo(
         () => displayAmount >= 0 && displayAmount <= getTotalPrice(),
         [displayAmount, getTotalPrice]
     )
-
-    const customerName = useMemo(
-        () => selectedCustomer?.name || 'Order Summary',
-        [selectedCustomer]
-    )
+    const customerName = useMemo(() => selectedCustomer?.name || 'Order Summary', [selectedCustomer])
     const customerPhone = useMemo(() => selectedCustomer?.phone || 'N/A', [selectedCustomer])
 
-    // Get current note based on selected payment method
-    const currentNote = selectedPaymentMethod
-        ? note[selectedPaymentMethod as PaymentMethodType] || ''
-        : ''
+    const currentNote = selectedPaymentMethod ? note[selectedPaymentMethod as PaymentMethodType] || '' : ''
 
-    // Handle note change from input
     const handleNoteChange = useCallback(
         (value: string) => {
             if (selectedPaymentMethod) {
@@ -68,22 +58,19 @@ export function OrderPlace() {
         },
         [selectedPaymentMethod, setNote]
     )
+
     const handlePlaceOrder = useCallback(async () => {
         if (!selectedCustomer?.id || !selectedPaymentMethod) {
-            addToast({
-                title: 'Error',
+            toast.danger('Error', {
                 description: 'Please select a customer and payment method',
-                color: 'danger',
             })
             return
         }
 
         const orderData = order()
         if (!orderData) {
-            addToast({
-                title: 'Error',
+            toast.danger('Error', {
                 description: 'Unable to create order data',
-                color: 'danger',
             })
             return
         }
@@ -95,73 +82,42 @@ export function OrderPlace() {
                 throw new Error('Order creation failed')
             }
 
-            // Build WhatsApp message
             const last4Digits = result.orderId.slice(-4).toUpperCase()
             const now = new Date()
-
-            // Robust symbols using Unicode escapes
-            const sym = {
-                greet: '\uD83D\uDE4F', // 🙏
-                receipt: '\uD83E\uDDFE', // 🧾
-                cart: '\uD83D\uDED2', // 🛒
-                money: '\uD83D\uDCB0', // 💰
-                card: '\uD83D\uDCB3', // 💳
-            }
-
             const message = [
-                `*${sym.greet} राधे राधे, राजन् ${sym.greet}*`,
-                `*${sym.receipt} ORDER RECEIPT ${sym.receipt}*`,
+                '*ORDER RECEIPT*',
                 `Invoice: #${last4Digits}`,
                 now.toLocaleString('en-IN'),
-                ``,
-                `*${sym.cart} Products ${sym.cart}*`,
-                ...orderData.products.map((p) => {
-                    const details = [p.brand, p.category, p.color?.name, p.storage]
+                '',
+                '*Products*',
+                ...orderData.products.map((product) => {
+                    const details = [product.brand, product.category, product.color?.name, product.storage]
                         .filter(Boolean)
                         .join(' / ')
-
-                    const total = p.total ?? p.price * p.quantity
+                    const total = product.total ?? product.price * product.quantity
 
                     return [
-                        `• *${p.name}*`,
+                        `- *${product.name}*`,
                         details ? `  _${details}_` : null,
-                        `  ${p.quantity} \u00D7 ${formatPrice(p.price)} = *${formatPrice(total)}*`,
+                        `  ${product.quantity} x ${formatPrice(product.price)} = *${formatPrice(total)}*`,
                     ]
                         .filter(Boolean)
                         .join('\n')
                 }),
-                ``,
-                `*${sym.money} Total:* *${formatPrice(orderData.totalAmount)}*`,
-                `*${sym.card} Payment:* ${selectedPaymentMethod.toUpperCase()}`,
-                `_Thank you for your purchase! ${sym.greet}_`,
+                '',
+                `*Total:* *${formatPrice(orderData.totalAmount)}*`,
+                `*Payment:* ${selectedPaymentMethod.toUpperCase()}`,
+                '_Thank you for your purchase!_',
             ]
                 .filter(Boolean)
                 .join('\n')
 
             const phone = selectedCustomer.phone.replace(/\D/g, '')
             const cleanPhone = phone.startsWith('91') ? phone : `91${phone}`
-
             const whatsappUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`
 
-            addToast({
-                title: `Order #${last4Digits}`,
+            toast.success(`Order #${last4Digits}`, {
                 description: `Send receipt to ${selectedCustomer.name}`,
-                endContent: (
-                    <Button
-                        size='sm'
-                        color='success'
-                        variant='flat'
-                        className='ml-2 font-bold'
-                        onPress={() => openWhatsApp(whatsappUrl)}
-                    >
-                        SEND
-                    </Button>
-                ),
-                icon: <WhatsAppIcon />,
-                color: 'success',
-                shouldShowTimeoutProgress: true,
-                shadow: 'none',
-                timeout: 5000,
             })
 
             if (selectedReceiptOption === 'whatsapp') {
@@ -171,22 +127,20 @@ export function OrderPlace() {
             }
 
             clearAll()
-            onClose()
+            close()
         } catch (error) {
             logWarning('Error creating order:', error)
-            addToast({
-                title: 'Error',
+            toast.danger('Error', {
                 description: error instanceof Error ? error.message : 'Failed to create order',
-                color: 'danger',
             })
         }
     }, [
-        selectedCustomer,
-        selectedPaymentMethod,
-        order,
         addOrder,
         clearAll,
-        onClose,
+        close,
+        order,
+        selectedCustomer,
+        selectedPaymentMethod,
         selectedReceiptOption,
     ])
 
@@ -197,7 +151,7 @@ export function OrderPlace() {
             !selectedPaymentMethod ||
             !isValidAmount ||
             addOrder.isPending,
-        [getTotalItems, selectedCustomer, selectedPaymentMethod, isValidAmount, addOrder.isPending]
+        [addOrder.isPending, getTotalItems, isValidAmount, selectedCustomer, selectedPaymentMethod]
     )
 
     const placeOrderButtonText = useMemo(() => {
@@ -205,32 +159,23 @@ export function OrderPlace() {
         if (selectedPaymentMethod === 'paylater') return 'Complete Order'
 
         return `Pay ${formatPrice(displayAmount)}`
-    }, [selectedPaymentMethod, displayAmount, addOrder.isPending])
+    }, [addOrder.isPending, displayAmount, selectedPaymentMethod])
 
     return (
         <>
             <Button
                 fullWidth
                 aria-label='Place Order'
-                color='primary'
                 isDisabled={getTotalItems() === 0 || !selectedCustomer?.id}
-                radius='full'
                 size='sm'
-                onPress={onOpen}
+                variant='primary'
+                onPress={open}
             >
                 Place Order
             </Button>
 
-            <Drawer
-                direction={isDesktop ? 'right' : 'bottom'}
-                open={isOpen}
-                onOpenChange={onOpenChange}
-            >
-                <DrawerContent
-                    className='h-[90vh] md:h-full'
-                    hideCloseButton={isDesktop}
-                    showbar={!isDesktop}
-                >
+            <Drawer direction={isDesktop ? 'right' : 'bottom'} open={isOpen} onOpenChange={setOpen}>
+                <DrawerContent className='h-[90vh] md:h-full' hideCloseButton={isDesktop} showbar={!isDesktop}>
                     <DrawerHeader className='border-b p-3'>
                         <DrawerTitle className='text-lg'>{customerName}</DrawerTitle>
                         <DrawerDescription className='text-xs'>{customerPhone}</DrawerDescription>
@@ -238,20 +183,13 @@ export function OrderPlace() {
 
                     <ScrollShadow hideScrollBar>
                         <div className='flex flex-col gap-4 p-3'>
-                            {/* Order Summary */}
                             <div className='border-default-300 bg-default/5 rounded-lg border border-dashed p-3'>
                                 <div className='mb-1 flex items-center justify-between'>
-                                    <h3 className='text-foreground text-sm font-semibold'>
-                                        Order Summary
-                                    </h3>
-                                    <p className='text-foreground text-sm'>
-                                        {getTotalItems()} items
-                                    </p>
+                                    <h3 className='text-foreground text-sm font-semibold'>Order Summary</h3>
+                                    <p className='text-foreground text-sm'>{getTotalItems()} items</p>
                                 </div>
                                 <div className='flex items-center justify-between'>
-                                    <span className='text-muted-foreground text-xs'>
-                                        Total Amount
-                                    </span>
+                                    <span className='text-muted-foreground text-xs'>Total Amount</span>
                                     <span className='text-foreground flex items-center text-lg font-bold'>
                                         <IndianRupee className='h-4 w-4' />
                                         {getTotalPrice().toFixed(2)}
@@ -259,7 +197,6 @@ export function OrderPlace() {
                                 </div>
                             </div>
 
-                            {/* Payment Method */}
                             <div>
                                 <h3 className='mb-2 text-sm font-semibold'>Payment Method</h3>
                                 <div className='space-y-2'>
@@ -271,27 +208,20 @@ export function OrderPlace() {
                                         value='cash'
                                         onClick={() => {
                                             setSelectedPaymentMethod('cash')
-                                            setPaidAmount(0) // fix: default 0
+                                            setPaidAmount(0)
                                         }}
                                     />
                                     <PaymentMethod
                                         description='Scan QR code or use UPI ID'
                                         icon={<GooglePay className='size-10' />}
                                         inputField={
-                                            <Input
-                                                classNames={{
-                                                    description: 'text-start',
-                                                    inputWrapper:
-                                                        'bg-default/20 group-data-[focus=true]:bg-default/25 data-[hover=true]:bg-default/25',
-                                                }}
-                                                description='Enter your UPI ID for payment'
-                                                label='UPI ID'
-                                                labelPlacement='outside'
-                                                placeholder='mobile@upi'
-                                                size='sm'
-                                                value={currentNote}
-                                                onValueChange={handleNoteChange}
-                                            />
+                                            <InputGroup className='bg-default/20'>
+                                                <InputGroup.Input
+                                                    placeholder='mobile@upi'
+                                                    value={currentNote}
+                                                    onChange={(event) => handleNoteChange(event.target.value)}
+                                                />
+                                            </InputGroup>
                                         }
                                         isSelected={selectedPaymentMethod === 'upi'}
                                         showInput={selectedPaymentMethod === 'upi'}
@@ -306,20 +236,13 @@ export function OrderPlace() {
                                         description='Credit or debit card payment'
                                         icon={<CreditCard className='size-10' />}
                                         inputField={
-                                            <Input
-                                                classNames={{
-                                                    description: 'text-start',
-                                                    inputWrapper:
-                                                        'bg-default/20 group-data-[focus=true]:bg-default/25 data-[hover=true]:bg-default/25',
-                                                }}
-                                                description='Card details are securely processed'
-                                                label='Card Number'
-                                                labelPlacement='outside'
-                                                placeholder='1234 5678 9012 3456'
-                                                size='sm'
-                                                value={currentNote}
-                                                onValueChange={handleNoteChange}
-                                            />
+                                            <InputGroup className='bg-default/20'>
+                                                <InputGroup.Input
+                                                    placeholder='1234 5678 9012 3456'
+                                                    value={currentNote}
+                                                    onChange={(event) => handleNoteChange(event.target.value)}
+                                                />
+                                            </InputGroup>
                                         }
                                         isSelected={selectedPaymentMethod === 'card'}
                                         showInput={selectedPaymentMethod === 'card'}
@@ -343,9 +266,8 @@ export function OrderPlace() {
                                 </div>
                             </div>
 
-                            {/* Custom Amount Input */}
                             <AnimatePresence>
-                                {selectedPaymentMethod === 'cash' && (
+                                {selectedPaymentMethod === 'cash' ? (
                                     <motion.div
                                         animate={{ opacity: 1, height: 'auto' }}
                                         className='overflow-hidden'
@@ -353,28 +275,25 @@ export function OrderPlace() {
                                         initial={{ opacity: 0, height: 0 }}
                                         transition={{ duration: 0.3 }}
                                     >
-                                        <Input
-                                            classNames={{
-                                                inputWrapper:
-                                                    'bg-default/20 group-data-[focus=true]:bg-default/25 data-[hover=true]:bg-default/25',
-                                            }}
-                                            label='Amount Received'
-                                            labelPlacement='outside'
-                                            placeholder='Enter amount'
-                                            startContent={<IndianRupee className='h-4 w-4' />}
-                                            type='number'
-                                            value={paidAmount?.toString() || '0'}
-                                            onValueChange={(value) => {
-                                                const amount = parseFloat(value) || 0
-
-                                                setPaidAmount(amount)
-                                            }}
-                                        />
+                                        <InputGroup className='bg-default/20'>
+                                            <InputGroup.Prefix>
+                                                <IndianRupee className='h-4 w-4' />
+                                            </InputGroup.Prefix>
+                                            <InputGroup.Input
+                                                inputMode='numeric'
+                                                placeholder='Enter amount'
+                                                type='number'
+                                                value={paidAmount?.toString() || '0'}
+                                                onChange={(event) => {
+                                                    const amount = parseFloat(event.target.value) || 0
+                                                    setPaidAmount(amount)
+                                                }}
+                                            />
+                                        </InputGroup>
                                     </motion.div>
-                                )}
+                                ) : null}
                             </AnimatePresence>
 
-                            {/* Receipt Options */}
                             <div>
                                 <h3 className='mb-2 text-sm font-semibold'>Do you want Receipt?</h3>
                                 <div className='grid grid-cols-2 gap-2'>
@@ -397,10 +316,9 @@ export function OrderPlace() {
 
                     <DrawerFooter className='border-t p-3'>
                         <Button
-                            color='primary'
                             isDisabled={isPlaceOrderDisabled}
-                            isLoading={addOrder.isPending}
-                            radius='full'
+                            isPending={addOrder.isPending}
+                            variant='primary'
                             onPress={handlePlaceOrder}
                         >
                             {placeOrderButtonText}
@@ -412,7 +330,6 @@ export function OrderPlace() {
     )
 }
 
-// Payment Method Component
 const PaymentMethod = ({
     title,
     icon,
@@ -433,16 +350,14 @@ const PaymentMethod = ({
     inputField?: React.ReactNode
 }) => {
     return (
-        <Card
-            fullWidth
-            isPressable
+        <button
             aria-pressed={isSelected}
             className={cn(
-                'bg-default/20 hover:bg-default/30 rounded-lg p-3 shadow-none',
-                'flex flex-col',
+                'bg-default/20 hover:bg-default/30 flex w-full flex-col rounded-lg p-3 text-left shadow-none transition-colors',
                 isSelected && 'bg-default/30'
             )}
-            onPress={onClick}
+            type='button'
+            onClick={onClick}
         >
             <div className='flex items-center gap-3'>
                 <div
@@ -456,27 +371,19 @@ const PaymentMethod = ({
                             : 'border-default-400'
                     )}
                 >
-                    {isSelected && (
-                        <Check
-                            aria-hidden='true'
-                            className={cn(
-                                'h-3 w-3',
-                                value === 'paylater' ? 'text-white' : 'text-white'
-                            )}
-                        />
-                    )}
+                    {isSelected ? <Check aria-hidden='true' className='h-3 w-3 text-white' /> : null}
                 </div>
 
                 <div className='flex-1 text-start'>
                     <h3 className='text-sm font-medium'>{title}</h3>
-                    {description && <p className='text-muted-foreground text-xs'>{description}</p>}
+                    {description ? <p className='text-muted-foreground text-xs'>{description}</p> : null}
                 </div>
 
                 {icon}
             </div>
 
             <AnimatePresence>
-                {showInput && inputField && (
+                {showInput && inputField ? (
                     <motion.div
                         animate={{ opacity: 1, height: 'auto' }}
                         className='mt-2 overflow-hidden'
@@ -486,13 +393,12 @@ const PaymentMethod = ({
                     >
                         {inputField}
                     </motion.div>
-                )}
+                ) : null}
             </AnimatePresence>
-        </Card>
+        </button>
     )
 }
 
-// Receipt Option Component
 const ReceiptOption = ({
     icon,
     title,
@@ -505,25 +411,20 @@ const ReceiptOption = ({
     onClick: () => void
 }) => {
     return (
-        <Card
-            fullWidth
-            isPressable
+        <button
             aria-pressed={isSelected}
             className={cn(
-                'flex flex-col items-center justify-center rounded-lg p-3 shadow-none',
-                'bg-default/10',
+                'bg-default/10 flex flex-col items-center justify-center rounded-lg p-3 transition-colors',
                 isSelected && 'bg-primary/20'
             )}
-            onPress={onClick}
+            type='button'
+            onClick={onClick}
         >
-            <div
-                aria-hidden='true'
-                className={cn('mb-1 flex h-8 w-8 items-center justify-center rounded-md')}
-            >
+            <div aria-hidden='true' className='mb-1 flex h-8 w-8 items-center justify-center rounded-md'>
                 {icon}
             </div>
             <span className='text-xs font-medium'>{title}</span>
-        </Card>
+        </button>
     )
 }
 

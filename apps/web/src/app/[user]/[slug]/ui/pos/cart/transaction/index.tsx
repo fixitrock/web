@@ -1,5 +1,6 @@
-'use client'
-import { Button, Skeleton, useDisclosure, User } from '@heroui/react'
+﻿'use client'
+import { Button, Skeleton, useOverlayState } from '@heroui/react'
+import { User } from '@heroui/user'
 import { TbTransactionRupee } from 'react-icons/tb'
 
 import { useMediaQuery } from '@/hooks'
@@ -20,7 +21,7 @@ import { AddTransaction } from './add'
 import { bucketUrl } from '@/supabase/bucket'
 
 export function UserTransaction() {
-    const { isOpen, onOpenChange, onOpen } = useDisclosure()
+    const overlayState = useOverlayState()
     const isDesktop = useMediaQuery('(min-width: 786px)')
     const { selectedCustomer } = useCartStore()
     const { data, isLoading } = useTransactions(
@@ -35,18 +36,18 @@ export function UserTransaction() {
                 className='bg-default/20'
                 data-slot='user-transaction-button'
                 isDisabled={!selectedCustomer}
-                radius='full'
                 size='sm'
-                startContent={<TbTransactionRupee size={20} />}
-                variant='light'
-                onPress={onOpen}
-            />
+                variant='ghost'
+                onPress={overlayState.open}
+            >
+                <TbTransactionRupee size={20} />
+            </Button>
 
             <Drawer
                 data-slot='user-transaction-drawer'
                 direction={isDesktop ? 'right' : 'bottom'}
-                open={isOpen}
-                onOpenChange={onOpenChange}
+                open={overlayState.isOpen}
+                onOpenChange={overlayState.setOpen}
             >
                 <DrawerContent
                     className='h-[90vh] md:h-full'
@@ -63,10 +64,7 @@ export function UserTransaction() {
                                 fallback: selectedCustomer?.name?.charAt(0) || '',
                                 className: 'size-10',
                             }}
-                            classNames={{
-                                base: 'flex justify-start px-2 sm:px-0',
-                                name: 'text-md flex items-center gap-1',
-                            }}
+                            className='flex justify-start px-2 text-md sm:px-0'
                             description={selectedCustomer?.phone?.slice(2)}
                             name={selectedCustomer?.name}
                         />
@@ -99,7 +97,7 @@ type BalanceMessageProps = {
 }
 
 function formatINR(amount: number) {
-    return `₹${amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+    return `â‚¹${amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
 }
 
 function BalanceCard({ balance, isLoading, as }: BalanceMessageProps) {
@@ -143,3 +141,7 @@ function BalanceCard({ balance, isLoading, as }: BalanceMessageProps) {
         </div>
     )
 }
+
+
+
+

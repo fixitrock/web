@@ -37,7 +37,13 @@ export async function GET(
             isOwner = profile.id === currentUserId
         }
 
-        const shortcuts = []
+        const shortcuts: Array<{
+            name: string
+            short_name: string
+            description: string
+            url: string
+            icons: Array<{ src: string; sizes: string }>
+        }> = []
 
         if (isOwner) {
             if (profile.role === 3) {
