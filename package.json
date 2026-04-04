@@ -6,6 +6,8 @@
         "dev": "turbo run dev",
         "dev:web": "pnpm --filter ./apps/web dev",
         "build:web": "pnpm --filter ./apps/web run build",
+        "dev:v3": "pnpm --filter ./apps/v3 dev",
+        "build:v3": "pnpm --filter ./apps/v3 run build",
         "dev:docs": "pnpm --filter ./apps/docs dev",
         "dev:mobile": "pnpm --filter ./apps/mobile dev",
         "android:mobile": "pnpm --filter ./apps/mobile android",

@@ -1,0 +1,44 @@
+{
+    "extends": "../../packages/typescript-config/nextjs.json",
+    "compilerOptions": {
+        "target": "ESNext",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "declaration": false,
+        "declarationMap": false,
+        "noEmit": true,
+        "esModuleInterop": true,
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "jsx": "react-jsx",
+        "incremental": true,
+        "paths": {
+            "@/*": ["./src/*"],
+            "@fixitrock/web": ["../../packages/web/src/index.ts"],
+            "@fixitrock/web/ui": ["../../packages/web/src/ui/index.ts"],
+            "@fixitrock/web/hero": ["../../packages/web/src/hero/index.ts"],
+            "@fixitrock/web/hooks": ["../../packages/web/src/hooks/index.ts"],
+            "@fixitrock/web/utils": ["../../packages/web/src/utils/index.ts"],
+            "@fixitrock/web/types": ["../../packages/web/src/types/index.ts"],
+            "@fixitrock/web/config": ["../../packages/web/src/config/index.ts"]
+        },
+        "plugins": [
+            {
+                "name": "next"
+            }
+        ]
+    },
+    "include": [
+        "next-env.d.ts",
+        "**/*.d.ts",
+        "**/*.ts",
+        "**/*.tsx",
+        ".next/types/routes.d.ts",
+        ".next/types/validator.ts"
+    ],
+    "exclude": ["node_modules"]
+}

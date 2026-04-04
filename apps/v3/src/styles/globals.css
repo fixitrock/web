@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+@import '@fixitrock/web/hero/style.css';
+
+@source '../**/*.{ts,tsx}';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-sans: var(--app-font-sans);
+    --font-mono: var(--app-font-mono);
+}
