@@ -19,20 +19,13 @@ export function ThemeSwitcher() {
     return (
         <Tabs selectedKey={selectedTheme} onSelectionChange={(key) => setTheme(String(key))}>
             <Tabs.ListContainer>
-                <Tabs.List
-                    aria-label='Theme Switcher'
-                    className='flex items-center gap-1 rounded-full'
-                >
+                <Tabs.List aria-label='Theme Switcher' className='py-0.5'>
                     {siteConfig.themes.map((t) => (
-                        <Tabs.Tab
-                            key={t.theme}
-                            id={t.theme}
-                            className='relative flex h-8 w-8 items-center justify-center rounded-full text-black transition-colors dark:text-white'
-                        >
+                        <Tabs.Tab key={t.theme} id={t.theme} className='size-8'>
                             <span className='relative z-10 flex items-center justify-center'>
                                 <t.icon size={14} />
                             </span>
-                            <Tabs.Indicator className='bg-default/70 dark:bg-default/20 rounded-full border border-black/10 shadow-none dark:border-white/10' />
+                            <Tabs.Indicator className='size-8' />
                         </Tabs.Tab>
                     ))}
                 </Tabs.List>

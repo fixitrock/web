@@ -1,0 +1,6177 @@
+<page url="/docs/native/getting-started/animation">
+# Animation
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/animation
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(handbook)/animation.mdx
+> Add smooth animations and transitions to HeroUI Native components
+
+
+All animations in HeroUI Native are built with [react-native-reanimated](https://docs.swmansion.com/react-native-reanimated/) and gesture control is handled by [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/). It's worth familiarizing yourself with these libraries if you want more control over animations.
+
+## The `animation` Prop
+
+Every animated component in HeroUI Native exposes a single `animation` prop that controls all animations for that component. This prop allows you to modify animation values, timing configurations, layout animations, or completely disable animations.
+
+**Approach**: If you're working with animations, first look for the `animation` prop on the component you're using.
+
+## Modifying Animations
+
+You can customize animations by passing an object to the `animation` prop. Each component exposes different animation properties that you can modify. The approach is simple: if you want to slightly change the animation behavior of already written animations in components, we provide all necessary values for modification. If you want to write your own animations without relying on our written ones, you must create your own custom components with animations.
+
+### Example 1: Simple Value Modification
+
+Modify animation values like scale, opacity, or colors:
+
+```tsx
+import {Switch} from 'heroui-native';
+
+<Switch
+  animation={{
+    scale: {
+      value: [1, 0.9], // [unpressed, pressed]
+    },
+    backgroundColor: {
+      value: ['#172554', '#eab308'], // [unselected, selected]
+    },
+  }}>
+  <Switch.Thumb />
+</Switch>;
+
+```
+
+### Example 2: Timing Configuration
+
+Customize animation timing and easing:
+
+```tsx
+import {Accordion} from 'heroui-native';
+
+<Accordion>
+  <Accordion.Item value="1">
+    <Accordion.Trigger>
+      <Accordion.Indicator
+        animation={{
+          rotation: {
+            value: [0, -180],
+            springConfig: {
+              damping: 60,
+              stiffness: 900,
+              mass: 3,
+            },
+          },
+        }}
+      />
+    </Accordion.Trigger>
+  </Accordion.Item>
+</Accordion>;
+
+```
+
+### Example 3: Layout Animations (Entering/Exiting)
+
+Customize entering and exiting animations using Reanimated's layout animations:
+
+```tsx
+import {Accordion} from 'heroui-native';
+import {FadeInRight, FadeInLeft, ZoomIn} from 'react-native-reanimated';
+import {Easing} from 'react-native-reanimated';
+
+<Accordion>
+  <Accordion.Item value="1">
+    <Accordion.Content
+      animation={{
+        entering: {
+          value: FadeInRight.delay(50).easing(Easing.inOut(Easing.ease)),
+        },
+      }}>
+      Content here
+    </Accordion.Content>
+  </Accordion.Item>
+</Accordion>;
+
+```
+
+### Example 4: State Prop for Granular Control
+
+The `state` prop allows you to disable animations while still customizing animation properties. This is useful when you want to fine-tune component behavior without enabling animations:
+
+```tsx
+import {Switch} from 'heroui-native';
+
+<Switch
+  animation={{
+    state: 'disabled', // Disable animations but allow property customization
+    scale: {
+      value: 0.95, // This value is still respected even though animations are disabled
+    },
+    backgroundColor: {
+      value: ['#172554', '#eab308'],
+    },
+  }}>
+  <Switch.Thumb />
+</Switch>
+
+```
+
+The `state` prop accepts:
+
+* `'disabled'`: Disable animations while allowing property customization
+* `'disable-all'`: Disable all animations including children (only available at root level)
+* `boolean`: Simple enable/disable control (`true` enables, `false` disables)
+
+This provides more granular control over animation behavior, allowing you to customize properties without enabling animations.
+
+## Disabling Animations
+
+You can disable animations at different levels using the `animation` prop.
+
+### Disable Options
+
+* `animation={false}` or `animation="disabled"`: Disable animations for the specific component only
+* `animation="disable-all"`: Disable all animations including children (only available at root level)
+* `animation={true}` or `animation={undefined}`: Use default animations
+
+### Component-Level Disabling
+
+Disable animations for a specific component:
+
+```tsx
+<Switch>
+  <Switch.Thumb animation={false} />
+</Switch>
+
+```
+
+### Root-Level Disabling (`disable-all`)
+
+The `"disable-all"` option is only available at the root level of compound components. When used, it disables all animations including children, even if those children are not part of the compound component structure:
+
+```tsx
+// Disables all animations including Button components inside Card
+<Card animation="disable-all">
+  <Card.Body>
+    <Card.Title>$450</Card.Title>
+    <Card.Description>Living room Sofa</Card.Description>
+  </Card.Body>
+  <Card.Footer className="gap-3">
+    <Button variant="primary">Buy now</Button>
+    <Button variant="ghost">Add to cart</Button>
+  </Card.Footer>
+</Card>
+
+```
+
+**Important**: `"disable-all"` cascades down to all child components, including standalone components like `Button`, `Spinner`, etc., not just compound component parts.
+
+## Global Animation Configuration
+
+You can disable all HeroUI Native animations globally using the `HeroUINativeProvider`:
+
+```tsx
+import {HeroUINativeProvider} from 'heroui-native';
+
+<HeroUINativeProvider
+  config={{
+    animation: 'disable-all',
+  }}>
+  <App />
+</HeroUINativeProvider>;
+
+```
+
+This will disable all animations across your entire application, regardless of individual component `animation` prop settings.
+
+## Accessibility
+
+Reduce motion is handled automatically under the hood. When a user enables "Reduce Motion" in their device accessibility settings, all animations are automatically disabled globally. This is handled by the `GlobalAnimationSettingsProvider` which checks `useReducedMotion()` from react-native-reanimated.
+
+You don't need to do anything - the library respects the user's accessibility preferences automatically.
+
+## Animation State Management
+
+We keep disabled state of animations under control internally to ensure they look nice without unpredictable lags or jumps. When animations are disabled, components immediately jump to their final state rather than animating, preventing visual glitches or intermediate states.
+
+## Children Render Function
+
+Many components support a render function pattern for children, which is particularly handy when working with state like `isSelected`:
+
+```tsx
+import {Switch} from 'heroui-native';
+
+<Switch
+  isSelected={isSelected}
+  onSelectedChange={setIsSelected}>
+  {({isSelected, isDisabled}) => (
+    <Switch.Thumb>{isSelected ? <CheckIcon /> : <XIcon />}</Switch.Thumb>
+  )}
+</Switch>;
+
+```
+
+This pattern allows you to conditionally render content based on component state, making it easy to create dynamic UIs that respond to selection, disabled states, and other component properties.
+
+## Next Steps
+
+* Learn about [Styling](/docs/native/getting-started/styling) approaches
+* View [Theming](/docs/native/getting-started/theming) documentation
+* Explore [Colors](/docs/native/getting-started/colors) documentation
+
+</page>
+
+<page url="/docs/native/getting-started/colors">
+# Colors
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/colors
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(handbook)/colors.mdx
+> Color palette and theming system for HeroUI Native
+
+
+import {ColorSwatch, ColorPalette} from "@/components/color-swatch";
+
+HeroUI Native uses CSS variables for colors that automatically switch between light and dark themes. All colors use the `oklch` color space for better color transitions.
+
+## How It Works
+
+HeroUI Native's color system is built on top of [Tailwind CSS v4](https://tailwindcss.com/docs/theme)'s theme via [Uniwind](https://uniwind.dev/). When you import `heroui-native/styles`, it uses Tailwind's built-in color palettes and maps them to semantic variables.
+
+**Naming pattern:**
+
+* Colors without a suffix are backgrounds (e.g., `--accent`)
+* Colors with `-foreground` are for text on that background (e.g., `--accent-foreground`)
+
+**Usage:**
+
+```tsx
+import { View, Text } from 'react-native';
+
+// This gives you the right background and text colors
+<View className="bg-background flex-1">
+  <View className="bg-accent p-4 rounded-lg">
+    <Text className="text-accent-foreground">Hello</Text>
+  </View>
+</View>;
+
+```
+
+### Base Colors
+
+These four colors stay the same in all themes:
+
+<div className="flex flex-wrap gap-4 sm:gap-6">
+  <ColorSwatch name="White" variable="--white" />
+
+  <ColorSwatch name="Black" variable="--black" />
+
+  <ColorSwatch name="Snow" variable="--snow" />
+
+  <ColorSwatch name="Eclipse" variable="--eclipse" />
+</div>
+
+### Background & Surface
+
+<ColorPalette
+  colors={[
+  { name: "Background", variable: "--background", foreground: "--foreground" },
+  { name: "Foreground", variable: "--foreground" },
+  { name: "Surface", variable: "--surface", foreground: "--surface-foreground" },
+  { name: "Surface Foreground", variable: "--surface-foreground" },
+  { name: "Overlay", variable: "--overlay", foreground: "--overlay-foreground" },
+  { name: "Overlay Foreground", variable: "--overlay-foreground" },
+]}
+/>
+
+### Primary Colors
+
+**Accent** — Your main brand color (used for primary actions)
+**Accent Soft** — A lighter version for secondary actions
+
+<ColorPalette
+  colors={[
+  { name: "Accent", variable: "--accent", foreground: "--accent-foreground" },
+  { name: "Accent Foreground", variable: "--accent-foreground" },
+  { name: "Accent Soft", variable: "--accent-soft", foreground: "--accent-soft-foreground" },
+  { name: "Accent Soft Foreground", variable: "--accent-soft-foreground" },
+]}
+/>
+
+### Status Colors
+
+For alerts, validation, and status messages:
+
+<ColorPalette
+  colors={[
+  { name: "Success", variable: "--success", foreground: "--success-foreground" },
+  { name: "Success Foreground", variable: "--success-foreground" },
+  { name: "Warning", variable: "--warning", foreground: "--warning-foreground" },
+  { name: "Warning Foreground", variable: "--warning-foreground" },
+  { name: "Danger", variable: "--danger", foreground: "--danger-foreground" },
+  { name: "Danger Foreground", variable: "--danger-foreground" },
+]}
+/>
+
+### Form Field Colors
+
+For consistent form field styling across input components:
+
+<ColorPalette
+  colors={[
+  { name: "Field Background", variable: "--field-background", foreground: "--field-foreground" },
+  { name: "Field Foreground", variable: "--field-foreground" },
+  { name: "Field Placeholder", variable: "--field-placeholder" },
+  { name: "Field Border", variable: "--field-border" },
+]}
+/>
+
+### Other Colors
+
+<ColorPalette
+  colors={[
+  { name: "Default", variable: "--default", foreground: "--default-foreground" },
+  { name: "Default Foreground", variable: "--default-foreground" },
+  { name: "Muted", variable: "--muted", foreground: "--foreground" },
+  { name: "Border", variable: "--border" },
+  { name: "Focus", variable: "--focus" },
+  { name: "Link", variable: "--link" },
+]}
+/>
+
+## How to Use Colors
+
+**In your components:**
+
+```tsx
+import { View, Text } from 'react-native';
+import { Button } from 'heroui-native';
+
+<View className="bg-background flex-1 p-4">
+  <Text className="text-foreground mb-4">Content</Text>
+  <Button variant="primary" className="bg-accent">
+    <Button.Label className="text-accent-foreground">Click me</Button.Label>
+  </Button>
+</View>;
+
+```
+
+**In CSS files:**
+
+```css title="global.css"
+/* Direct CSS variables */
+.container {
+  flex: 1;
+  background-color: var(--accent);
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius);
+}
+
+```
+
+## Default Theme
+
+The complete theme definition can be found in ([variables.css](https://github.com/heroui-inc/heroui-native/blob/main/src/styles/variables.css)). This theme automatically switches between light and dark modes through [Uniwind's theming system](https://docs.uniwind.dev/theming/basics), which supports system preferences and programmatic theme switching.
+
+```css
+  @theme {
+    /* Primitive Colors (Do not change between light and dark) */
+    --white: oklch(100% 0 0);
+    --black: oklch(0% 0 0);
+    --snow: oklch(0.9911 0 0);
+    --eclipse: oklch(0.2103 0.0059 285.89);
+
+    /* Border */
+    --border-width: 1px;
+    --field-border-width: 0px;
+
+    /* Base radius */
+    --radius: 0.5rem;
+    --field-radius: calc(var(--radius) * 1.5);
+
+    /* Opacity */
+    --opacity-disabled: 0.5;
+}
+
+@layer theme {
+    :root {
+      @variant light {
+        /* Base Colors */
+        --background: oklch(0.9702 0 0);
+        --foreground: var(--eclipse);
+
+        /* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
+        --surface: var(--white);
+        --surface-foreground: var(--foreground);
+
+        --surface-secondary: oklch(0.9524 0.0013 286.37);
+        --surface-secondary-foreground: var(--foreground);
+
+        --surface-tertiary: oklch(0.9373 0.0013 286.37);
+        --surface-tertiary-foreground: var(--foreground);
+
+        /* Overlay: Used for floating/overlay components (dialogs, popovers, modals, menus) */
+        --overlay: var(--white);
+        --overlay-foreground: var(--foreground);
+        --backdrop: oklch(0% 0 0 / 20%);
+
+        --muted: oklch(0.5517 0.0138 285.94);
+
+        --default: oklch(94% 0.001 286.375);
+        --default-foreground: var(--eclipse);
+
+        --accent: oklch(0.6204 0.195 253.83);
+        --accent-foreground: var(--snow);
+
+        /* Form Fields */
+        --field-background: var(--white);
+        --field-foreground: oklch(0.2103 0.0059 285.89);
+        --field-placeholder: var(--muted);
+        --field-border: transparent; /* no border by default on form fields */
+
+        /* Status Colors */
+        --success: oklch(0.7329 0.1935 150.81);
+        --success-foreground: var(--eclipse);
+
+        --warning: oklch(0.7819 0.1585 72.33);
+        --warning-foreground: var(--eclipse);
+
+        --danger: oklch(0.6532 0.2328 25.74);
+        --danger-foreground: var(--snow);
+
+        /* Component Colors */
+        --segment: var(--white);
+        --segment-foreground: var(--eclipse);
+
+        /* Misc Colors */
+        --border: oklch(90% 0.004 286.32);
+        --separator: oklch(74% 0.004 286.32);
+        --focus: var(--accent);
+        --link: var(--foreground);
+
+        /* Shadows */
+        --surface-shadow:
+          0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+          0 0 1px 0 rgba(0, 0, 0, 0.06);
+        --overlay-shadow:
+          0 2px 8px 0 rgba(0, 0, 0, 0.02), 0 -6px 12px 0 rgba(0, 0, 0, 0.01),
+          0 14px 28px 0 rgba(0, 0, 0, 0.03);
+        --field-shadow:
+          0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+          0 0 1px 0 rgba(0, 0, 0, 0.06);
+      }
+
+      @variant dark {
+        /* Base Colors */
+        --background: oklch(12% 0.005 285.823);
+        --foreground: var(--snow);
+
+        /* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
+        --surface: oklch(0.2103 0.0059 285.89);
+        --surface-foreground: var(--foreground);
+
+        --surface-secondary: oklch(0.257 0.0037 286.14);
+        --surface-secondary-foreground: var(--foreground);
+
+        --surface-tertiary: oklch(0.2721 0.0024 247.91);
+        --surface-tertiary-foreground: var(--foreground);
+
+        /* Overlay: Used for floating/overlay components (dialogs, popovers, modals, menus) - lighter for contrast */
+        --overlay: oklch(0.2103 0.0059 285.89);
+        --overlay-foreground: var(--foreground);
+        --backdrop: oklch(0% 0 0 / 20%);
+
+        --muted: oklch(70.5% 0.015 286.067);
+
+        --default: oklch(27.4% 0.006 286.033);
+        --default-foreground: var(--snow);
+
+        --accent: oklch(0.6204 0.195 253.83);
+        --accent-foreground: var(--snow);
+
+        /* Form Field Defaults - Colors (only the ones that are different from light theme) */
+        --field-background: oklch(0.2103 0.0059 285.89);
+        --field-foreground: var(--foreground);
+        --field-placeholder: var(--muted);
+        --field-border: transparent; /* no border by default on form fields */
+
+        /* Status Colors */
+        --success: oklch(0.7329 0.1935 150.81);
+        --success-foreground: var(--eclipse);
+
+        --warning: oklch(0.8203 0.1388 76.34);
+        --warning-foreground: var(--eclipse);
+
+        --danger: oklch(0.594 0.1967 24.63);
+        --danger-foreground: var(--snow);
+
+        /* Component Colors */
+        --segment: oklch(0.3964 0.01 285.93);
+        --segment-foreground: var(--foreground);
+
+        /* Misc Colors */
+        --border: oklch(28% 0.006 286.033);
+        --separator: oklch(40% 0.006 286.033);
+        --focus: var(--accent);
+        --link: var(--foreground);
+
+        /* Shadows */
+        --surface-shadow: 0 0 0 0 transparent inset; /* No shadow on dark mode */
+        --overlay-shadow: 0 0 1px 0 rgba(255, 255, 255, 0.2) inset;
+        --field-shadow: 0 0 0 0 transparent inset; /* Transparent shadow to allow ring utilities to work */
+      }
+    }
+  }
+
+```
+
+## Customizing Colors
+
+**Override existing colors:**
+
+```css
+@layer theme {
+  @variant light {
+    /* Override default colors */
+    --accent: oklch(0.65 0.25 270); /* Custom indigo accent */
+    --success: oklch(0.65 0.15 155);
+  }
+
+  @variant dark {
+    /* Override dark theme colors */
+    --accent: oklch(0.65 0.25 270);
+    --success: oklch(0.75 0.12 155);
+  }
+}
+
+```
+
+**Tip:** Convert colors at [oklch.com](https://oklch.com)
+
+**Add your own colors:**
+
+```css
+@layer theme {
+  @variant light {
+    --info: oklch(0.6 0.15 210);
+    --info-foreground: oklch(0.98 0 0);
+  }
+
+  @variant dark {
+    --info: oklch(0.7 0.12 210);
+    --info-foreground: oklch(0.15 0 0);
+  }
+}
+
+@theme inline {
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+}
+
+```
+
+Now you can use it:
+
+```tsx
+import { View, Text } from 'react-native';
+
+<View className="bg-info p-4 rounded-lg">
+  <Text className="text-info-foreground">Info message</Text>
+</View>;
+
+```
+
+> **Note**: To learn more about theme variables and how they work in Tailwind CSS v4, see the [Tailwind CSS Theme documentation](https://tailwindcss.com/docs/theme).
+
+## useThemeColor Hook
+
+The `useThemeColor` hook has been enhanced to support multiple colors selection, making it more flexible for complex theming scenarios.
+
+**Multiple Colors Selection:**
+
+You can now select multiple colors at once, which is useful when you need to work with related color values together:
+
+```tsx
+import { useThemeColor } from 'heroui-native';
+
+// Select multiple colors at once
+const [accent, accentForeground, success, danger] = useThemeColor([
+  'accent',
+  'accentForeground',
+  'success',
+  'danger',
+]);
+
+// Use the selected colors
+<View style={{ backgroundColor: accent }}>
+  <Text style={{ color: accentForeground }}>Accent Text</Text>
+</View>;
+
+```
+
+This enhancement improves performance when working with multiple color values and makes it easier to manage complex theming scenarios where multiple colors need to be selected and applied together.
+
+## Quick Tips
+
+* Always use color variables, not hard-coded values
+* Use foreground/background pairs for good contrast
+* Test in both light and dark modes
+* The system respects user's theme preference automatically
+
+## Related
+
+* [Theming](/docs/native/getting-started/theming) - Learn about the theming system
+* [Styling](/docs/native/getting-started/styling) - Styling components with CSS
+* [Design Principles](/docs/native/getting-started/design-principles) - Understanding HeroUI's design philosophy
+
+</page>
+
+<page url="/docs/native/getting-started/composition">
+# Composition
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/composition
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(handbook)/composition.mdx
+> Build flexible UI with component composition patterns
+
+
+HeroUI Native uses composition patterns to create flexible, customizable components. Change the rendered element, compose components together, and maintain full control over markup.
+
+## Compound Components
+
+HeroUI Native components use a compound component pattern with dot notation—components export sub-components as properties (e.g., `Button.Label`, `Dialog.Trigger`, `Accordion.Item`) that work together to form complete UI elements.
+
+```tsx
+import { Button, Dialog } from 'heroui-native';
+
+function DialogExample() {
+  return (
+    <Dialog>
+      <Dialog.Trigger>
+        Open Dialog
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay />
+        <Dialog.Content>
+          <Dialog.Close />
+          <Dialog.Title>Dialog Title</Dialog.Title>
+          <Dialog.Description>Dialog description</Dialog.Description>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog>
+  );
+}
+
+```
+
+## The asChild Prop
+
+The `asChild` prop lets you change what element a component renders. When `asChild` is true, HeroUI Native clones the child element and merges props instead of rendering its default element.
+
+```tsx
+import { Button, Dialog } from 'heroui-native';
+
+function DialogExample() {
+  return (
+    <Dialog>
+      {/* With asChild: Button becomes the trigger directly, no wrapper element */}
+      <Dialog.Trigger asChild>
+        <Button variant="primary">Open Dialog</Button>
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay />
+        <Dialog.Content>
+          {/* Dialog.Close can also use asChild */}
+          <Dialog.Close asChild>
+            <Button variant="ghost" size="sm">Cancel</Button>
+          </Dialog.Close>
+          <Dialog.Title>Dialog Title</Dialog.Title>
+          <Dialog.Description>Dialog description</Dialog.Description>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog>
+  );
+}
+
+```
+
+## Custom Components
+
+Create your own components by composing HeroUI Native primitives:
+
+```tsx
+import { Button, Card, Popover } from 'heroui-native';
+import { View } from 'react-native';
+
+// Product card component
+function ProductCard({ title, description, price, onBuy, ...props }) {
+  return (
+    <Card {...props}>
+      <Card.Body>
+        <Card.Title>{price}</Card.Title>
+        <Card.Title>{title}</Card.Title>
+        <Card.Description>{description}</Card.Description>
+      </Card.Body>
+      <Card.Footer>
+        <Button variant="primary" onPress={onBuy}>
+          <Button.Label>Buy now</Button.Label>
+        </Button>
+      </Card.Footer>
+    </Card>
+  );
+}
+
+// Popover button component
+function PopoverButton({ children, popoverContent, ...props }) {
+  return (
+    <Popover>
+      <Popover.Trigger asChild>
+        <Button {...props}>
+          <Button.Label>{children}</Button.Label>
+        </Button>
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Overlay />
+        <Popover.Content>
+          <Popover.Close />
+          {popoverContent}
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover>
+  );
+}
+
+// Usage
+<ProductCard
+  title="Living room Sofa"
+  description="Perfect for modern spaces"
+  price="$450"
+  onBuy={() => console.log('Buy')}
+/>
+
+<PopoverButton variant="tertiary" popoverContent={
+  <View>
+    <Popover.Title>Information</Popover.Title>
+    <Popover.Description>Additional details here</Popover.Description>
+  </View>
+}>
+  Show Info
+</PopoverButton>
+
+```
+
+## Custom Variants
+
+Create custom variants using `tailwind-variants` to extend component styling. Note that text color classes must be applied to `Button.Label`, not the parent `Button`:
+
+```tsx
+import { Button } from 'heroui-native';
+import type { ButtonRootProps } from 'heroui-native';
+import { tv, type VariantProps } from 'tailwind-variants';
+
+const customButtonVariants = tv({
+  base: 'font-semibold rounded-lg',
+  variants: {
+    intent: {
+      primary: 'bg-blue-500',
+      secondary: 'bg-gray-200',
+      danger: 'bg-red-500',
+    },
+  },
+  defaultVariants: {
+    intent: 'primary',
+  },
+});
+
+const customLabelVariants = tv({
+  base: '',
+  variants: {
+    intent: {
+      primary: 'text-white',
+      secondary: 'text-gray-800',
+      danger: 'text-white',
+    },
+  },
+  defaultVariants: {
+    intent: 'primary',
+  },
+});
+
+type CustomButtonVariants = VariantProps<typeof customButtonVariants>;
+
+interface CustomButtonProps
+  extends Omit<ButtonRootProps, 'className' | 'variant'>,
+    CustomButtonVariants {
+  className?: string;
+  labelClassName?: string;
+}
+
+export function CustomButton({
+  intent,
+  className,
+  labelClassName,
+  children,
+  ...props
+}: CustomButtonProps) {
+  return (
+    <Button
+      className={customButtonVariants({ intent, className })}
+      {...props}
+    >
+      <Button.Label
+        className={customLabelVariants({ intent, className: labelClassName })}
+      >
+        {children}
+      </Button.Label>
+    </Button>
+  );
+}
+
+```
+
+## Next Steps
+
+* Learn about [Styling](/docs/native/getting-started/styling) system
+* Explore [Theming](/docs/native/getting-started/theming) documentation
+* Explore [Animation](/docs/native/getting-started/animation) options
+
+</page>
+
+<page url="/docs/native/getting-started/portal">
+# Portal
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/portal
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(handbook)/portal.mdx
+
+
+Portals let you render its children into a different part of your app. This is particularly useful for components that need to render above other content, such as modals, overlays, and popups.
+
+## Default Setup
+
+By default, the `PortalHost` is included in the `HeroUINativeProvider`, so there is no need to add it manually. The provider automatically sets up the portal system for all components that use portals.
+
+## Advanced Use Cases
+
+For advanced use cases, you can import `Portal` and `PortalHost` directly from `heroui-native` to create custom portal implementations:
+
+```tsx
+import { Portal, PortalHost } from "heroui-native";
+import { View, Text } from "react-native";
+
+function AppLayout() {
+  return (
+    <View className="flex-1">
+      <View className="p-5">
+        <Text>Header Content</Text>
+      </View>
+      
+      <View className="flex-1 p-5">
+        <Text>Main Content Area</Text>
+        <CustomNotification />
+      </View>
+      
+      {/* Portal host positioned at the top of the screen */}
+      <PortalHost name="notification-host" />
+    </View>
+  );
+}
+
+function CustomNotification() {
+  return (
+    <Portal name="notification-portal" hostName="notification-host">
+      <View className="absolute top-0 left-0 right-0 bg-blue-500 p-4">
+        <Text>This notification appears at the top via Portal</Text>
+      </View>
+    </Portal>
+  );
+}
+
+```
+
+In this example, the `CustomNotification` component uses a `Portal` to render its content at the location of the `PortalHost`, which is positioned at the top of the screen. This allows the notification to appear above all other content regardless of where it's defined in the component tree.
+
+## State Management Considerations
+
+State changes in parent components can cause unexpected issues with components rendered inside portals. For example, when a text input is placed directly inside a portal and the parent component re-renders, it can reset the input's auto-suggestions or cause other UI disruptions.
+
+To avoid this, keep the state of interactive components (like text inputs) inside the portal by creating a separate component for the portal content. This isolates the state from parent re-renders.
+
+### Example Pattern
+
+```tsx
+// ❌ Problematic: State in parent causes re-renders that affect portal content
+function ParentComponent() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [inputValue, setInputValue] = useState(""); // State in parent
+  
+  return (
+    <Dialog isOpen={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog.Trigger>
+        <Button>Open Dialog</Button>
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Input 
+          value={inputValue} 
+          onChangeText={setInputValue} 
+          // Parent re-renders reset auto-suggestions
+        />
+      </Dialog.Portal>
+    </Dialog>
+  );
+}
+
+// ✅ Correct: State managed inside separate component within portal
+function ParentComponent() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  
+  return (
+    <Dialog isOpen={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog.Trigger>
+        <Button>Open Dialog</Button>
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <DialogFormContent 
+          onClose={() => setDialogOpen(false)} 
+          // Form state isolated from parent
+        />
+      </Dialog.Portal>
+    </Dialog>
+  );
+}
+
+function DialogFormContent({ onClose }: { onClose: () => void }) {
+  const [inputValue, setInputValue] = useState(""); // State inside portal
+  const [error, setError] = useState("");
+  
+  return (
+    <Dialog.Content>
+      <Input 
+        value={inputValue} 
+        onChangeText={setInputValue}
+        // Auto-suggestions preserved during parent re-renders
+      />
+      <FieldError>{error}</FieldError>
+      <Button onPress={onClose}>Close</Button>
+    </Dialog.Content>
+  );
+}
+
+```
+
+In the correct pattern, the `DialogFormContent` component manages its own state independently of the parent component. This ensures that parent re-renders (such as when `dialogOpen` changes) don't affect the input's internal state, preserving auto-suggestions and other input behaviors.
+
+## API Reference
+
+### PortalHost
+
+By default, children of all Portal components will be rendered as its own children.
+
+| Prop | Type     | Note                                                |
+| ---- | -------- | --------------------------------------------------- |
+| name | `string` | Provide when it is used as a custom host (optional) |
+
+### Portal
+
+| Prop     | Type              | Note                                                                                  |
+| -------- | ----------------- | ------------------------------------------------------------------------------------- |
+| name\*   | `string`          | Unique value otherwise the portal with the same name will replace the original portal |
+| hostName | `string`          | Provide when its children are to be rendered in a custom host (optional)              |
+| children | `React.ReactNode` | The content to render in the portal                                                   |
+
+\* Required prop
+
+## Related
+
+* [Quick Start](/docs/native/getting-started/quick-start) - Basic setup guide
+* View [Provider](/docs/native/getting-started/provider) documentation
+
+</page>
+
+<page url="/docs/native/getting-started/provider">
+# Provider
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/provider
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(handbook)/provider.mdx
+> Configure HeroUI Native provider with text, animation, and toast settings
+
+
+The `HeroUINativeProvider` is the root provider component that configures and initializes HeroUI Native in your React Native application. It provides global configuration and portal management for your application.
+
+## Overview
+
+The provider serves as the main entry point for HeroUI Native, wrapping your application with essential contexts and configurations:
+
+* **Safe Area Insets**: Automatically handles safe area insets updates via `SafeAreaListener` and syncs them with Uniwind for use in Tailwind classes (e.g., `pb-safe-offset-3`)
+* **Text Configuration**: Global text component settings for consistency across all HeroUI components
+* **Animation Configuration**: Global animation control to disable all animations across the application
+* **Toast Configuration**: Global toast system configuration including insets, default props, and wrapper components
+* **Portal Management**: Handles overlays, modals, and other components that render on top of the app hierarchy
+
+## Basic Setup
+
+Wrap your application root with the provider:
+
+```tsx
+import { HeroUINativeProvider } from 'heroui-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <HeroUINativeProvider>{/* Your app content */}</HeroUINativeProvider>
+    </GestureHandlerRootView>
+  );
+}
+
+```
+
+## Configuration Options
+
+The provider accepts a `config` prop with the following options:
+
+### Text Component Configuration
+
+Global settings for all Text components within HeroUI Native. These props are carefully selected to include only those that make sense to configure globally across all Text components in the application:
+
+```tsx
+import { HeroUINativeProvider } from 'heroui-native';
+import type { HeroUINativeConfig } from 'heroui-native';
+
+const config: HeroUINativeConfig = {
+  textProps: {
+    // Disable font scaling for accessibility
+    allowFontScaling: false,
+
+    // Auto-adjust font size to fit container
+    adjustsFontSizeToFit: false,
+
+    // Maximum font size multiplier when scaling
+    maxFontSizeMultiplier: 1.5,
+
+    // Minimum font scale (iOS only, 0.01-1.0)
+    minimumFontScale: 0.5,
+  },
+};
+
+export default function App() {
+  return (
+    <HeroUINativeProvider config={config}>
+      {/* Your app content */}
+    </HeroUINativeProvider>
+  );
+}
+
+```
+
+### Animation Configuration
+
+Global animation configuration for the entire application:
+
+```tsx
+const config: HeroUINativeConfig = {
+  // Disable all animations across the application (cascades to all children)
+  animation: 'disable-all',
+};
+
+```
+
+<Callout type="warning">
+  **Note**: When set to `'disable-all'`, all animations across the application will be disabled. This is useful for accessibility or performance optimization.
+</Callout>
+
+### Developer Information Configuration
+
+Control developer-facing informational messages displayed in the console:
+
+```tsx
+const config: HeroUINativeConfig = {
+  devInfo: {
+    // Disable styling principles information message
+    stylingPrinciples: false,
+  },
+};
+
+```
+
+<Callout type="info">
+  **Note**: By default, informational messages are enabled. Set `stylingPrinciples: false` to disable the styling principles message that appears in the console during development.
+</Callout>
+
+### Toast Configuration
+
+Configure the global toast system including insets, default props, and wrapper components. You can also disable the toast provider entirely:
+
+**Option 1: Disable Toast Provider**
+
+```tsx
+const config: HeroUINativeConfig = {
+  // Disable toast provider entirely
+  toast: false,
+  // or
+  toast: 'disabled',
+};
+
+```
+
+<Callout type="info">
+  **Note**: When toast is disabled (`false` or `'disabled'`), the `ToastProvider` will not be rendered, and toast functionality will not be available in your application.
+</Callout>
+
+**Option 2: Configure Toast Provider**
+
+```tsx
+import { KeyboardAvoidingView } from 'react-native';
+
+const config: HeroUINativeConfig = {
+  toast: {
+    // Global toast configuration (used as defaults for all toasts)
+    defaultProps: {
+      variant: 'default',
+      placement: 'top',
+      isSwipeable: true,
+      animation: true,
+    },
+    // Insets for spacing from screen edges (added to safe area insets)
+    insets: {
+      top: 0,      // Default: iOS = 0, Android = 12
+      bottom: 6,   // Default: iOS = 6, Android = 12
+      left: 12,    // Default: 12
+      right: 12,   // Default: 12
+    },
+    // Maximum number of visible toasts before opacity starts fading
+    maxVisibleToasts: 3,
+    // Custom wrapper function to wrap the toast content
+    contentWrapper: (children) => (
+      <KeyboardAvoidingView
+        behavior="padding"
+        keyboardVerticalOffset={24}
+        className="flex-1"
+      >
+        {children}
+      </KeyboardAvoidingView>
+    ),
+  },
+};
+
+```
+
+## Complete Example
+
+Here's a comprehensive example showing all configuration options:
+
+```tsx
+import { HeroUINativeProvider } from 'heroui-native';
+import type { HeroUINativeConfig } from 'heroui-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+const config: HeroUINativeConfig = {
+  // Global text configuration
+  textProps: {
+    minimumFontScale: 0.5,
+    maxFontSizeMultiplier: 1.5,
+    allowFontScaling: true,
+    adjustsFontSizeToFit: false,
+  },
+  // Global animation configuration
+  animation: 'disable-all', // Optional: disable all animations
+  // Developer information messages configuration
+  devInfo: {
+    stylingPrinciples: true, // Optional: disable styling principles message
+  },
+  // Global toast configuration
+  // Option 1: Configure toast with custom settings
+  toast: {
+    defaultProps: {
+      variant: 'default',
+      placement: 'top',
+    },
+    insets: {
+      top: 0,
+      bottom: 6,
+      left: 12,
+      right: 12,
+    },
+    maxVisibleToasts: 3,
+  },
+  // Option 2: Disable toast entirely
+  // toast: false,
+  // or
+  // toast: 'disabled',
+};
+
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <HeroUINativeProvider config={config}>
+        <YourApp />
+      </HeroUINativeProvider>
+    </GestureHandlerRootView>
+  );
+}
+
+```
+
+## Integration with Expo Router
+
+When using Expo Router, wrap your root layout:
+
+```tsx
+// app/_layout.tsx
+import { HeroUINativeProvider } from 'heroui-native';
+import type { HeroUINativeConfig } from 'heroui-native';
+import { Stack } from 'expo-router';
+
+const config: HeroUINativeConfig = {
+  textProps: {
+    minimumFontScale: 0.5,
+    maxFontSizeMultiplier: 1.5,
+  },
+};
+
+export default function RootLayout() {
+  return (
+    <HeroUINativeProvider config={config}>
+      <Stack />
+    </HeroUINativeProvider>
+  );
+}
+
+```
+
+## Architecture
+
+### Provider Hierarchy
+
+The `HeroUINativeProvider` internally composes multiple providers:
+
+```
+
+HeroUINativeProvider
+├── SafeAreaListener (handles safe area insets updates)
+│   └── GlobalAnimationSettingsProvider (animation configuration)
+│       └── TextComponentProvider (text configuration)
+│           └── ToastProvider (toast configuration, conditionally rendered)
+│               └── Your App
+│               └── PortalHost (for overlays)
+
+```
+
+<Callout type="info">
+  **Note**: The `ToastProvider` is conditionally rendered based on the `toast` configuration. If `toast` is set to `false` or `'disabled'`, the `ToastProvider` will not be rendered, and the app content and `PortalHost` will be rendered directly under `TextComponentProvider`.
+</Callout>
+
+### Safe Area Insets Handling
+
+The provider automatically wraps your application with [`SafeAreaListener`](https://appandflow.github.io/react-native-safe-area-context/api/safe-area-listener) from `react-native-safe-area-context`. This component listens to safe area insets and frame changes without triggering re-renders, and automatically updates Uniwind with the latest insets via the `onChange` callback.
+
+## Raw Provider
+
+`HeroUINativeProviderRaw` is a lightweight variant of `HeroUINativeProvider` designed for bundle optimization. It excludes `ToastProvider` and `PortalHost`, giving you a bare minimum starting point where you only install and add what you actually need.
+
+### When to Use
+
+Use `HeroUINativeProviderRaw` when you want full control over which dependencies are included in your bundle. With the raw provider imported from `heroui-native/provider-raw`, the following dependencies are optional and only required if you use the corresponding components:
+
+* **react-native-screens** -- required for overlay components (Popover, Dialog)
+* **@gorhom/bottom-sheet** -- required for BottomSheet component
+* **react-native-svg** -- required for components that use icons (Accordion, Alert, Checkbox, etc.)
+
+### Setup
+
+```tsx
+import {
+  HeroUINativeProviderRaw,
+  type HeroUINativeConfigRaw,
+} from 'heroui-native/provider-raw';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+const config: HeroUINativeConfigRaw = {
+  textProps: {
+    maxFontSizeMultiplier: 1.5,
+  },
+};
+
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <HeroUINativeProviderRaw config={config}>
+        {/* Your app content */}
+      </HeroUINativeProviderRaw>
+    </GestureHandlerRootView>
+  );
+}
+
+```
+
+### Adding Toast and Portal Manually
+
+If you need toast or portal functionality with the raw provider, add them yourself:
+
+```tsx
+import { HeroUINativeProviderRaw } from 'heroui-native/provider-raw';
+import { PortalHost } from 'heroui-native/portal';
+import { ToastProvider } from 'heroui-native/toast';
+
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <HeroUINativeProviderRaw>
+        <ToastProvider>
+          {/* Your app content */}
+          <PortalHost />
+        </ToastProvider>
+      </HeroUINativeProviderRaw>
+    </GestureHandlerRootView>
+  );
+}
+
+```
+
+### Provider Hierarchy
+
+```
+
+HeroUINativeProviderRaw
+├── SafeAreaListener (handles safe area insets updates)
+│   └── GlobalAnimationSettingsProvider (animation configuration)
+│       └── TextComponentProvider (text configuration)
+│           └── Your App
+
+```
+
+## Best Practices
+
+### 1. Single Provider Instance
+
+Always use a single `HeroUINativeProvider` at the root of your app. Don't nest multiple providers:
+
+```tsx
+// ❌ Bad
+<HeroUINativeProvider>
+  <SomeComponent>
+    <HeroUINativeProvider> {/* Don't do this */}
+      <AnotherComponent />
+    </HeroUINativeProvider>
+  </SomeComponent>
+</HeroUINativeProvider>
+
+// ✅ Good
+<HeroUINativeProvider>
+  <SomeComponent>
+    <AnotherComponent />
+  </SomeComponent>
+</HeroUINativeProvider>
+
+```
+
+### 2. Configuration Object
+
+Define your configuration outside the component to prevent recreating on each render:
+
+```tsx
+// ❌ Bad
+function App() {
+  return (
+    <HeroUINativeProvider
+      config={{
+        textProps: {
+          /* inline config */
+        },
+      }}
+    >
+      {/* ... */}
+    </HeroUINativeProvider>
+  );
+}
+
+// ✅ Good
+const config: HeroUINativeConfig = {
+  textProps: {
+    maxFontSizeMultiplier: 1.5,
+  },
+};
+
+function App() {
+  return (
+    <HeroUINativeProvider config={config}>{/* ... */}</HeroUINativeProvider>
+  );
+}
+
+```
+
+### 3. Text Configuration
+
+Consider accessibility when configuring text props:
+
+```tsx
+const config: HeroUINativeConfig = {
+  textProps: {
+    // Allow font scaling for accessibility
+    allowFontScaling: true,
+    // But limit maximum scale
+    maxFontSizeMultiplier: 1.5,
+  },
+};
+
+```
+
+## TypeScript Support
+
+The provider is fully typed. Import types for better IDE support:
+
+```tsx
+import { HeroUINativeProvider, type HeroUINativeConfig } from 'heroui-native';
+
+const config: HeroUINativeConfig = {
+  // Full type safety and autocomplete
+  textProps: {
+    allowFontScaling: true,
+    maxFontSizeMultiplier: 1.5,
+  },
+  animation: 'disable-all', // Optional: disable all animations
+  devInfo: {
+    stylingPrinciples: true, // Optional: disable styling principles message
+  },
+  // Toast configuration options:
+  // - false or 'disabled': Disable toast provider
+  // - ToastProviderProps object: Configure toast settings
+  toast: {
+    defaultProps: {
+      variant: 'default',
+      placement: 'top',
+    },
+    insets: {
+      top: 0,
+      bottom: 6,
+      left: 12,
+      right: 12,
+    },
+  },
+};
+
+```
+
+## Related
+
+* [Quick Start](/docs/native/getting-started/quick-start) - Basic setup guide
+* [Theming](/docs/native/getting-started/theming) - Customize colors and themes
+* [Styling](/docs/native/getting-started/styling) - Style components with Tailwind
+
+</page>
+
+<page url="/docs/native/getting-started/styling">
+# Styling
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/styling
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(handbook)/styling.mdx
+> Style HeroUI Native components with Tailwind or StyleSheet API
+
+
+HeroUI Native components provide flexible styling options: Tailwind CSS utilities, StyleSheet API, and render props for dynamic styling.
+
+## Styling Principles
+
+HeroUI Native is built with `className` as the go-to styling solution. You can use Tailwind CSS classes via the `className` prop on all components.
+
+**StyleSheet precedence:** The `style` prop (StyleSheet API) can be used and has precedence over `className` when both are provided. This allows you to override Tailwind classes when needed.
+
+**Animated styles:** Some style properties are animated using `react-native-reanimated` and, like StyleSheet styles, they have precedence over `className`. To identify which styles are animated and cannot be used via `className`:
+
+* **Hover over `className` in your IDE** - The TypeScript definitions will show which properties are available
+* **Check component documentation** - Each component page includes a link to the component's style source at the top, which contains notes about animated properties
+
+**Customizing animated styles:** If styles are occupied by animation, you can modify them via the `animation` prop on components that support it.
+
+## Basic Styling
+
+**Using className:** All HeroUI Native components accept `className` props:
+
+```tsx
+import { Button } from 'heroui-native';
+
+<Button className="bg-accent px-6 py-3 rounded-lg">
+  <Button.Label>Custom Button</Button.Label>
+</Button>;
+
+```
+
+**Using style:** Components also accept inline styles via the `style` prop:
+
+```tsx
+import { Button } from 'heroui-native';
+
+<Button style={{ backgroundColor: '#8B5CF6', paddingHorizontal: 24 }}>
+  <Button.Label>Styled Button</Button.Label>
+</Button>;
+
+```
+
+## Render Props
+
+Use a render function to access component state and customize content dynamically:
+
+```tsx
+import { RadioGroup, Label, cn } from 'heroui-native';
+
+<RadioGroup value={value} onValueChange={setValue}>
+  <RadioGroup.Item value="option1">
+    {({ isSelected, isInvalid, isDisabled }) => (
+      <>
+        <Label
+          className={cn(
+            'text-foreground',
+            isSelected && 'text-accent font-semibold'
+          )}
+        >
+          Option 1
+        </Label>
+        <Radio
+          className={cn(
+            'border-2 rounded-full',
+            isSelected && 'border-accent bg-accent'
+          )}
+        >
+          {isSelected && <CustomIcon />}
+        </Radio>
+      </>
+    )}
+  </RadioGroup.Item>
+</RadioGroup>;
+
+```
+
+## Creating Wrapper Components
+
+Create reusable custom components using [tailwind-variants](https://tailwind-variants.org/)—a Tailwind CSS first-class variant API:
+
+```tsx
+import { Button } from 'heroui-native';
+import type { ButtonRootProps } from 'heroui-native';
+import { tv, type VariantProps } from 'tailwind-variants';
+
+const customButtonVariants = tv({
+  base: 'font-semibold rounded-lg',
+  variants: {
+    intent: {
+      primary: 'bg-blue-500',
+      secondary: 'bg-gray-200',
+      danger: 'bg-red-500',
+    },
+  },
+  defaultVariants: {
+    intent: 'primary',
+  },
+});
+
+const customLabelVariants = tv({
+  base: '',
+  variants: {
+    intent: {
+      primary: 'text-white',
+      secondary: 'text-gray-800',
+      danger: 'text-white',
+    },
+  },
+  defaultVariants: {
+    intent: 'primary',
+  },
+});
+
+type CustomButtonVariants = VariantProps<typeof customButtonVariants>;
+
+interface CustomButtonProps
+  extends Omit<ButtonRootProps, 'className' | 'variant'>,
+    CustomButtonVariants {
+  className?: string;
+  labelClassName?: string;
+}
+
+export function CustomButton({
+  intent,
+  className,
+  labelClassName,
+  children,
+  ...props
+}: CustomButtonProps) {
+  return (
+    <Button
+      className={customButtonVariants({ intent, className })}
+      {...props}
+    >
+      <Button.Label
+        className={customLabelVariants({ intent, className: labelClassName })}
+      >
+        {children}
+      </Button.Label>
+    </Button>
+  );
+}
+
+```
+
+## Using Component classNames
+
+Each HeroUI Native component exports a `classNames` object that contains the same styling functions used internally by the component. This is particularly useful when you want to style your own custom components to match the appearance of HeroUI Native components.
+
+For example, you can style a custom `Link` component to look like a `Button`:
+
+```tsx
+import { buttonClassNames, cn } from 'heroui-native';
+import { Pressable, Text } from 'react-native';
+
+interface LinkProps {
+  href: string;
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function Link({
+  href,
+  variant = 'primary',
+  size = 'md',
+  children,
+  className,
+}: LinkProps) {
+  return (
+    <Pressable
+      className={cn(
+        buttonClassNames.root({ variant, size }),
+        className
+      )}
+      onPress={() => {
+        // Handle navigation
+      }}
+    >
+      <Text className={buttonClassNames.label({ variant, size })}>
+        {children}
+      </Text>
+    </Pressable>
+  );
+}
+
+```
+
+**Available classNames exports:**
+
+Each component exports its `classNames` object. For example:
+
+* `buttonClassNames` - Contains `root` and `label` functions
+* `cardClassNames` - Contains `root`, `header`, `body`, `footer`, `label`, and `description` functions
+* `chipClassNames` - Contains `root` and `label` functions
+* And many more...
+
+**Usage pattern:**
+
+```tsx
+import { buttonClassNames } from 'heroui-native';
+
+// Use with variant and size options
+const rootClasses = buttonClassNames.root({
+  variant: 'primary',
+  size: 'md',
+  className: 'custom-class', // Optional: merge with your own classes
+});
+
+const labelClasses = buttonClassNames.label({
+  variant: 'primary',
+  size: 'md',
+});
+
+```
+
+The `classNames` functions accept the same variant props as the components themselves, allowing you to maintain visual consistency across your custom components and HeroUI Native components.
+
+## Responsive Design
+
+HeroUI Native supports Tailwind's responsive breakpoint system via [Uniwind](https://docs.uniwind.dev/breakpoints). Use breakpoint prefixes like `sm:`, `md:`, `lg:`, and `xl:` to apply styles conditionally based on screen width.
+
+**Mobile-first approach:** Start with mobile styles (no prefix), then use breakpoints to enhance for larger screens.
+
+### Responsive Typography and Spacing
+
+```tsx
+import { Button } from 'heroui-native';
+import { View, Text } from 'react-native';
+
+<View className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+  <Text className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">
+    Responsive Heading
+  </Text>
+  <Button className="px-3 sm:px-4 lg:px-6">
+    <Button.Label className="text-sm sm:text-base lg:text-lg">
+      Responsive Button
+    </Button.Label>
+  </Button>
+</View>;
+
+```
+
+### Responsive Layouts
+
+```tsx
+import { View, Text } from 'react-native';
+
+<View className="flex-row flex-wrap">
+  {/* Mobile: 1 column, Tablet: 2 columns, Desktop: 3 columns */}
+  <View className="w-full sm:w-1/2 lg:w-1/3 p-2">
+    <View className="bg-accent p-4 rounded-lg">
+      <Text className="text-accent-foreground">Item 1</Text>
+    </View>
+  </View>
+</View>;
+
+```
+
+**Default breakpoints:**
+
+* `sm`: 640px
+* `md`: 768px
+* `lg`: 1024px
+* `xl`: 1280px
+* `2xl`: 1536px
+
+For custom breakpoints and more details, see the [Uniwind breakpoints documentation](https://docs.uniwind.dev/breakpoints).
+
+## Utilities
+
+HeroUI Native provides utility functions to assist with styling components.
+
+### cn Utility
+
+The `cn` utility function merges Tailwind CSS classes with proper conflict resolution. It's particularly useful when combining conditional classes or merging classes from props:
+
+````tsx
+import { cn } from 'heroui-native';
+import { View } from 'react-native';
+
+function MyComponent({ className, isActive }) {
+  return (
+    <View
+      className={cn(
+        'bg-background p-4 rounded-lg',
+        'border border-separator',
+        isActive && 'bg-accent',
+        className
+      )}
+    />
+  );
+}
+```;
+
+The `cn` utility is powered by `tailwind-variants` and includes:
+
+- Automatic Tailwind class merging (`twMerge: true`)
+- Custom opacity class group support
+- Proper conflict resolution (later classes override earlier ones)
+
+**Example with conflicts:**
+
+```tsx
+// 'bg-accent' overrides 'bg-background'
+cn('bg-background p-4', 'bg-accent');
+// Result: 'p-4 bg-accent'
+
+````
+
+### useThemeColor Hook
+
+Retrieves theme color values from CSS variables. Supports both single color and multiple colors for efficient batch retrieval.
+
+**Single color usage:**
+
+````tsx
+import { useThemeColor } from 'heroui-native';
+
+function MyComponent() {
+  const accentColor = useThemeColor('accent');
+  const dangerColor = useThemeColor('danger');
+
+  return (
+    <View style={{ borderColor: accentColor }}>
+      <Text style={{ color: dangerColor }}>Error message</Text>
+    </View>
+  );
+}
+```;
+
+**Multiple colors usage (more efficient):**
+
+```tsx
+import { useThemeColor } from 'heroui-native';
+
+function MyComponent() {
+  const [accentColor, backgroundColor, dangerColor] = useThemeColor([
+    'accent',
+    'background',
+    'danger',
+  ]);
+
+  return (
+    <View style={{ borderColor: accentColor, backgroundColor }}>
+      <Text style={{ color: dangerColor }}>Error message</Text>
+    </View>
+  );
+}
+```;
+
+**Type signatures:**
+
+```tsx
+// Single color
+useThemeColor(themeColor: ThemeColor): string
+
+// Multiple colors (with type inference for tuples)
+useThemeColor<T extends readonly [ThemeColor, ...ThemeColor[]]>(
+  themeColor: T
+): CreateStringTuple<T['length']>
+
+// Multiple colors (array)
+useThemeColor(themeColor: ThemeColor[]): string[]
+
+````
+
+Available theme colors include: `background`, `foreground`, `surface`, `accent`, `default`, `success`, `warning`, `danger`, and all their variants (hover, soft, foreground, etc.), plus semantic colors like `muted`, `border`, `separator`, `field`, `overlay`, and more.
+
+## Next Steps
+
+* Learn about [Animation](/docs/native/getting-started/animation) techniques
+* Explore [Theming](/docs/native/getting-started/theming) system
+* Explore [Colors](/docs/native/getting-started/colors) documentation
+
+</page>
+
+<page url="/docs/native/getting-started/theming">
+# Theming
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/theming
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(handbook)/theming.mdx
+> Customize HeroUI Native's design system with CSS variables and global styles
+
+
+HeroUI Native uses CSS variables for theming. Customize everything from colors to component styles using standard CSS.
+
+## How It Works
+
+HeroUI Native's theming system is built on top of [Tailwind CSS v4](https://tailwindcss.com/docs/theme)'s theme via [Uniwind](https://uniwind.dev/). When you import `heroui-native/styles`, it uses Tailwind's built-in color palettes, maps them to semantic variables, automatically switches between light and dark themes, and uses CSS layers and the `@theme` directive for organization.
+
+**Naming pattern:**
+
+* Colors without a suffix are backgrounds (e.g., `--accent`)
+* Colors with `-foreground` are for text on that background (e.g., `--accent-foreground`)
+
+## Quick Start
+
+**Apply colors in your components:**
+
+```tsx
+import { View, Text } from 'react-native';
+
+<View className="bg-background flex-1">
+  <Text className="text-foreground">Your app content</Text>
+</View>;
+
+```
+
+**Switch themes:**
+
+HeroUI Native automatically supports dark mode through [Uniwind](https://docs.uniwind.dev/theming/basics). The theme switches between light and dark variants based on system preferences or manual selection:
+
+```tsx
+import { Uniwind, useUniwind } from 'uniwind';
+import { Button } from 'heroui-native';
+
+function ThemeToggle() {
+  const { theme } = useUniwind();
+
+  return (
+    <Button
+      onPress={() => Uniwind.setTheme(theme === 'light' ? 'dark' : 'light')}
+    >
+      <Button.Label>
+        Toggle {theme === 'light' ? 'Dark' : 'Light'} Mode
+      </Button.Label>
+    </Button>
+  );
+}
+
+```
+
+**Override colors:**
+
+```css
+/* global.css */
+@layer theme {
+  @variant light {
+    /* Override any color variable */
+    --accent: oklch(0.65 0.25 270); /* Custom indigo accent */
+    --success: oklch(0.65 0.15 155);
+  }
+
+  @variant dark {
+    --accent: oklch(0.65 0.25 270);
+    --success: oklch(0.75 0.12 155);
+  }
+}
+
+```
+
+> **Note**: See [Colors](/docs/native/getting-started/colors) for the complete color palette and visual reference.
+
+**Create your own theme:**
+
+Create multiple themes using Uniwind's variant system. For complete custom theme documentation, see the [Uniwind Custom Themes Guide](https://docs.uniwind.dev/theming/custom-themes).
+
+<Callout type="warning">
+  **Important:** All themes must define the same variables. See the [Default Theme](/docs/native/getting-started/colors#default-theme) section for a complete list of all required variables.
+</Callout>
+
+```css
+/* global.css */
+@layer theme {
+  :root {
+    @variant ocean-light {
+      /* Base Colors */
+      --background: oklch(0.95 0.02 230);
+      --foreground: oklch(0.25 0.04 230);
+
+     /* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
+      --surface: oklch(0.98 0.01 230);
+      --surface-foreground: oklch(0.3 0.045 230);
+
+      --surface-secondary: oklch(0.96 0.012 230);
+      --surface-secondary-foreground: oklch(0.3 0.045 230);
+
+      --surface-tertiary: oklch(0.94 0.015 230);
+      --surface-tertiary-foreground: oklch(0.3 0.045 230);
+
+      /* Overlay: Used for floating/overlay components (dialogs, popovers, modals, menus) */
+      --overlay: oklch(0.998 0.003 230);
+      --overlay-foreground: oklch(0.3 0.045 230);
+      --backdrop: oklch(0% 0 0 / 20%);
+
+      --muted: oklch(0.55 0.035 230);
+
+      --default: oklch(0.94 0.018 230);
+      --default-foreground: oklch(0.4 0.05 230);
+
+      /* Accent */
+      --accent: oklch(0.6 0.2 230);
+      --accent-foreground: oklch(0.98 0.005 230);
+
+      /* Form Field Defaults - Colors */
+      --field-background: oklch(0.98 0.01 230);
+      --field-foreground: oklch(0.25 0.04 230);
+      --field-placeholder: var(--muted);
+      --field-border: transparent;
+
+      /* Status Colors */
+      --success: oklch(0.72 0.14 165);
+      --success-foreground: oklch(0.25 0.08 165);
+
+      --warning: oklch(0.78 0.12 85);
+      --warning-foreground: oklch(0.3 0.08 85);
+
+      --danger: oklch(0.68 0.18 15);
+      --danger-foreground: oklch(0.98 0.005 15);
+
+      /* Component Colors */
+      --segment: oklch(0.98 0.01 230);
+      --segment-foreground: oklch(0.25 0.04 230);
+
+      /* Misc Colors */
+      --border: oklch(0 0 0 / 0%);
+      --separator: oklch(0.91 0.015 230);
+      --focus: var(--accent);
+      --link: oklch(0.62 0.17 230);
+
+      /* Shadows */
+      --surface-shadow:
+        0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+        0 0 1px 0 rgba(0, 0, 0, 0.06);
+      --overlay-shadow:
+        0 2px 8px 0 rgba(0, 0, 0, 0.02), 0 -6px 12px 0 rgba(0, 0, 0, 0.01),
+        0 14px 28px 0 rgba(0, 0, 0, 0.03);
+      --field-shadow:
+        0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+        0 0 1px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    @variant ocean-dark {
+      /* Base Colors */
+      --background: oklch(0.15 0.04 230);
+      --foreground: oklch(0.94 0.01 230);
+
+      /* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
+      --surface: oklch(0.2 0.048 230);
+      --surface-foreground: oklch(0.9 0.015 230);
+
+      --surface-secondary: oklch(0.24 0.046 230);
+      --surface-secondary-foreground: oklch(0.9 0.015 230);
+
+      --surface-tertiary: oklch(0.27 0.044 230);
+      --surface-tertiary-foreground: oklch(0.9 0.015 230);
+
+      /* Overlay: Used for floating/overlay components (dialogs, popovers, modals, menus) */
+      --overlay: oklch(0.23 0.045 230);
+      --overlay-foreground: oklch(0.9 0.015 230);
+      --backdrop: oklch(0% 0 0 / 20%);
+
+      --muted: oklch(0.5 0.04 230);
+
+      --default: oklch(0.25 0.05 230);
+      --default-foreground: oklch(0.88 0.018 230);
+
+      /* Accent */
+      --accent: oklch(0.72 0.21 230);
+      --accent-foreground: oklch(0.15 0.04 230);
+
+      /* Form Field Defaults - Colors */
+      --field-background: var(--default);
+      --field-foreground: var(--foreground);
+      --field-placeholder: var(--muted);
+      --field-border: transparent;
+
+      /* Status Colors */
+      --success: oklch(0.68 0.16 165);
+      --success-foreground: oklch(0.95 0.008 165);
+
+      --warning: oklch(0.75 0.14 90);
+      --warning-foreground: oklch(0.2 0.04 90);
+
+      --danger: oklch(0.65 0.2 20);
+      --danger-foreground: oklch(0.95 0.008 20);
+
+      /* Component Colors */
+      --segment: oklch(0.22 0.046 230);
+      --segment-foreground: oklch(0.9 0.015 230);
+
+      /* Misc Colors */
+      --border: oklch(0 0 0 / 0%);
+      --separator: oklch(0.28 0.045 230);
+      --focus: var(--accent);
+      --link: oklch(0.75 0.18 230);
+
+      /* Shadows */
+      --surface-shadow: 0 0 0 0 transparent inset; /* No shadow on dark mode */
+      --overlay-shadow: 0 0 1px 0 rgba(255, 255, 255, 0.3) inset;
+      --field-shadow: 0 0 0 0 transparent inset; /* Transparent shadow to allow ring utilities to work */
+    }
+  }
+}
+
+```
+
+**Important:** When adding custom themes, you must register them in your Metro config:
+
+```js
+// metro.config.js
+const { withUniwindConfig } = require('uniwind/metro');
+const {
+  wrapWithReanimatedMetroConfig,
+} = require('react-native-reanimated/metro-config');
+
+const config = {
+  // ... your existing config
+};
+
+module.exports = withUniwindConfig(wrapWithReanimatedMetroConfig(config), {
+  cssEntryFile: './global.css',
+  dtsFile: './src/uniwind.d.ts',
+  extraThemes: ['ocean-light', 'ocean-dark'],
+});
+
+```
+
+Apply themes in your app:
+
+```tsx
+import { Uniwind } from 'uniwind';
+import { Button } from 'heroui-native';
+
+function App() {
+  return (
+    <Button onPress={() => Uniwind.setTheme('ocean-light')}>
+      <Button.Label>Ocean Theme</Button.Label>
+    </Button>
+  );
+}
+
+```
+
+## Adding Custom Colors
+
+Add your own semantic colors to the theme:
+
+```css
+@layer theme {
+  @variant light {
+    --info: oklch(0.6 0.15 210);
+    --info-foreground: oklch(0.98 0 0);
+  }
+
+  @variant dark {
+    --info: oklch(0.7 0.12 210);
+    --info-foreground: oklch(0.15 0 0);
+  }
+}
+
+/* Make the color available to Tailwind */
+@theme inline {
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+}
+
+```
+
+Now use it in your components:
+
+```tsx
+import { View, Text } from 'react-native';
+
+<View className="bg-info p-4 rounded-lg">
+  <Text className="text-info-foreground">Info message</Text>
+</View>;
+
+```
+
+## Custom Fonts
+
+To use a custom font family in your app, you need to load the fonts and then override the font CSS variables.
+
+### 1. Load Fonts in Your App
+
+First, load your custom fonts (using Expo's `useFonts` hook for example):
+
+```tsx
+import { useFonts } from 'expo-font';
+import { HeroUINativeProvider } from 'heroui-native';
+import {
+  YourFont_400Regular,
+  YourFont_500Medium,
+  YourFont_600SemiBold,
+} from '@expo-google-fonts/your-font';
+
+export default function App() {
+  const [fontsLoaded] = useFonts({
+    YourFont_400Regular,
+    YourFont_500Medium,
+    YourFont_600SemiBold,
+  });
+
+  if (!fontsLoaded) {
+    return null; // Or return a loading screen
+  }
+
+  return <HeroUINativeProvider>{/* Your app content */}</HeroUINativeProvider>;
+}
+
+```
+
+### 2. Configure Font CSS Variables
+
+After loading the fonts, override the font CSS variables in your `global.css` file:
+
+```css
+@theme {
+  --font-normal: 'YourFont-400Regular';
+  --font-medium: 'YourFont-500Medium';
+  --font-semibold: 'YourFont-600SemiBold';
+}
+
+```
+
+**Note:** The font names in CSS variables should match the PostScript names of your loaded fonts. Check your font package documentation or use the font names exactly as they appear in your `useFonts` hook.
+
+All HeroUI Native components automatically use these font variables, ensuring consistent typography throughout your app.
+
+## Variables Reference
+
+HeroUI defines three types of variables:
+
+1. **Base Variables** — Non-changing values like `--white`, `--black`
+2. **Theme Variables** — Colors that change between light/dark themes
+3. **Calculated Variables** — Automatically generated hover (pressed) states and size variants
+
+For a complete reference, see: [Colors Documentation](/docs/native/getting-started/colors), [Default Theme Variables](https://github.com/heroui-inc/heroui-native/blob/main/src/styles/variables.css), [Shared Theme Utilities](https://github.com/heroui-inc/heroui-native/blob/main/src/styles/theme.css)
+
+**Calculated variables (Tailwind):**
+
+We use Tailwind's `@theme` directive to automatically create calculated variables for hover (pressed) states and radius variants. These are defined in [theme.css](https://github.com/heroui-inc/heroui-native/blob/main/src/styles/theme.css):
+
+```css
+  @theme inline static {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-surface-hover: color-mix(in oklab, var(--surface) 92%, var(--surface-foreground) 8%);
+
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-secondary-foreground: var(--surface-secondary-foreground);
+
+  --color-surface-tertiary: var(--surface-tertiary);
+  --color-surface-tertiary-foreground: var(--surface-tertiary-foreground);
+
+  --color-overlay: var(--overlay);
+  --color-overlay-foreground: var(--overlay-foreground);
+  --color-backdrop: var(--backdrop);
+  
+
+  --color-muted: var(--muted);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-segment: var(--segment);
+  --color-segment-foreground: var(--segment-foreground);
+
+  --color-border: var(--border);
+  --color-separator: var(--separator);
+  --color-focus: var(--focus);
+  --color-link: var(--link);
+
+  --color-default: var(--default);
+  --color-default-foreground: var(--default-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+
+  /* Form Field Tokens */
+  --color-field: var(--field-background, var(--default));
+  --color-field-foreground: var(--field-foreground, var(--foreground));
+  --color-field-placeholder: var(--field-placeholder, var(--muted));
+  --color-field-border: var(--field-border, var(--border));
+  --radius-field: var(--field-radius, var(--radius-xl));
+  --border-width-field: var(--field-border-width, var(--border-width));
+
+  --shadow-surface: var(--surface-shadow);
+  --shadow-overlay: var(--overlay-shadow);
+  --shadow-field: var(--field-shadow);
+
+  /* Calculated Variables */
+
+  /* Colors */
+
+  /* --- background shades --- */
+  --color-background-secondary: color-mix(in oklab, var(--background) 96%, var(--foreground) 4%);
+  --color-background-tertiary: color-mix(in oklab, var(--background) 92%, var(--foreground) 8%);
+  --color-background-inverse: var(--foreground);
+
+  /* ------------------------- */
+  --color-default-hover: color-mix(in oklab, var(--default) 96%, var(--default-foreground) 4%);
+  --color-accent-hover: color-mix(in oklab, var(--accent) 90%, var(--accent-foreground) 10%);
+  --color-success-hover: color-mix(in oklab, var(--success) 90%, var(--success-foreground) 10%);
+  --color-warning-hover: color-mix(in oklab, var(--warning) 90%, var(--warning-foreground) 10%);
+  --color-danger-hover: color-mix(in oklab, var(--danger) 90%, var(--danger-foreground) 10%);
+
+  /* Form Field Colors */ 
+  --color-field-hover: color-mix(in oklab, var(--field-background, var(--default)) 90%, var(--field-foreground, var(--foreground)) 2%);
+  --color-field-focus: var(--field-background, var(--default));
+  --color-field-border-hover: color-mix(in oklab, var(--field-border, var(--border)) 88%, var(--field-foreground, var(--foreground)) 10%);
+  --color-field-border-focus: color-mix(in oklab, var(--field-border, var(--border)) 74%, var(--field-foreground, var(--foreground)) 22%);
+
+  /* Soft Colors */
+  --color-accent-soft: color-mix(in oklab, var(--accent) 15%, transparent);
+  --color-accent-soft-foreground: var(--accent);
+  --color-accent-soft-hover: color-mix(in oklab, var(--accent) 20%, transparent);
+
+  --color-danger-soft: color-mix(in oklab, var(--danger) 15%, transparent);
+  --color-danger-soft-foreground: var(--danger);
+  --color-danger-soft-hover: color-mix(in oklab, var(--danger) 20%, transparent);
+
+  --color-warning-soft: color-mix(in oklab, var(--warning) 15%, transparent);
+  --color-warning-soft-foreground: var(--warning);
+  --color-warning-soft-hover: color-mix(in oklab, var(--warning) 20%, transparent);
+
+  --color-success-soft: color-mix(in oklab, var(--success) 15%, transparent);
+  --color-success-soft-foreground: var(--success);
+  --color-success-soft-hover: color-mix(in oklab, var(--success) 20%, transparent);
+
+  /* Separator Colors - Levels */
+  --color-separator-secondary: color-mix(in oklab, var(--surface) 85%, var(--surface-foreground) 15%);
+  --color-separator-tertiary: color-mix(in oklab, var(--surface) 81%, var(--surface-foreground) 19%);
+
+  /* Border Colors - Levels (progressive contrast: default → secondary → tertiary) */
+  /* Light mode: lighter → darker | Dark mode: darker → lighter */
+  --color-border-secondary: color-mix(in oklab, var(--surface) 78%, var(--surface-foreground) 22%);
+  --color-border-tertiary: color-mix(in oklab, var(--surface) 66%, var(--surface-foreground) 34%);
+
+  /* Radius and default sizes - defaults can change by just changing the --radius */
+  --radius-xs: calc(var(--radius) * 0.25); /* 0.125rem (2px) */
+  --radius-sm: calc(var(--radius) * 0.5); /* 0.25rem (4px) */
+  --radius-md: calc(var(--radius) * 0.75); /* 0.375rem (6px) */
+  --radius-lg: calc(var(--radius) * 1); /* 0.5rem (8px) */
+  --radius-xl: calc(var(--radius) * 1.5); /* 0.75rem (12px) */
+  --radius-2xl: calc(var(--radius) * 2); /* 1rem (16px) */
+  --radius-3xl: calc(var(--radius) * 3); /* 1.5rem (24px) */
+  --radius-4xl: calc(var(--radius) * 4); /* 2rem (32px) */
+}
+
+```
+
+Form controls now rely on the `--field-*` variables and their calculated hover/focus variants. Update them in your theme to restyle inputs, checkboxes, radios, and OTP slots without impacting surfaces like buttons or cards.
+
+## Resources
+
+* [Colors Documentation](/docs/native/getting-started/colors)
+* [Styling Guide](/docs/native/getting-started/styling)
+* [Tailwind CSS v4 Theming](https://tailwindcss.com/docs/theme)
+* [OKLCH Color Tool](https://oklch.com)
+
+</page>
+
+<page url="/docs/native/getting-started/design-principles">
+# Design Principles
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/design-principles
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(overview)/design-principles.mdx
+> Core principles that guide HeroUI v3's design and development
+
+
+HeroUI Native follows 9 core principles that prioritize clarity, accessibility, customization, and developer experience.
+
+## Core Principles
+
+### 1. Semantic Intent Over Visual Style
+
+Use semantic naming (primary, secondary, tertiary) instead of visual descriptions (solid, flat, bordered). Inspired by [Uber's Base design system](https://base.uber.com/6d2425e9f/p/756216-button), variants follow a clear hierarchy:
+
+
+
+```tsx
+// ✅ Semantic variants communicate hierarchy
+<Button variant="primary">Save</Button>
+<Button variant="secondary">Edit</Button>
+<Button variant="tertiary">Cancel</Button>
+
+```
+
+| Variant       | Purpose                           | Usage            |
+| ------------- | --------------------------------- | ---------------- |
+| **Primary**   | Main action to move forward       | 1 per context    |
+| **Secondary** | Alternative actions               | Multiple allowed |
+| **Tertiary**  | Dismissive actions (cancel, skip) | Sparingly        |
+| **Danger**    | Destructive actions               | When needed      |
+
+### 2. Accessibility as Foundation
+
+Accessibility follows mobile development best practices with proper touch accessibility, focus management, and screen reader support built into every component. All components include proper accessibility labels and semantic structure for VoiceOver (iOS) and TalkBack (Android).
+
+```tsx
+import { Tabs } from 'heroui-native';
+
+<Tabs value="profile" onValueChange={setActiveTab}>
+  <Tabs.List>
+    <Tabs.Indicator />
+    <Tabs.Trigger value="profile">
+      <Tabs.Label>Profile</Tabs.Label>
+    </Tabs.Trigger>
+    <Tabs.Trigger value="security">
+      <Tabs.Label>Security</Tabs.Label>
+    </Tabs.Trigger>
+  </Tabs.List>
+  <Tabs.Content value="profile">Content</Tabs.Content>
+  <Tabs.Content value="security">Content</Tabs.Content>
+</Tabs>
+
+```
+
+### 3. Composition Over Configuration
+
+Compound components let you rearrange, customize, or omit parts as needed. Use dot notation to compose components exactly as you need them.
+
+```tsx
+// Compose parts to build exactly what you need
+import { Accordion } from 'heroui-native';
+
+<Accordion>
+  <Accordion.Item value="1">
+    <Accordion.Trigger>
+      Question Text
+      <Accordion.Indicator />
+    </Accordion.Trigger>
+    <Accordion.Content>Answer content</Accordion.Content>
+  </Accordion.Item>
+</Accordion>
+
+```
+
+### 4. Progressive Disclosure
+
+Start simple, add complexity only when needed. Components work with minimal props and scale up as requirements grow.
+
+```tsx
+import { Button, Spinner } from 'heroui-native';
+import { Feather } from '@expo/vector-icons';
+
+// Level 1: Minimal
+<Button>Click me</Button>
+
+// Level 2: Enhanced
+<Button variant="primary" size="lg">
+  <Feather name="check" size={20} />
+  <Button.Label>Submit</Button.Label>
+</Button>
+
+// Level 3: Advanced
+<Button variant="primary" isDisabled={isLoading}>
+  {isLoading ? (
+    <>
+      <Spinner size="sm" />
+      <Button.Label>Loading...</Button.Label>
+    </>
+  ) : (
+    <Button.Label>Submit</Button.Label>
+  )}
+</Button>
+
+```
+
+### 5. Predictable Behavior
+
+Consistent patterns across all components: sizes (`sm`, `md`, `lg`), variants, and className support. Same API, same behavior.
+
+```tsx
+import { Button, Chip, Avatar } from 'heroui-native';
+
+// All components follow the same patterns
+<Button size="lg" variant="primary" className="custom">
+  <Button.Label>Click me</Button.Label>
+</Button>
+<Chip size="lg" color="success" className="custom">
+  <Chip.Label>Success</Chip.Label>
+</Chip>
+<Avatar size="lg" className="custom">
+  <Avatar.Fallback>JD</Avatar.Fallback>
+</Avatar>
+
+```
+
+### 6. Type Safety First
+
+Full TypeScript support with IntelliSense, auto-completion, and compile-time error detection. Extend types for custom components.
+
+```tsx
+import type { ButtonRootProps } from 'heroui-native';
+
+// Type-safe props and event handlers
+<Button
+  variant="primary"  // Autocomplete: primary | secondary | tertiary | ghost | danger | danger-soft
+  size="md"          // Type checked: sm | md | lg
+  onPress={() => {   // Properly typed press handler
+    console.log('Button pressed');
+  }}
+>
+  <Button.Label>Click me</Button.Label>
+</Button>
+
+// Extend types for custom components
+interface CustomButtonProps extends Omit<ButtonRootProps, 'variant'> {
+  intent: 'save' | 'cancel' | 'delete';
+}
+
+```
+
+### 7. Developer Experience Excellence
+
+Clear APIs, descriptive errors, IntelliSense and AI-friendly markdown docs.
+
+### 8. Complete Customization
+
+Beautiful defaults out-of-the-box. Transform the entire look with CSS variables through [Uniwind's theming system](https://docs.uniwind.dev/theming/basics). Every slot is customizable.
+
+```css
+/* Custom colors using Uniwind's theme layer */
+@layer theme {
+  @variant light {
+    --accent: oklch(0.65 0.25 270); /* Custom indigo accent */
+    --background: oklch(0.98 0 0);  /* Custom background */
+  }
+
+  @variant dark {
+    --accent: oklch(0.65 0.25 270);
+    --background: oklch(0.15 0 0);
+  }
+}
+
+/* Radius customization */
+@theme {
+  --radius: 0.75rem; /* Increase for rounder components */
+}
+
+```
+
+### 9. Open and Extensible
+
+Wrap, extend, and customize components to match your needs. Create custom wrappers or apply custom styles using className.
+
+```tsx
+import { Button } from 'heroui-native';
+import type { ButtonRootProps } from 'heroui-native';
+
+// Custom wrapper component
+interface CTAButtonProps extends Omit<ButtonRootProps, 'variant'> {
+  intent?: 'primary-cta' | 'secondary-cta' | 'minimal';
+}
+
+const CTAButton = ({
+  intent = 'primary-cta',
+  children,
+  ...props
+}: CTAButtonProps) => {
+  const variantMap = {
+    'primary-cta': 'primary',
+    'secondary-cta': 'secondary',
+    'minimal': 'ghost'
+  } as const;
+
+  return (
+    <Button variant={variantMap[intent]} {...props}>
+      <Button.Label>{children}</Button.Label>
+    </Button>
+  );
+};
+
+// Usage
+<CTAButton intent="primary-cta">Get Started</CTAButton>
+<CTAButton intent="secondary-cta">Learn More</CTAButton>
+
+```
+
+**Extend with Tailwind Variants:**
+
+```tsx
+import { Button } from 'heroui-native';
+import { tv } from 'tailwind-variants';
+
+// Extend button styles with custom variants
+const myButtonVariants = tv({
+  base: 'px-4 py-2 rounded-lg',
+  variants: {
+    variant: {
+      'primary-cta': 'bg-accent px-8 py-4 shadow-lg',
+      'secondary-cta': 'border-2 border-accent px-6 py-3',
+    }
+  },
+  defaultVariants: {
+    variant: 'primary-cta',
+  }
+});
+
+// Label variants for text colors (must be applied to Button.Label)
+const myLabelVariants = tv({
+  base: '',
+  variants: {
+    variant: {
+      'primary-cta': 'text-accent-foreground',
+      'secondary-cta': 'text-accent',
+    }
+  },
+  defaultVariants: {
+    variant: 'primary-cta',
+  }
+});
+
+// Use the custom variants
+function CustomButton({ variant, className, labelClassName, children, ...props }) {
+  return (
+    <Button className={myButtonVariants({ variant, className })} {...props}>
+      <Button.Label className={myLabelVariants({ variant, className: labelClassName })}>
+        {children}
+      </Button.Label>
+    </Button>
+  );
+}
+
+// Usage
+<CustomButton variant="primary-cta">Get Started</CustomButton>
+<CustomButton variant="secondary-cta">Learn More</CustomButton>
+
+```
+
+</page>
+
+<page url="/docs/native/getting-started/quick-start">
+# Quick Start
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/quick-start
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(overview)/quick-start.mdx
+> Get started with HeroUI Native in minutes
+
+
+## Getting Started
+
+### 1. Install HeroUI Native
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tab value="npm">
+    ```bash
+    npm install heroui-native
+    ```
+  </Tab>
+
+  <Tab value="pnpm">
+    ```bash
+    pnpm add heroui-native
+    ```
+  </Tab>
+
+  <Tab value="yarn">
+    ```bash
+    yarn add heroui-native
+    ```
+  </Tab>
+
+  <Tab value="bun">
+    ```bash
+    bun add heroui-native
+    ```
+  </Tab>
+</Tabs>
+
+### 2. Install Mandatory Peer Dependencies
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tab value="npm">
+    ```bash
+    npm install react-native-reanimated@^4.1.1 react-native-gesture-handler@^2.28.0 react-native-worklets@^0.5.1 react-native-safe-area-context@^5.6.0 react-native-svg@^15.12.1 tailwind-variants@^3.2.2 tailwind-merge@^3.4.0
+    ```
+  </Tab>
+
+  <Tab value="pnpm">
+    ```bash
+    pnpm add react-native-reanimated@^4.1.1 react-native-gesture-handler@^2.28.0 react-native-worklets@^0.5.1 react-native-safe-area-context@^5.6.0 react-native-svg@^15.12.1 tailwind-variants@^3.2.2 tailwind-merge@^3.4.0
+    ```
+  </Tab>
+
+  <Tab value="yarn">
+    ```bash
+    yarn add react-native-reanimated@^4.1.1 react-native-gesture-handler@^2.28.0 react-native-worklets@^0.5.1 react-native-safe-area-context@^5.6.0 react-native-svg@^15.12.1 tailwind-variants@^3.2.2 tailwind-merge@^3.4.0
+    ```
+  </Tab>
+
+  <Tab value="bun">
+    ```bash
+    bun add react-native-reanimated@^4.1.1 react-native-gesture-handler@^2.28.0 react-native-worklets@^0.5.1 react-native-safe-area-context@^5.6.0 react-native-svg@^15.12.1 tailwind-variants@^3.2.2 tailwind-merge@^3.4.0
+    ```
+  </Tab>
+</Tabs>
+
+<Callout type="warning">
+  It's recommended to use the exact versions specified above to avoid compatibility issues. Version mismatches may cause unexpected bugs.
+</Callout>
+
+### 3. Optional Dependencies
+
+These packages are only needed if you use specific components or features:
+
+| Package                | Version   | Required for                                                            |
+| ---------------------- | --------- | ----------------------------------------------------------------------- |
+| `react-native-screens` | `^4.16.0` | BottomSheet, Dialog, Menu, Popover, Select, Toast                       |
+| `@gorhom/bottom-sheet` | `^5.2.8`  | BottomSheet, Menu / Popover / Select when `presentation="bottom-sheet"` |
+
+### 4. Set Up Uniwind
+
+Follow the [Uniwind installation guide](https://docs.uniwind.dev/quickstart) to set up Tailwind CSS for React Native.
+
+If you're migrating from NativeWind, see the [migration guide](https://docs.uniwind.dev/migration-from-nativewind).
+
+### 5. Configure global.css
+
+Inside your `global.css` file add the following imports:
+
+```css
+@import 'tailwindcss';
+@import 'uniwind';
+
+@import 'heroui-native/styles';
+
+/* Path to the heroui-native lib inside node_modules relative to global.css */
+/* Examples:
+ *   - If global.css is at project root: ./node_modules/heroui-native/lib
+ *   - If global.css is in app/: ../node_modules/heroui-native/lib
+ *   - If global.css is in src/styles/: ../../node_modules/heroui-native/lib
+ */
+@source './node_modules/heroui-native/lib';
+
+```
+
+### 6. Wrap Your App with Provider
+
+Wrap your application with `HeroUINativeProvider`. You must wrap it with `GestureHandlerRootView`:
+
+```tsx
+import { HeroUINativeProvider } from 'heroui-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+export default function App() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <HeroUINativeProvider>{/* Your app content */}</HeroUINativeProvider>
+    </GestureHandlerRootView>
+  );
+}
+
+```
+
+> **Note**: For advanced configuration options including text props, animation settings, and toast configuration, see the [Provider documentation](/docs/native/getting-started/provider).
+
+### 7. Use Your First Component
+
+```tsx
+import { Button } from 'heroui-native';
+import { View } from 'react-native';
+
+export default function MyComponent() {
+  return (
+    <View className="flex-1 justify-center items-center bg-background">
+      <Button onPress={() => console.log('Pressed!')}>Get Started</Button>
+    </View>
+  );
+}
+
+```
+
+### 8. Reduce Bundle Size with Granular Exports
+
+If you want to reduce bundle size and import only the components you need, our library provides granular exports for each component:
+
+```tsx
+// Granular imports - use when you need only a few components
+import { HeroUINativeProvider } from "heroui-native/provider";
+import { Button } from "heroui-native/button";
+import { Card } from "heroui-native/card";
+
+// General import - imports the whole library, use when you're using many components
+import { Button, Card } from "heroui-native";
+
+```
+
+Granular imports are ideal when you only need a few components, as they help keep your bundle size smaller. General imports from `heroui-native` will include the entire library, which is convenient when you're using many components throughout your app.
+
+**Available granular exports:**
+
+* `heroui-native/provider` - Provider component
+* `heroui-native/provider-raw` - Lightweight provider (keeps bare minimum to start)
+* `heroui-native/[component-name]` - Individual components
+* `heroui-native/portal` - Portal utilities
+* `heroui-native/toast` - Toast provider and utilities
+* `heroui-native/utils` - Utility functions
+* `heroui-native/hooks` - Custom hooks
+
+<Callout type="warning">
+  **Important**: To keep the bundle size under control, you must follow the pattern with granular imports consistently. Even one general import from `heroui-native` will break this optimization strategy.
+</Callout>
+
+> **Tip**: For even more control over your bundle, consider using [`HeroUINativeProviderRaw`](/docs/native/getting-started/provider#raw-provider) — a lightweight provider that excludes `ToastProvider` and `PortalHost`.
+
+## What's Next?
+
+* [HeroUI Native Provider](/docs/native/getting-started/provider)
+* [Styling Guide](/docs/native/getting-started/styling)
+* [Theming Documentation](/docs/native/getting-started/theming)
+
+## Running on Web (Expo)
+
+<Callout type="warning">
+  HeroUI Native is currently not recommended for web use. We are focusing on mobile platforms (iOS and Android) at this time. For web development, please use [HeroUI React](/docs/react/getting-started/quick-start) instead.
+</Callout>
+
+</page>
+
+<page url="/docs/native/getting-started/agent-skills">
+# Agent Skills
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/agent-skills
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(ui-for-agents)/agent-skills.mdx
+> Enable AI assistants to build mobile UIs with HeroUI Native components
+
+
+HeroUI Native Skills give your AI assistant comprehensive knowledge of HeroUI Native components, patterns, and best practices for React Native development.
+
+
+
+### Installation
+
+```bash
+curl -fsSL https://heroui.com/install | bash -s heroui-native
+
+```
+
+Or using the skills package:
+
+```bash
+npx skills add heroui-inc/heroui
+
+```
+
+<span className="text-sm text-muted">
+  Support Claude Code, Cursor, OpenCode and more.
+</span>
+
+### Usage
+
+Skills are **automatically discovered** by your AI assistant, or call it directly using `/heroui-native` command.
+
+Simply ask your AI assistant to:
+
+* Build mobile components using HeroUI Native
+* Create screens with HeroUI Native components
+* Customize themes and styles
+* Access component documentation
+
+<Callout>
+  For more complex use cases, use the [MCP Server](/docs/native/getting-started/mcp-server) which provides real-time access to component documentation and source code.
+</Callout>
+
+### What's Included
+
+* HeroUI Native installation guide
+* All HeroUI Native components with props, examples, and usage patterns
+* Theming and styling guidelines with Uniwind
+* Design principles and composition patterns
+
+### Structure
+
+```
+
+skills/heroui-native/
+├── SKILL.md              # Main skill documentation
+├── LICENSE.txt           # MIT license
+└── scripts/              # Utility scripts
+    ├── list_components.mjs
+    ├── get_component_docs.mjs
+    ├── get_theme.mjs
+    └── get_docs.mjs
+
+```
+
+### Related Documentation
+
+* [Agent Skills Specification](https://agentskills.io/home) - Learn about the Agent Skills format
+* [Claude Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) - Claude's Skills documentation
+* [Cursor Skills](https://cursor.com/docs/context/skills) - Using Skills in Cursor
+* [OpenCode Skills](https://opencode.ai/docs/skills) - Using Skills in OpenCode
+
+</page>
+
+<page url="/docs/native/getting-started/agents-md">
+# AGENTS.md
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/agents-md
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(ui-for-agents)/agents-md.mdx
+> Download HeroUI Native documentation for AI coding agents
+
+
+Download HeroUI Native documentation directly into your project for AI assistants to reference.
+
+<Callout>
+  **Note:** The `agents-md` command is specifically for HeroUI React v3 and HeroUI Native. Other CLI commands (like `add`, `init`, `upgrade`, etc.) are for HeroUI v2 (for now).
+</Callout>
+
+
+
+### Usage
+
+```bash
+npx heroui-cli@latest agents-md --native
+
+```
+
+Or specify output file:
+
+```bash
+npx heroui-cli@latest agents-md --native --output AGENTS.md
+
+```
+
+### What It Does
+
+* Downloads latest HeroUI Native docs to `.heroui-docs/native/`
+* Generates an index in `AGENTS.md` or `CLAUDE.md`
+* Adds `.heroui-docs/` to `.gitignore` automatically
+
+### Options
+
+* `--native` - Download Native docs only
+* `--output <files...>` - Target file(s) (e.g., `AGENTS.md` or `AGENTS.md CLAUDE.md`)
+* `--ssh` - Use SSH for git clone
+
+### Requirements
+
+* Tailwind CSS >= v4 (via Uniwind)
+
+### Related Documentation
+
+* [AGENTS.md](https://agents.md/) - Learn about the AGENTS.md format for coding agents
+* [CLAUDE.md](https://code.claude.com/docs/en/best-practices#write-an-effective-claude-md) - Claude equivalent of AGENTS.md
+* [AGENTS.md vs Skills](https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals) - AGENTS.md performance
+
+</page>
+
+<page url="/docs/native/getting-started/llms-txt">
+# LLMs.txt
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/llms-txt
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(ui-for-agents)/llms-txt.mdx
+> Enable AI assistants like Claude, Cursor, and Windsurf to understand HeroUI Native
+
+
+We provide [LLMs.txt](https://llmstxt.org/) files to make HeroUI Native documentation accessible to AI coding assistants.
+
+## Available Files
+
+**Core documentation:**
+
+* [/native/llms.txt](/native/llms.txt) — Quick reference index for Native documentation
+* [/native/llms-full.txt](/native/llms-full.txt) — Complete HeroUI Native documentation
+
+**For limited context windows:**
+
+* [/native/llms-components.txt](/native/llms-components.txt) — Component documentation only
+* [/native/llms-patterns.txt](/native/llms-patterns.txt) — Common patterns and recipes
+
+**All platforms:**
+
+* [/llms.txt](/llms.txt) — Quick reference index (React + Native)
+* [/llms-full.txt](/llms-full.txt) — Complete documentation (React + Native)
+* [/llms-components.txt](/llms-components.txt) — All component documentation
+* [/llms-patterns.txt](/llms-patterns.txt) — All patterns and recipes
+
+## Integration
+
+**Claude Code:** Tell Claude to reference the documentation:
+
+```
+Use HeroUI Native documentation from https://heroui.com/native/llms.txt
+
+```
+
+Or add to your project's `.claude` file for automatic loading.
+
+**Cursor:** Use the `@Docs` feature:
+
+```
+@Docs https://heroui.com/native/llms-full.txt
+
+```
+
+[Learn more](https://docs.cursor.com/context/@-symbols/@-docs)
+
+**Windsurf:** Add to your `.windsurfrules` file:
+
+```
+#docs https://heroui.com/native/llms-full.txt
+
+```
+
+[Learn more](https://docs.codeium.com/windsurf/memories#memories-and-rules)
+
+**Other AI tools:** Most AI assistants can reference documentation by URL. Simply provide:
+
+```
+https://heroui.com/native/llms.txt
+
+```
+
+**For component-specific documentation:**
+
+```
+
+https://heroui.com/native/llms-components.txt
+
+```
+
+**For patterns and best practices:**
+
+```
+
+https://heroui.com/native/llms-patterns.txt
+
+```
+
+## Contributing
+
+Found an issue with AI-generated code? Help us improve our LLMs.txt files on [GitHub](https://github.com/heroui-inc/heroui).
+
+</page>
+
+<page url="/docs/native/getting-started/mcp-server">
+# MCP Server
+
+**Category**: native
+**URL**: https://www.heroui.com/docs/native/getting-started/mcp-server
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/native/getting-started/(ui-for-agents)/mcp-server.mdx
+> Access HeroUI Native documentation directly in your AI assistant
+
+
+The HeroUI MCP Server gives AI assistants direct access to HeroUI Native component documentation, making it easier to build with HeroUI in AI-powered development environments.
+
+
+
+The MCP server currently supports **heroui-native** and [stdio transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#stdio). Published at `@heroui/native-mcp` on npm. View the source code on [GitHub](https://github.com/heroui-inc/heroui-mcp).
+
+<Callout>
+  As we add more components to HeroUI Native, they'll be available in the MCP server too.
+</Callout>
+
+## Quick Setup
+
+**Cursor:**
+
+<div className="flex items-center gap-3 mb-4">
+  <a href="https://link.heroui.com/native-mcp-cursor-install" className="button button--tertiary button--sm no-underline">
+    <svg viewBox="0 0 466.73 532.09" className="w-5 h-5 fill-current">
+      <path d="M457.43,125.94L244.42,2.96c-6.84-3.95-15.28-3.95-22.12,0L9.3,125.94c-5.75,3.32-9.3,9.46-9.3,16.11v247.99c0,6.65,3.55,12.79,9.3,16.11l213.01,122.98c6.84,3.95,15.28,3.95,22.12,0l213.01-122.98c5.75-3.32,9.3-9.46,9.3-16.11v-247.99c0-6.65-3.55-12.79-9.3-16.11h-.01ZM444.05,151.99l-205.63,356.16c-1.39,2.4-5.06,1.42-5.06-1.36v-233.21c0-4.66-2.49-8.97-6.53-11.31L24.87,145.67c-2.4-1.39-1.42-5.06,1.36-5.06h411.26c5.84,0,9.49,6.33,6.57,11.39h-.01Z" />
+    </svg>
+
+    <span>Install in Cursor</span>
+  </a>
+</div>
+
+Or manually add to **Cursor Settings** → **Tools** → **MCP Servers**:
+
+```json title=".cursor/mcp.json"
+{
+  "mcpServers": {
+    "heroui-native": {
+      "command": "npx",
+      "args": ["-y", "@heroui/native-mcp@latest"]
+    }
+  }
+}
+
+```
+
+Alternatively, add the following to your `~/.cursor/mcp.json` file. To learn more, see the [Cursor documentation](https://cursor.com/docs/context/mcp).
+
+**Claude Code:** Run this command in your terminal:
+
+```bash
+claude mcp add heroui-native -- npx -y @heroui/native-mcp@latest
+
+```
+
+Or manually add to your project's `.mcp.json` file:
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "heroui-native": {
+      "command": "npx",
+      "args": ["-y", "@heroui/native-mcp@latest"]
+    }
+  }
+}
+
+```
+
+After adding the configuration, restart Claude Code and run `/mcp` to see the HeroUI MCP server in the list. If you see **Connected**, you're ready to use it.
+
+See the [Claude Code MCP documentation](https://docs.claude.com/en/docs/claude-code/mcp) for more details.
+
+**Windsurf:** Add the HeroUI server to your project's `.windsurf/mcp.json` configuration file:
+
+```json title=".windsurf/mcp.json"
+{
+  "mcpServers": {
+    "heroui-native": {
+      "command": "npx",
+      "args": ["-y", "@heroui/native-mcp@latest"]
+    }
+  }
+}
+
+```
+
+After adding the configuration, restart Windsurf to activate the MCP server.
+
+See the [Windsurf MCP documentation](https://docs.windsurf.com/windsurf/cascade/mcp) for more details.
+
+**Zed:** Add the HeroUI server to your `settings.json` configuration file. Open settings via Command Palette (`zed: open settings`) or use `Cmd-,` (Mac) / `Ctrl-,` (Linux):
+
+```json title="settings.json"
+{
+  "context_servers": {
+    "heroui-native": {
+      "command": "npx",
+      "args": ["-y", "@heroui/native-mcp@latest"],
+      "env": {}
+    }
+  }
+}
+
+```
+
+After adding the configuration, restart Zed and open the Agent Panel settings view. Check that the indicator dot next to the heroui-native server is green with "Server is active" tooltip.
+
+See the [Zed MCP documentation](https://zed.dev/docs/ai/mcp) for more details.
+
+**VS Code:** To configure MCP in VS Code with GitHub Copilot, add the HeroUI server to your project's `.vscode/mcp.json` configuration file:
+
+```json title=".vscode/mcp.json"
+{
+  "servers": {
+    "heroui-native": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@heroui/native-mcp@latest"]
+    }
+  }
+}
+
+```
+
+After adding the configuration, open `.vscode/mcp.json` and click **Start** next to the heroui-native server.
+
+See the [VS Code MCP documentation](https://code.visualstudio.com/docs/copilot/customization/mcp-servers) for more details.
+
+**Codex:** Add the HeroUI server to your `~/.codex/config.toml` (or a project-scoped `.codex/config.toml`):
+
+```toml title="config.toml"
+[mcp_servers.heroui-native]
+command = "npx"
+args = ["-y", "@heroui/native-mcp@latest"]
+
+```
+
+After adding the configuration, restart Codex and run `/mcp` in the TUI to verify the server is active.
+
+See the [Codex MCP documentation](https://developers.openai.com/codex/mcp) for more details.
+
+**OpenCode:** Add the HeroUI server to your project's `opencode.json` configuration file:
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "heroui-native": {
+      "type": "local",
+      "command": ["npx", "-y", "@heroui/native-mcp@latest"]
+    }
+  }
+}
+
+```
+
+After adding the configuration, restart OpenCode to activate the MCP server.
+
+See the [OpenCode MCP documentation](https://open-code.ai/docs/en/mcp-servers) for more details.
+
+## Usage
+
+Once configured, ask your AI assistant questions like:
+
+* "Help me install HeroUI Native in my Expo app"
+* "Show me all HeroUI Native components"
+* "What props does the Button component have?"
+* "Give me an example of using the Card component"
+* "What are the theme variables for dark mode?"
+
+### Automatic Updates
+
+The MCP server can help you upgrade to the latest HeroUI Native version:
+
+```bash
+"Hey Cursor, update HeroUI Native to the latest version"
+
+```
+
+Your AI assistant will automatically:
+
+* Compare your current version with the latest release
+* Review the changelog for breaking changes
+* Apply the necessary code updates to your project
+
+This works for any version upgrade, whether you're updating to the latest stable or pre-release version.
+
+## Available Tools
+
+The MCP server provides these tools to AI assistants:
+
+| Tool                  | Description                                                                                                                                                     |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `list_components`     | List all available HeroUI Native components                                                                                                                     |
+| `get_component_docs`  | Get complete component documentation including anatomy, props, examples, and usage patterns for one or more components                                          |
+| `get_theme_variables` | Access theme variables for colors, typography, spacing with light/dark mode support                                                                             |
+| `get_docs`            | Browse the full HeroUI Native documentation including guides and principles (use path `/docs/native/getting-started/quick-start` for installation instructions) |
+
+## Troubleshooting
+
+**Requirements:** Node.js 22 or higher. The package will be automatically downloaded when using `npx`.
+
+**Need help?** [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues) | [Discord Community](https://discord.gg/heroui)
+
+## Links
+
+* [npm Package](https://www.npmjs.com/package/@heroui/native-mcp)
+* [GitHub Repository](https://github.com/heroui-inc/heroui-mcp)
+* [Contributing Guide](https://github.com/heroui-inc/heroui-mcp/blob/main/CONTRIBUTING.md)
+
+</page>
+
+<page url="/docs/react/getting-started/animation">
+# Animation
+
+**Category**: react
+**URL**: https://www.heroui.com/docs/react/getting-started/animation
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/react/getting-started/(handbook)/animation.mdx
+> Add smooth animations and transitions to HeroUI v3 components
+
+
+HeroUI components support multiple animation approaches: built-in CSS transitions, custom CSS animations, and JavaScript libraries like Framer Motion.
+
+## Built-in Animations
+
+HeroUI components use data attributes to expose their state for animation:
+
+```css
+/* Popover entrance/exit */
+.popover[data-entering] {
+  @apply animate-in zoom-in-90 fade-in-0 duration-200;
+}
+
+.popover[data-exiting] {
+  @apply animate-out zoom-out-95 fade-out duration-150;
+}
+
+/* Button press effect */
+.button:active,
+.button[data-pressed="true"] {
+  transform: scale(0.97);
+}
+
+/* Accordion expansion */
+.accordion__panel[aria-hidden="false"] {
+  @apply h-[var(--panel-height)] opacity-100;
+}
+
+```
+
+**State attributes for styling:**
+
+* `[data-hovered="true"]` - Hover state
+* `[data-pressed="true"]` - Active/pressed state
+* `[data-focus-visible="true"]` - Keyboard focus
+* `[data-disabled="true"]` - Disabled state
+* `[data-entering]` / `[data-exiting]` - Transition states
+* `[aria-expanded="true"]` - Expanded state
+
+## CSS Animations
+
+**Using Tailwind utilities:**
+
+```tsx
+// Pulse on hover
+<Button className="hover:animate-pulse">
+  Hover me
+</Button>
+
+// Fade in entrance
+<Alert className="animate-fade-in">
+  Welcome message
+</Alert>
+
+// Staggered list
+<div className="space-y-2">
+  <Card className="animate-fade-in animate-delay-100">Item 1</Card>
+  <Card className="animate-fade-in animate-delay-200">Item 2</Card>
+</div>
+
+```
+
+**Custom transitions:**
+
+```css
+/* Slower accordion */
+.accordion__panel {
+  @apply transition-all duration-500;
+}
+
+/* Bouncy button */
+.button:active {
+  animation: bounce 0.3s;
+}
+
+@keyframes bounce {
+  50% { transform: scale(0.95); }
+}
+
+```
+
+## Framer Motion
+
+HeroUI components work seamlessly with Framer Motion for advanced animations.
+
+**Basic usage:**
+
+```tsx
+import { motion } from 'framer-motion';
+import { Button } from '@heroui/react';
+
+const MotionButton = motion(Button);
+
+<MotionButton
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+>
+  Animated Button
+</MotionButton>
+
+```
+
+**Entrance animations:**
+
+```tsx
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.5 }}
+>
+  <Alert>
+    <Alert.Title>Welcome!</Alert.Title>
+  </Alert>
+</motion.div>
+
+```
+
+**Layout animations:**
+
+```tsx
+import { AnimatePresence, motion } from 'framer-motion';
+
+function Tabs({ items, selected }) {
+  return (
+    <div className="flex gap-2">
+      {items.map((item, i) => (
+        <Button key={i} onPress={() => setSelected(i)}>
+          {item}
+          {selected === i && (
+            <motion.div
+              layoutId="active"
+              className="absolute inset-0 bg-accent"
+              transition={{ type: "spring", bounce: 0.2 }}
+            />
+          )}
+        </Button>
+      ))}
+    </div>
+  );
+}
+
+```
+
+## Render Props
+
+Apply dynamic animations based on component state:
+
+```tsx
+<Button>
+  {({ isPressed, isHovered }) => (
+    <motion.span
+      animate={{
+        scale: isPressed ? 0.95 : isHovered ? 1.05 : 1
+      }}
+    >
+      Interactive Button
+    </motion.span>
+  )}
+</Button>
+
+```
+
+## Accessibility
+
+**Respecting motion preferences:** HeroUI automatically respects user motion preferences using Tailwind's `motion-reduce:` utility. All built-in transitions and animations are disabled when users enable "reduce motion" in their system settings.
+
+HeroUI extends Tailwind's `motion-reduce:` variant to support both the native `prefers-reduced-motion` media query and the `data-reduce-motion` attribute.
+
+```css
+/* HeroUI pattern - uses Tailwind's motion-reduce: */
+.button {
+  @apply transition-colors motion-reduce:transition-none;
+}
+
+/* Expands to support both approaches: */
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}
+
+[data-reduce-motion="true"] .button {
+  transition: none;
+}
+
+```
+
+With Framer Motion:
+
+```tsx
+import { useReducedMotion } from 'framer-motion';
+
+function AnimatedCard() {
+  const shouldReduceMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.5 }}
+    >
+      <Card>Content</Card>
+    </motion.div>
+  );
+}
+
+```
+
+**Disabling animations globally:** Add `data-reduce-motion="true"` to the `<html>` or `<body>` tag:
+
+```html
+<html data-reduce-motion="true">
+  <!-- All HeroUI animations will be disabled -->
+</html>
+
+```
+
+HeroUI automatically detects the user's `prefers-reduced-motion: reduce` setting and disables animations accordingly.
+
+## Performance Tips
+
+**Use GPU-accelerated properties:** Prefer `transform` and `opacity` for smooth animations:
+
+```css
+/* Good - GPU accelerated */
+.slide-in {
+  transform: translateX(-100%);
+  transition: transform 0.3s;
+}
+
+/* Avoid - Triggers layout */
+.slide-in {
+  left: -100%;
+  transition: left 0.3s;
+}
+
+```
+
+**Will-change optimization:** Use `will-change` to optimize animations, but remove it when not animating:
+
+```css
+.button {
+  will-change: transform;
+}
+
+.button:not(:hover) {
+  will-change: auto;
+}
+
+```
+
+## Next Steps
+
+* Learn about [Styling](/docs/handbook/styling) approaches
+* Explore [Component](/docs/react/components) examples
+* View [Theming](/docs/handbook/theming) documentation
+
+</page>
+
+<page url="/docs/react/getting-started/colors">
+# Colors
+
+**Category**: react
+**URL**: https://www.heroui.com/docs/react/getting-started/colors
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/react/getting-started/(handbook)/colors.mdx
+> Color palette and theming system for HeroUI v3
+
+
+import {ColorSwatch, ColorPalette} from "@/components/color-swatch";
+
+HeroUI uses CSS variables for colors that automatically switch between light and dark themes. All colors use the `oklch` color space for better color transitions.
+
+<Callout type="info">
+  **Want to create your own theme?** Try the [Theme Builder](/themes) to visually customize colors, radius, fonts, and more — then export the CSS to use in your project.
+</Callout>
+
+## How It Works
+
+HeroUI's color system is built on top of Tailwind CSS v4's theme. When you import `@heroui/styles`, it uses Tailwind's built-in color palettes and maps them to semantic variables.
+
+**Naming pattern:**
+
+* Colors without a suffix are backgrounds (e.g., `--accent`)
+* Colors with `-foreground` are for text on that background (e.g., `--accent-foreground`)
+
+**Usage:**
+
+```html
+<html class="light" data-theme="light">
+  <body class="bg-background text-foreground">
+    <!-- Your app -->
+  </body>
+</html>
+
+```
+
+```tsx
+// This gives you the right background and text colors
+<div className="bg-accent text-accent-foreground">Hello</div>
+
+```
+
+### Base Colors
+
+These four colors stay the same in all themes:
+
+<div className="flex flex-wrap gap-4 sm:gap-6">
+  <ColorSwatch name="White" variable="--white" />
+
+  <ColorSwatch name="Black" variable="--black" />
+
+  <ColorSwatch name="Snow" variable="--snow" />
+
+  <ColorSwatch name="Eclipse" variable="--eclipse" />
+</div>
+
+### Background & Surface
+
+<ColorPalette
+  colors={[
+  { name: "Background", variable: "--background", foreground: "--foreground" },
+  { name: "Foreground", variable: "--foreground" },
+  { name: "Surface", variable: "--surface", foreground: "--surface-foreground" },
+  { name: "Surface Foreground", variable: "--surface-foreground" },
+  { name: "Overlay", variable: "--overlay", foreground: "--overlay-foreground" },
+  { name: "Overlay Foreground", variable: "--overlay-foreground" },
+]}
+/>
+
+### Primary Colors
+
+**Accent** — Your main brand color (used for primary actions)
+**Accent Soft** — A lighter version for secondary actions
+
+<ColorPalette
+  colors={[
+  { name: "Accent", variable: "--accent", foreground: "--accent-foreground" },
+  { name: "Accent Foreground", variable: "--accent-foreground" },
+  { name: "Accent Soft", variable: "--accent-soft", foreground: "--accent-soft-foreground" },
+  { name: "Accent Soft Foreground", variable: "--accent-soft-foreground" },
+]}
+/>
+
+### Status Colors
+
+For alerts, validation, and status messages:
+
+<ColorPalette
+  colors={[
+  { name: "Success", variable: "--success", foreground: "--success-foreground" },
+  { name: "Success Foreground", variable: "--success-foreground" },
+  { name: "Warning", variable: "--warning", foreground: "--warning-foreground" },
+  { name: "Warning Foreground", variable: "--warning-foreground" },
+  { name: "Danger", variable: "--danger", foreground: "--danger-foreground" },
+  { name: "Danger Foreground", variable: "--danger-foreground" },
+]}
+/>
+
+### Form Field Colors
+
+For consistent form field styling across input components:
+
+<ColorPalette
+  colors={[
+  { name: "Field Background", variable: "--field-background", foreground: "--field-foreground" },
+  { name: "Field Foreground", variable: "--field-foreground" },
+  { name: "Field Placeholder", variable: "--field-placeholder" },
+  { name: "Field Border", variable: "--field-border" },
+]}
+/>
+
+### Other Colors
+
+<ColorPalette
+  colors={[
+  { name: "Default", variable: "--default", foreground: "--default-foreground" },
+  { name: "Default Foreground", variable: "--default-foreground" },
+  { name: "Muted", variable: "--muted", foreground: "--foreground" },
+  { name: "Border", variable: "--border" },
+  { name: "Focus", variable: "--focus" },
+  { name: "Link", variable: "--link" },
+  { name: "Backdrop", variable: "--backdrop" },
+  { name: "Scrollbar", variable: "--scrollbar" },
+]}
+/>
+
+## How to Use Colors
+
+**In your components:**
+
+```jsx
+<div className="bg-background text-foreground">
+  <button className="bg-accent text-accent-foreground hover:bg-accent-hover">
+    Click me
+  </button>
+</div>
+
+```
+
+**In CSS files:**
+
+```css title="global.css"
+/* Direct CSS variables */
+.my-component {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border: 1px solid var(--border);
+}
+
+/* With @apply and @layer */
+@layer components {
+  .button {
+    @apply bg-accent text-accent-foreground;
+
+    &:hover,
+    &[data-hovered="true"] {
+      @apply bg-accent-hover;
+    }
+
+    &:active,
+    &[data-pressed="true"] {
+      @apply bg-accent-hover;
+      transform: scale(0.97);
+    }
+  }
+}
+
+```
+
+## Default Theme
+
+The complete theme definition can be found in ([variables.css](https://github.com/heroui-inc/heroui/blob/v3/packages/styles/themes/default/variables.css)). This theme automatically switches between light and dark modes based on the `class="dark"` or `data-theme="dark"` attributes.
+
+```css
+  @layer base {
+    /* HeroUI Default Theme */
+    :root {
+      color-scheme: light;
+
+      /* == Common Variables == */
+
+      /* Primitive Colors (Do not change between light and dark) */
+      --white: oklch(100% 0 0);
+      --black: oklch(0% 0 0);
+      --snow: oklch(0.9911 0 0);
+      --eclipse: oklch(0.2103 0.0059 285.89);
+
+      /* Spacing scale */
+      --spacing: 0.25rem;
+
+      /* Border */
+      --border-width: 1px;
+      --field-border-width: 0px;
+      --disabled-opacity: 0.5;
+
+      /* Ring offset - Used for focus ring */
+      --ring-offset-width: 2px;
+
+      /* Cursor */
+      --cursor-interactive: pointer;
+      --cursor-disabled: not-allowed;
+
+      /* Radius */
+      --radius: 0.5rem;
+      --field-radius: calc(var(--radius) * 1.5);
+
+      /* == Light Theme Variables == */
+
+      /* Base Colors */
+      --background: oklch(0.9702 0 0);
+      --foreground: var(--eclipse);
+
+      /* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
+      --surface: var(--white);
+      --surface-foreground: var(--foreground);
+
+      /* Overlay: Used for floating/overlay components (tooltips, popovers, modals, menus) */
+      --overlay: var(--white);
+      --overlay-foreground: var(--foreground);
+
+      --muted: oklch(0.5517 0.0138 285.94);
+      --scrollbar: oklch(87.1% 0.006 286.286);
+
+      --default: oklch(94% 0.001 286.375);
+      --default-foreground: var(--eclipse);
+
+      --accent: oklch(0.6204 0.195 253.83);
+      --accent-foreground: var(--snow);
+
+      /* Form Field Defaults - Colors */
+      --field-background: var(--white);
+      --field-foreground: oklch(0.2103 0.0059 285.89);
+      --field-placeholder: var(--muted);
+      --field-border: transparent; /* no border by default on form fields */
+
+      /* Status Colors */
+      --success: oklch(0.7329 0.1935 150.81);
+      --success-foreground: var(--eclipse);
+
+      --warning: oklch(0.7819 0.1585 72.33);
+      --warning-foreground: var(--eclipse);
+
+      --danger: oklch(0.6532 0.2328 25.74);
+      --danger-foreground: var(--snow);
+
+      /* Component Colors */
+      --segment: var(--white);
+      --segment-foreground: var(--eclipse);
+
+      /* Misc Colors */
+      --border: oklch(92% 0.004 286.32);
+      --separator: oklch(92% 0.004 286.32);
+      --focus: var(--accent);
+      --link: var(--foreground);
+
+      /* Backdrop */
+      --backdrop: rgba(0, 0, 0, 0.5);
+
+      /* Shadows */
+      --surface-shadow:
+        0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+        0 0 1px 0 rgba(0, 0, 0, 0.06);
+      /* Overlay shadow */
+      --overlay-shadow: 0 4px 16px 0 rgba(24, 24, 27, 0.08), 0 8px 24px 0 rgba(24, 24, 27, 0.09);
+      --field-shadow:
+        0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+        0 0 1px 0 rgba(0, 0, 0, 0.06);
+      /* Skeleton Default Global Animation */
+      --skeleton-animation: shimmer; /* shimmer, pulse, none */
+    }
+
+    .dark,
+    [data-theme="dark"] {
+      color-scheme: dark;
+      /* == Dark Theme Variables == */
+
+      /* Base Colors */
+      --background: oklch(12% 0.005 285.823);
+      --foreground: var(--snow);
+
+      /* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
+      --surface: oklch(0.2103 0.0059 285.89);
+      --surface-foreground: var(--foreground);
+
+      /* Overlay: Used for floating/overlay components (tooltips, popovers, modals, menus) - lighter for contrast */
+      --overlay: oklch(0.22 0.0059 285.89); /* A bit lighter than surface for visibility in dark mode */
+      --overlay-foreground: var(--foreground);
+
+      --muted: oklch(70.5% 0.015 286.067);
+      --scrollbar: oklch(70.5% 0.015 286.067);
+
+      --default: oklch(27.4% 0.006 286.033);
+      --default-foreground: var(--snow);
+
+      /* Form Field Defaults - Colors (only the ones that are different from light theme) */
+      --field-background: var(--default);
+      --field-foreground: var(--foreground);
+
+      /* Status Colors */
+      --warning: oklch(0.8203 0.1388 76.34);
+      --warning-foreground: var(--eclipse);
+
+      --danger: oklch(0.594 0.1967 24.63);
+      --danger-foreground: var(--snow);
+
+      /* Component Colors */
+      --segment: oklch(0.3964 0.01 285.93);
+      --segment-foreground: var(--foreground);
+
+      /* Misc Colors */
+      --border: oklch(22% 0.006 286.033);
+      --separator: oklch(22% 0.006 286.033);
+      --focus: var(--accent);
+      --link: var(--foreground);
+
+      /* Backdrop */
+      --backdrop: rgba(0, 0, 0, 0.6);
+
+      /* Shadows */
+      --surface-shadow: 0 0 0 0 transparent inset; /* No shadow on dark mode */
+      --overlay-shadow: 0 0 0 0 transparent inset; /* No shadow on dark mode */
+      --field-shadow: 0 0 0 0 transparent inset; /* Transparent shadow to allow ring utilities to work */
+    }
+  }
+
+```
+
+## Customizing Colors
+
+**Override existing colors:**
+
+```css
+:root {
+  /* Override default colors */
+  --accent: oklch(0.7 0.15 250);
+  --success: oklch(0.65 0.15 155);
+}
+
+[data-theme="dark"] {
+  /* Override dark theme colors */
+  --accent: oklch(0.8 0.12 250);
+  --success: oklch(0.75 0.12 155);
+}
+
+```
+
+**Tip:** Convert colors at [oklch.com](https://oklch.com)
+
+**Add your own colors:**
+
+```css
+:root,
+[data-theme="light"] {
+  --info: oklch(0.6 0.15 210);
+  --info-foreground: oklch(0.98 0 0);
+}
+
+.dark,
+[data-theme="dark"] {
+  --info: oklch(0.7 0.12 210);
+  --info-foreground: oklch(0.15 0 0);
+}
+
+/* Make the color available to Tailwind */
+@theme inline {
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+}
+
+```
+
+Now you can use it:
+
+```tsx
+<div className="bg-info text-info-foreground">Info message</div>
+
+```
+
+> **Note**: To learn more about theme variables and how they work in Tailwind CSS v4, see the [Tailwind CSS Theme documentation](https://tailwindcss.com/docs/theme).
+
+## Quick Tips
+
+* Always use color variables, not hard-coded values
+* Use foreground/background pairs for good contrast
+* Test in both light and dark modes
+* The system respects user's theme preference automatically
+
+## Related
+
+* [Theming](/docs/handbook/theming) - Learn about the theming system
+* [Styling](/docs/handbook/styling) - Styling components with CSS
+* [Design Principles](/docs/getting-started/design-principles) - Understanding HeroUI's design philosophy
+
+</page>
+
+<page url="/docs/react/getting-started/composition">
+# Composition
+
+**Category**: react
+**URL**: https://www.heroui.com/docs/react/getting-started/composition
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/react/getting-started/(handbook)/composition.mdx
+> Build flexible UI with component composition patterns
+
+
+HeroUI uses composition patterns to create flexible, customizable components. Change the rendered element, compose components together, and maintain full control over markup.
+
+## Framework-Agnostic Styles
+
+HeroUI's variant functions are available in the `@heroui/styles` package, which can be used independently of React. This enables Vue, Svelte, and other frameworks to use HeroUI's design system:
+
+```tsx
+// Import directly from @heroui/styles (framework-agnostic)
+import { buttonVariants } from '@heroui/styles';
+
+// Or import from @heroui/react (re-exports the same functions)
+import { buttonVariants } from '@heroui/react';
+
+```
+
+Both imports work identically. Use `@heroui/styles` when building for non-React frameworks or when you want to avoid pulling in React dependencies.
+
+## Polymorphic Styling
+
+Apply HeroUI styles to any element using variant functions or BEM classes. Extend component styles to framework components, native HTML elements, or custom components with full type safety.
+
+**Example: Styling a Link as a Button**
+
+You can use `buttonVariants` to style a Link component with button styles:
+
+```tsx
+import { buttonVariants } from '@heroui/styles';
+import Link from 'next/link';
+
+// Style a Next.js Link as a primary button
+<Link
+  className={buttonVariants({ variant: "primary" })}
+  href="/about"
+>
+  About
+</Link>
+
+// Style a native anchor as a secondary button with custom size
+<a
+  className={buttonVariants({ variant: "secondary", size: "lg" })}
+  href="https://example.com"
+>
+  External Link
+</a>
+
+```
+
+**Using BEM classes directly:**
+
+```tsx
+import Link from 'next/link';
+
+// Apply button styles directly using BEM classes
+<Link className="button button--primary" href="/about">
+  About
+</Link>
+
+```
+
+**Working with Compound Components**
+
+When using a custom root element instead of HeroUI's Root component, child components cannot access context slots. You can manually pass `className` to child components using variant functions or BEM classes:
+
+```tsx
+import { Link } from '@heroui/react';
+import { linkVariants } from '@heroui/styles';
+import NextLink from 'next/link';
+
+// With custom root - pass className manually
+const slots = linkVariants();
+
+<NextLink className={slots.base()} href="/about">
+  About Page
+  <Link.Icon className={slots.icon()} />
+</NextLink>
+
+<NextLink className="link" href="/about">
+  About Page
+  <Link.Icon className="link__icon" />
+</NextLink>
+
+```
+
+This approach works because HeroUI's variant functions and BEM classes can be applied to any element, giving you complete flexibility to style framework components, native elements, or custom components with HeroUI's design system.
+
+## Direct Class Application
+
+The simplest way to style links or other elements is to apply HeroUI's [BEM](https://getbem.com/) classes directly. This approach is straightforward and works with any framework or vanilla HTML.
+
+**With Next.js Link:**
+
+```tsx
+import Link from 'next/link';
+
+<Link className="button button--tertiary" href="/">
+  Return Home
+</Link>
+
+```
+
+**With native anchor:**
+
+```tsx
+<a className="button button--primary" href="/dashboard">
+  Go to Dashboard
+</a>
+
+```
+
+**Available button classes:**
+
+* `.button` — Base button styles
+* `.button--primary`, `.button--secondary`, `.button--tertiary`, `.button--danger`, `.button--ghost` — Variants
+* `.button--sm`, `.button--md`, `.button--lg` — Sizes
+* `.button--icon-only` — Icon-only button
+
+This approach works because HeroUI uses [BEM](https://getbem.com/) classes that can be applied to any element. It's perfect when you don't need the component's interactive features (like `onPress` handlers) and just want the visual styling.
+
+## Using Variant Functions
+
+For more control and type safety, use variant functions to apply HeroUI styles to framework-specific components or custom elements. Variant functions are available from both `@heroui/styles` (framework-agnostic) and `@heroui/react` (re-exports).
+
+**With Next.js Link:**
+
+```tsx
+import { Link } from '@heroui/react';
+import { linkVariants } from '@heroui/styles';
+import NextLink from 'next/link';
+
+const slots = linkVariants();
+
+<NextLink className={slots.base()} href="/about">
+  About Page
+  <Link.Icon className={slots.icon()} />
+</NextLink>
+
+```
+
+**With Button styles:**
+
+```tsx
+import { buttonVariants } from '@heroui/styles';
+import Link from 'next/link';
+
+<Link
+  className={buttonVariants({ variant: "primary", size: "md" })}
+  href="/dashboard"
+>
+  Dashboard
+</Link>
+
+```
+
+**Available variant functions:** Each component exports its variant function (`buttonVariants`, `chipVariants`, `linkVariants`, `spinnerVariants`, and more) from `@heroui/styles`. Use them to apply HeroUI's design system to any element while maintaining type safety.
+
+## Compound Components
+
+HeroUI components are built as compound components—they export multiple parts that work together. Use them in three flexible ways:
+
+**Option 1: Compound pattern (recommended)** — Use the main component directly without `.Root` suffix:
+
+```tsx
+import { Alert } from '@heroui/react';
+
+<Alert>
+  <Alert.Icon />
+  <Alert.Content>
+    <Alert.Title>Success</Alert.Title>
+    <Alert.Description>Your changes have been saved.</Alert.Description>
+  </Alert.Content>
+  <Alert.Close />
+</Alert>
+
+```
+
+**Option 2: Compound pattern with .Root** — Use the `.Root` suffix if you prefer explicit naming:
+
+```tsx
+import { Alert } from '@heroui/react';
+
+<Alert.Root>
+  <Alert.Icon />
+  <Alert.Content>
+    <Alert.Title>Success</Alert.Title>
+    <Alert.Description>Your changes have been saved.</Alert.Description>
+  </Alert.Content>
+  <Alert.Close />
+</Alert.Root>
+
+```
+
+**Option 3: Named exports** — Import each part separately:
+
+```tsx
+import {
+  AlertRoot,
+  AlertIcon,
+  AlertContent,
+  AlertTitle,
+  AlertDescription,
+  AlertClose
+} from '@heroui/react';
+
+<AlertRoot>
+  <AlertIcon />
+  <AlertContent>
+    <AlertTitle>Success</AlertTitle>
+    <AlertDescription>Your changes have been saved.</AlertDescription>
+  </AlertContent>
+  <AlertClose />
+</AlertRoot>
+
+```
+
+**Mixed syntax:** Mix compound and named exports in the same component:
+
+```tsx
+import { Alert, AlertTitle, AlertDescription } from '@heroui/react';
+
+<Alert>
+  <Alert.Icon />
+  <Alert.Content>
+    <AlertTitle>Success</AlertTitle>
+    <AlertDescription>Your changes have been saved.</AlertDescription>
+  </Alert.Content>
+  <Alert.Close />
+</Alert>
+
+```
+
+**Simple components:** Simple components like `Button` work the same way—no `.Root` needed:
+
+```tsx
+import { Button } from '@heroui/react';
+
+// Recommended - no .Root needed
+<Button>Click me</Button>
+
+// Or with .Root
+<Button.Root>Click me</Button.Root>
+
+// Or named export
+import { ButtonRoot } from '@heroui/react';
+<ButtonRoot>Click me</ButtonRoot>
+
+```
+
+**Benefits:** All three patterns provide flexibility, customization, control, and consistency. Choose the pattern that fits your codebase.
+
+## Mixing Variant Functions
+
+You can combine variant functions from different components to create unique styles:
+
+```tsx
+import { Link } from '@heroui/react';
+import { linkVariants, buttonVariants } from '@heroui/styles';
+
+// Link styled with button variants
+const buttonStyles = buttonVariants({ variant: "tertiary", size: "md" });
+
+<Link
+  className={buttonStyles}
+  href="https://heroui.com"
+>
+  HeroUI
+</Link>
+
+```
+
+## Custom Components
+
+Create your own components by composing HeroUI primitives:
+
+```tsx
+import { Button, Tooltip } from '@heroui/react';
+import { buttonVariants } from '@heroui/styles';
+
+// Link button component using variant functions
+function LinkButton({ href, children, variant = "primary", ...props }) {
+  return (
+    <a
+      href={href}
+      className={buttonVariants({ variant, ...props })}
+      {...props}
+    >
+      {children}
+    </a>
+  );
+}
+
+// Icon button with tooltip
+function IconButton({ icon, label, ...props }) {
+  return (
+    <Tooltip>
+      <Tooltip.Trigger>
+        <Button isIconOnly {...props}>
+          <Icon icon={icon} />
+        </Button>
+      </Tooltip.Trigger>
+      <Tooltip.Content>{label}</Tooltip.Content>
+    </Tooltip>
+  );
+}
+
+```
+
+## Custom Variants
+
+Create custom variants by extending the component's variant function:
+
+```tsx
+import type { ButtonRootProps } from "@heroui/react";
+import type { VariantProps } from "tailwind-variants";
+
+import { Button } from "@heroui/react";
+import { buttonVariants, tv } from "@heroui/styles";
+
+const myButtonVariants = tv({
+  extend: buttonVariants,
+  base: "text-md text-shadow-lg font-semibold shadow-md data-[pending=true]:opacity-40",
+  variants: {
+    radius: {
+      lg: "rounded-lg",
+      md: "rounded-md",
+      sm: "rounded-sm",
+      full: "rounded-full",
+    },
+    size: {
+      sm: "h-10 px-4",
+      md: "h-11 px-6",
+      lg: "h-12 px-8",
+      xl: "h-13 px-10",
+    },
+    variant: {
+      primary: "text-white dark:bg-white/10 dark:text-white dark:hover:bg-white/15",
+    },
+  },
+  defaultVariants: {
+    radius: "full",
+    variant: "primary",
+  },
+});
+
+type MyButtonVariants = VariantProps<typeof myButtonVariants>;
+export type MyButtonProps = Omit<ButtonRootProps, "className"> &
+  MyButtonVariants & { className?: string };
+
+function CustomButton({ className, radius, variant, ...props }: MyButtonProps) {
+  return <Button className={myButtonVariants({ className, radius, variant })} {...props} />;
+}
+
+export function CustomVariants() {
+  return <CustomButton>Custom Button</CustomButton>;
+}
+
+```
+
+**Type references:** When working with component types, use named type imports or object-style syntax.
+
+**Recommended — Named type imports:**
+
+```tsx
+import type { ButtonRootProps, AvatarRootProps } from "@heroui/react";
+
+type MyButtonProps = ButtonRootProps;
+type MyAvatarProps = AvatarRootProps;
+
+```
+
+**Alternative — Object-style syntax:**
+
+```tsx
+import { Button, Avatar } from "@heroui/react";
+
+type MyButtonProps = Button["RootProps"];
+type MyAvatarProps = Avatar["RootProps"];
+
+```
+
+**Note:** The namespace syntax `Button.RootProps` is no longer supported. Use `Button["RootProps"]` or named imports instead.
+
+## Custom DOM Element
+
+Use the `render` prop on the following components to render a custom component in place of the default DOM element.
+
+For example, you can render a [Motion](https://motion.dev/) button and use the state to drive an animation.
+
+```tsx
+import {Button} from '@heroui/react';
+import {motion} from 'motion/react';
+
+<Button
+  render={(domProps, {isPressed}) => (
+    <motion.button
+      {...domProps}
+      animate={{scale: isPressed ? 0.9 : 1}} />
+  )}>
+  Press me
+</Button>
+
+```
+
+The `render` prop is also useful for rendering link components from client-side routers, or reusing existing presentational components.
+
+```tsx
+import {Link} from '@heroui/react';
+import NextLink from 'next/link';
+
+<Link
+  render={({ref, ...domProps}) => (
+    <NextLink {...domProps} ref={ref as React.Ref<HTMLAnchorElement>} href="/privacy-policy" />
+  )}
+>
+  Privacy Policy
+</Link>
+
+```
+
+Follow these rules to avoid breaking the behavior and accessibility of the component:
+
+* Always render the expected element type (e.g. if `<button>` is expected, do not render an `<a>`). You will see a warning in development if a mismatch is detected.
+* Only render a single root DOM element (no fragments).
+* Always pass the provided props the underlying DOM element, merging with your own props via `mergeProps` as needed.
+
+## Framework Integration
+
+**With Next.js:**
+
+Use variant functions for type-safe styling:
+
+```tsx
+import { buttonVariants } from '@heroui/styles';
+import Link from 'next/link';
+
+<Link
+  className={buttonVariants({ variant: "primary" })}
+  href="/dashboard"
+>
+  Dashboard
+</Link>
+
+```
+
+Or apply BEM classes directly (simplest):
+
+```tsx
+import Link from 'next/link';
+
+<Link className="button button--primary" href="/dashboard">
+  Dashboard
+</Link>
+
+```
+
+**With React Router:**
+
+Use variant functions:
+
+```tsx
+import { buttonVariants } from '@heroui/styles';
+import { Link } from 'react-router-dom';
+
+<Link
+  className={buttonVariants({ variant: "primary" })}
+  to="/dashboard"
+>
+  Dashboard
+</Link>
+
+```
+
+Or apply BEM classes directly (simplest):
+
+```tsx
+import { Link } from 'react-router-dom';
+
+<Link className="button button--primary" to="/dashboard">
+  Dashboard
+</Link>
+
+```
+
+**With Vue, Svelte, or Other Frameworks:**
+
+Since `@heroui/styles` has no React dependencies, you can use it directly in any framework:
+
+```vue
+<script setup>
+import { buttonVariants } from '@heroui/styles';
+
+const primaryButton = buttonVariants({ variant: "primary" });
+</script>
+
+<template>
+  <button :class="primaryButton">Click me</button>
+</template>
+
+```
+
+## Next Steps
+
+* Learn about [Styling](/docs/handbook/styling) components
+* Explore [Animation](/docs/handbook/animation) options
+* Browse [Components](/docs/react/components) for more examples
+
+</page>
+
+<page url="/docs/react/getting-started/styling">
+# Styling
+
+**Category**: react
+**URL**: https://www.heroui.com/docs/react/getting-started/styling
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/react/getting-started/(handbook)/styling.mdx
+> Style HeroUI components with CSS, Tailwind, or CSS-in-JS
+
+
+HeroUI components provide flexible styling options: Tailwind CSS utilities, CSS with [BEM](https://getbem.com/) classes or data attributes, CSS-in-JS libraries, and render props for dynamic styling.
+
+## Basic Styling
+
+**Using className:** All HeroUI components accept `className` props:
+
+```tsx
+<Button className="bg-purple-500 hover:bg-purple-600">
+  Custom Button
+</Button>
+
+<Accordion className="border-2 border-gray-200 rounded-xl">
+  {/* content */}
+</Accordion>
+
+```
+
+**Using style:** Components also accept inline styles:
+
+```tsx
+<Button style={{ backgroundColor: '#8B5CF6' }}>
+  Styled Button
+</Button>
+
+```
+
+## State-Based Styling
+
+HeroUI components expose their state through data attributes, similar to CSS pseudo-classes:
+
+```css
+/* Target different states */
+.button[data-hovered="true"], .button:hover {
+  background: var(--accent-hover);
+}
+
+.button[data-pressed="true"], .button:active {
+  transform: scale(0.97);
+}
+
+.button[data-focus-visible="true"], .button:focus-visible {
+  outline: 2px solid var(--focus);
+}
+
+```
+
+## Render Props
+
+Apply dynamic styling based on component state:
+
+```tsx
+// Dynamic classes
+<Button
+  className={({ isPressed }) =>
+    isPressed ? 'bg-blue-600' : 'bg-blue-500'
+  }
+>
+  Press me
+</Button>
+
+// Dynamic content
+<Button>
+  {({ isHovered, isPressed }) => (
+    <>
+      <Icon
+        icon="gravity-ui:heart"
+        className={isPressed ? 'text-red-500' : 'text-neutral-400'}
+      />
+      <span className={isHovered ? 'underline' : ''}>
+        Like
+      </span>
+    </>
+  )}
+</Button>
+
+```
+
+## BEM Classes
+
+HeroUI uses [BEM methodology](https://getbem.com/) for consistent class naming:
+
+```css
+/* Block */
+.button { }
+.accordion { }
+
+/* Element */
+.accordion__trigger { }
+.accordion__panel { }
+
+/* Modifier */
+.button--primary { }
+.button--lg { }
+.accordion--outline { }
+
+```
+
+**Customizing components globally:**
+
+```css
+/* global.css */
+
+@layer components {
+  /* Override button styles */
+  .button {
+    @apply font-semibold uppercase;
+  }
+
+  .button--primary {
+    @apply bg-indigo-600 hover:bg-indigo-700;
+  }
+
+  /* Add custom variant */
+  .button--gradient {
+    @apply bg-gradient-to-r from-purple-500 to-pink-500;
+  }
+}
+
+```
+
+## Creating Wrapper Components
+
+Create reusable custom components using [tailwind-variants](https://tailwind-variants.org/)—a Tailwind CSS first-class variant API:
+
+```tsx
+import { Button as HeroButton, type ButtonProps } from '@heroui/react';
+import { buttonVariants, tv, type VariantProps } from '@heroui/styles';
+
+const customButtonVariants = tv({
+  extend: buttonVariants,
+  base: 'font-medium transition-all',
+  variants: {
+    intent: {
+      primary: 'bg-blue-500 hover:bg-blue-600 text-white',
+      secondary: 'bg-gray-200 hover:bg-gray-300',
+      danger: 'bg-red-500 hover:bg-red-600 text-white',
+    },
+    size: {
+      small: 'text-sm px-2 py-1',
+      medium: 'text-base px-4 py-2',
+      large: 'text-lg px-6 py-3',
+    },
+  },
+  defaultVariants: {
+    intent: 'primary',
+    size: 'medium',
+  },
+});
+
+type CustomButtonVariants = VariantProps<typeof customButtonVariants>;
+interface CustomButtonProps
+  extends Omit<ButtonProps, 'className'>,
+  CustomButtonVariants {
+  className?: string;
+}
+
+export function CustomButton({ intent, size, className, ...props }: CustomButtonProps) {
+  return (
+    <HeroButton
+      className={customButtonVariants({ intent, size, className })}
+      {...props}
+    />
+  );
+}
+
+```
+
+## CSS-in-JS Integration
+
+**Styled Components:**
+
+```tsx
+import styled from 'styled-components';
+import { Button } from '@heroui/react';
+
+const StyledButton = styled(Button)`
+  background: linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%);
+  border-radius: 8px;
+  color: white;
+  padding: 12px 24px;
+
+  &:hover {
+    box-shadow: 0 3px 10px rgba(255, 105, 135, 0.3);
+  }
+`;
+
+```
+
+**Emotion:**
+
+```tsx
+import { css } from '@emotion/css';
+import { Button } from '@heroui/react';
+
+const buttonStyles = css`
+  background: linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%);
+  border-radius: 8px;
+  color: white;
+  padding: 12px 24px;
+
+  &:hover {
+    box-shadow: 0 3px 10px rgba(255, 105, 135, 0.3);
+  }
+`;
+
+<Button className={buttonStyles}>
+  Emotion Button
+</Button>
+
+```
+
+## Responsive Design
+
+**Using Tailwind utilities:**
+
+```tsx
+<Button className="text-sm md:text-base lg:text-lg px-3 md:px-4 lg:px-6">
+  Responsive Button
+</Button>
+
+```
+
+**Or with CSS:**
+
+```css
+.button {
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+}
+
+@media (min-width: 768px) {
+  .button {
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+```
+
+## CSS Modules
+
+For scoped styles, use CSS Modules:
+
+```css
+/* Button.module.css */
+.button {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+.button--primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+}
+
+```
+
+```tsx
+import styles from './Button.module.css';
+import { Button } from '@heroui/react';
+
+<Button className={styles.button}>
+  Scoped Button
+</Button>
+
+```
+
+## Component Classes Reference
+
+**Button:** `.button`, `.button--{variant}`, `.button--{size}`, `.button--icon-only`
+**Accordion:** `.accordion`, `.accordion__item`, `.accordion__trigger`, `.accordion__panel`, `.accordion--outline`
+
+> **Note:** See component docs for complete class references: [Button](/docs/components/button#css-classes), [Accordion](/docs/components/accordion#css-classes)
+
+View all component classes in [@heroui/styles/components](https://github.com/heroui-inc/heroui/tree/main/packages/styles/components).
+
+## Next Steps
+
+* Learn about [Animation](/docs/handbook/animation) techniques
+* Explore [Theming](/docs/handbook/theming) system
+* Browse [Component](/docs/react/components) examples
+
+</page>
+
+<page url="/docs/react/getting-started/theming">
+# Theming
+
+**Category**: react
+**URL**: https://www.heroui.com/docs/react/getting-started/theming
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/react/getting-started/(handbook)/theming.mdx
+> Customize HeroUI's design system with CSS variables and global styles
+
+
+HeroUI uses CSS variables and [BEM](https://getbem.com/) classes for theming. Customize everything from colors to component styles using standard CSS.
+
+<Callout type="info">
+  **Want to create your own theme?** Try the [Theme Builder](/themes) to visually customize colors, radius, fonts, and more — then export the CSS to use in your project.
+</Callout>
+
+## How It Works
+
+HeroUI's theming system is built on top of [Tailwind CSS v4](https://tailwindcss.com/docs/theme)'s theme. When you import `@heroui/styles`, it uses Tailwind's built-in color palettes, maps them to semantic variables, automatically switches between light and dark themes, and uses CSS layers and the `@theme` directive for organization.
+
+**Naming pattern:**
+
+* Colors without a suffix are backgrounds (e.g., `--accent`)
+* Colors with `-foreground` are for text on that background (e.g., `--accent-foreground`)
+
+## Quick Start
+
+**Apply a theme:** Add a theme class to your HTML and apply colors to the body:
+
+```html
+<html class="light" data-theme="light">
+  <body class="bg-background text-foreground">
+    <!-- Your app -->
+  </body>
+</html>
+
+```
+
+**Switch themes:**
+
+```html
+<!-- Light theme -->
+<html class="light" data-theme="light">
+
+<!-- Dark theme -->
+<html class="dark" data-theme="dark">
+
+```
+
+**Switch themes programmatically with [next-themes](https://github.com/pacocoursey/next-themes) (For Next.js):**
+
+First, wrap your app with `ThemeProvider`:
+
+```tsx
+// app/providers.tsx
+"use client";
+
+import { ThemeProvider } from "next-themes";
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeProvider attribute="class" defaultTheme="light">
+      {children}
+    </ThemeProvider>
+  );
+}
+
+```
+
+```tsx
+// app/layout.tsx
+import { Providers } from "./providers";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-background text-foreground">
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
+
+```
+
+Then use `useTheme` to toggle between themes:
+
+```tsx
+"use client";
+
+import { useTheme } from "next-themes";
+
+export function ThemeSwitch() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+      Toggle {theme === "dark" ? "Light" : "Dark"} Mode
+    </button>
+  );
+}
+
+```
+
+**Override colors:**
+
+```css
+/* app/globals.css */
+@import "tailwindcss";
+@import "@heroui/styles";
+
+:root {
+  /* Override any color variable */
+  --accent: oklch(0.7 0.25 260);
+  --success: oklch(0.65 0.15 155);
+}
+
+```
+
+> **Note**: See [Colors](/docs/handbook/colors) for the complete color palette and visual reference.
+
+**Create your own theme:**
+
+```css
+/* src/themes/ocean.css */
+@layer base {
+    /* Ocean Light */
+    [data-theme="ocean"] {
+      color-scheme: light;
+
+      /* Primitive Colors (Do not change between light and dark) */
+      --white: oklch(100% 0 0);
+      --black: oklch(0% 0 0);
+      --snow: oklch(0.9911 0 0);
+      --eclipse: oklch(0.2103 0.0059 285.89);
+
+      /* Spacing & Layout */
+      --spacing: 0.25rem;
+      --border-width: 1px;
+      --field-border-width: 0px;
+      --disabled-opacity: 0.5;
+      --ring-offset-width: 2px;
+      --cursor-interactive: pointer;
+      --cursor-disabled: not-allowed;
+
+      /* Radius */
+      --radius: 0.75rem;
+      --field-radius: calc(var(--radius) * 1.5);
+
+      /* Base Colors */
+      --background: oklch(0.985 0.015 225);
+      --foreground: var(--eclipse);
+
+      /* Surface: Used for non-overlay components */
+      --surface: var(--white);
+      --surface-foreground: var(--foreground);
+
+      /* Overlay: Used for floating/overlay components */
+      --overlay: var(--white);
+      --overlay-foreground: var(--foreground);
+
+      --muted: oklch(0.5517 0.0138 285.94);
+      --scrollbar: oklch(87.1% 0.006 286.286);
+
+      --default: oklch(94% 0.001 286.375);
+      --default-foreground: var(--eclipse);
+
+      /* Ocean accent */
+      --accent: oklch(0.450 0.150 230);
+      --accent-foreground: var(--snow);
+
+      /* Form Field Defaults */
+      --field-background: var(--white);
+      --field-foreground: oklch(0.2103 0.0059 285.89);
+      --field-placeholder: var(--muted);
+      --field-border: transparent;
+
+      /* Status (kept compatible) */
+      --success: oklch(0.7329 0.1935 150.81);
+      --success-foreground: var(--eclipse);
+
+      --warning: oklch(0.7819 0.1585 72.33);
+      --warning-foreground: var(--eclipse);
+
+      --danger: oklch(0.6532 0.2328 25.74);
+      --danger-foreground: var(--snow);
+
+      /* Component Colors */
+      --segment: var(--white);
+      --segment-foreground: var(--foreground);
+
+      /* Misc */
+      --border: oklch(0.50 0.060 230 / 22%);
+      --separator: oklch(92% 0.004 286.32);
+      --focus: var(--accent);
+      --link: var(--accent);
+
+      /* Shadows */
+      --surface-shadow:
+        0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+        0 0 1px 0 rgba(0, 0, 0, 0.06);
+      --overlay-shadow: 0 4px 16px 0 rgba(24, 24, 27, 0.08), 0 8px 24px 0 rgba(24, 24, 27, 0.09);
+      --field-shadow:
+        0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+        0 0 1px 0 rgba(0, 0, 0, 0.06);
+
+      /* Skeleton Default Global Animation */
+      --skeleton-animation: shimmer; /* Possible values: shimmer, pulse, none */
+    }
+
+    /* Ocean Dark */
+    [data-theme="ocean-dark"] {
+      color-scheme: dark;
+
+      /* Base Colors */
+      --background: oklch(0.140 0.020 230);
+      --foreground: var(--snow);
+
+      /* Surface: Used for non-overlay components */
+      --surface: oklch(0.2103 0.0059 285.89);
+      --surface-foreground: var(--foreground);
+
+      /* Overlay: Used for floating/overlay components */
+      --overlay: oklch(0.22 0.0059 285.89);
+      --overlay-foreground: var(--foreground);
+
+      --muted: oklch(70.5% 0.015 286.067);
+      --scrollbar: oklch(70.5% 0.015 286.067);
+
+      --default: oklch(27.4% 0.006 286.033);
+      --default-foreground: var(--snow);
+
+      /* Form Field Defaults */
+      --field-background: var(--default);
+      --field-foreground: var(--foreground);
+
+      /* Ocean accent */
+      --accent: oklch(0.860 0.080 230);
+      --accent-foreground: var(--eclipse);
+
+      /* Status */
+      --success: oklch(0.7329 0.1935 150.81);
+      --success-foreground: var(--eclipse);
+
+      --warning: oklch(0.8203 0.1388 76.34);
+      --warning-foreground: var(--eclipse);
+
+      --danger: oklch(0.594 0.1967 24.63);
+      --danger-foreground: var(--snow);
+
+      /* Component Colors */
+      --segment: oklch(0.3964 0.01 285.93);
+      --segment-foreground: var(--foreground);
+
+      /* Misc */
+      --border: oklch(22% 0.006 286.033);
+      --separator: oklch(22% 0.006 286.033);
+      --focus: var(--accent);
+      --link: var(--accent);
+
+      /* Shadows */
+      --surface-shadow: 0 0 0 0 transparent inset;
+      --overlay-shadow: 0 0 0 0 transparent inset;
+      --field-shadow: 0 0 0 0 transparent inset;
+    }
+}
+
+```
+
+Use your theme:
+
+```css
+/* app/globals.css */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss";
+@import "@heroui/styles";
+
+@import "./src/themes/ocean.css" layer(theme); /* [!code highlight]*/
+
+```
+
+Apply your theme:
+
+```html
+<!-- index.html -->
+
+<!-- Light ocean -->
+<html data-theme="ocean">
+
+<!-- Dark ocean -->
+<html data-theme="ocean-dark">
+
+```
+
+## Customize Components
+
+**Global component styles:** Override any component using BEM classes:
+
+```css
+@layer components {
+  /* Customize buttons */
+  .button {
+    @apply font-semibold tracking-wide;
+  }
+
+  .button--primary {
+    @apply bg-blue-600 hover:bg-blue-700;
+  }
+
+  /* Customize accordions */
+  .accordion__trigger {
+    @apply text-lg font-bold;
+  }
+}
+
+```
+
+> **Note**: See [Styling](/docs/handbook/styling) for the complete styling reference.
+
+**Find component classes:** Each component docs page lists all available classes (base classes, modifiers, elements, states). Example: [Button classes](/docs/components/button#css-classes)
+
+## Import Strategies
+
+**Full import (recommended):** Get everything with two lines:
+
+```css
+@import "tailwindcss";
+@import "@heroui/styles";
+
+```
+
+**Selective import:** Import only what you need:
+
+```css
+/* Define layers */
+@layer theme, base, components, utilities;
+
+/* Base requirements */
+@import "tailwindcss";
+@import "@heroui/styles/base" layer(base);
+/* OR specific base file */
+@import "@heroui/styles/base/base.css" layer(base);
+
+/* Theme variables */
+@import "@heroui/styles/themes/shared/theme.css" layer(theme);
+@import "@heroui/styles/themes/default" layer(theme);
+/* OR specific theme files */
+@import "@heroui/styles/themes/default/index.css" layer(theme);
+@import "@heroui/styles/themes/default/variables.css" layer(theme);
+
+/* Components (all components) */
+@import "@heroui/styles/components" layer(components);
+/* OR specific component files */
+@import "@heroui/styles/components/index.css" layer(components);
+@import "@heroui/styles/components/button.css" layer(components);
+@import "@heroui/styles/components/accordion.css" layer(components);
+
+/* Utilities (optional) */
+@import "@heroui/styles/utilities" layer(utilities);
+
+/* Variants (optional) */
+@import "@heroui/styles/variants" layer(utilities);
+
+```
+
+> **Note**: Directory imports (e.g., `@heroui/styles/components`) automatically resolve to their `index.css` file. Use explicit file paths (e.g., `@heroui/styles/components/button.css`) to import individual component styles.
+
+**Headless mode:** Build your own styles from scratch:
+
+```css
+@import "tailwindcss";
+@import "@heroui/styles/base/base.css";
+
+/* Your custom styles */
+.button {
+  /* Your button styles */
+}
+
+```
+
+## Adding Custom Colors
+
+Add your own semantic colors to the theme:
+
+```css
+/* Define in both light and dark themes */
+:root,
+[data-theme="light"] {
+  --info: oklch(0.6 0.15 210);
+  --info-foreground: oklch(0.98 0 0);
+}
+
+.dark,
+[data-theme="dark"] {
+  --info: oklch(0.7 0.12 210);
+  --info-foreground: oklch(0.15 0 0);
+}
+
+/* Make the color available to Tailwind */
+@theme inline {
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+}
+
+```
+
+Now use it in your components:
+
+```tsx
+<div className="bg-info text-info-foreground">Info message</div>
+
+```
+
+## Variables Reference
+
+HeroUI defines three types of variables:
+
+1. **Base Variables** — Non-changing values like `--white`, `--black`, spacing, and typography
+2. **Theme Variables** — Colors that change between light/dark themes
+3. **Calculated Variables** — Automatically generated hover states and size variants
+
+For a complete reference, see: [Colors Documentation](/docs/handbook/colors), [Default Theme Variables](https://github.com/heroui-inc/heroui/blob/v3/packages/styles/themes/default/variables.css), [Shared Theme Utilities](https://github.com/heroui-inc/heroui/blob/v3/packages/styles/themes/shared/theme.css)
+
+**Calculated variables (Tailwind):**
+
+We use Tailwind's `@theme` directive to automatically create calculated variables for hover states and radius variants. These are defined in `themes/shared/theme.css`:
+
+```css
+  @theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-surface: var(--surface);
+    --color-surface-foreground: var(--surface-foreground);
+    --color-surface-hover: color-mix(in oklab, var(--surface) 92%, var(--surface-foreground) 8%);
+
+    --color-surface-secondary: var(--surface-secondary);
+    --color-surface-secondary-foreground: var(--surface-secondary-foreground);
+
+    --color-surface-tertiary: var(--surface-tertiary);
+    --color-surface-tertiary-foreground: var(--surface-tertiary-foreground);
+
+    --color-overlay: var(--overlay);
+    --color-overlay-foreground: var(--overlay-foreground);
+
+    --color-muted: var(--muted);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-segment: var(--segment);
+    --color-segment-foreground: var(--segment-foreground);
+
+    --color-border: var(--border);
+    --color-separator: var(--separator);
+    --color-focus: var(--focus);
+    --color-link: var(--link);
+
+    --color-default: var(--default);
+    --color-default-foreground: var(--default-foreground);
+
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+
+    --color-danger: var(--danger);
+    --color-danger-foreground: var(--danger-foreground);
+
+    --color-backdrop: var(--backdrop);
+
+    --shadow-surface: var(--surface-shadow);
+    --shadow-overlay: var(--overlay-shadow);
+    --shadow-field: var(--field-shadow);
+
+    /* Form Field Tokens */
+    --color-field: var(--field-background, var(--default));
+    --color-field-foreground: var(--field-foreground, var(--foreground));
+    --color-field-placeholder: var(--field-placeholder, var(--muted));
+    --color-field-border: var(--field-border, var(--border));
+    --radius-field: var(--field-radius, calc(var(--radius) * 1.5));
+    --border-width-field: var(--field-border-width, var(--border-width));
+
+    /* Calculated Variables */
+
+    /* --- background shades --- */
+    --color-background-secondary: color-mix(in oklab, var(--background) 96%, var(--foreground) 4%);
+    --color-background-tertiary: color-mix(in oklab, var(--background) 92%, var(--foreground) 8%);
+    --color-background-inverse: var(--foreground);
+
+    /* ------------------------- */
+    --color-default-hover: color-mix(in oklab, var(--default) 96%, var(--default-foreground) 4%);
+    --color-accent-hover: color-mix(in oklab, var(--accent) 90%, var(--accent-foreground) 10%);
+    --color-success-hover: color-mix(in oklab, var(--success) 90%, var(--success-foreground) 10%);
+    --color-warning-hover: color-mix(in oklab, var(--warning) 90%, var(--warning-foreground) 10%);
+    --color-danger-hover: color-mix(in oklab, var(--danger) 90%, var(--danger-foreground) 10%);
+
+    /* Form Field Colors */
+    --color-field-hover: color-mix(
+      in oklab,
+      var(--field-background, var(--default)) 90%,
+      var(--field-foreground, var(--foreground)) 2%
+    );
+    --color-field-focus: var(--field-background, var(--default));
+    --color-field-border-hover: color-mix(
+      in oklab,
+      var(--field-border, var(--border)) 88%,
+      var(--field-foreground, var(--foreground)) 10%
+    );
+    --color-field-border-focus: color-mix(
+      in oklab,
+      var(--field-border, var(--border)) 74%,
+      var(--field-foreground, var(--foreground)) 22%
+    );
+
+    /* Soft Colors */
+    --color-accent-soft: color-mix(in oklab, var(--accent) 15%, transparent);
+    --color-accent-soft-foreground: var(--accent);
+    --color-accent-soft-hover: color-mix(in oklab, var(--accent) 20%, transparent);
+
+    --color-danger-soft: color-mix(in oklab, var(--danger) 15%, transparent);
+    --color-danger-soft-foreground: var(--danger);
+    --color-danger-soft-hover: color-mix(in oklab, var(--danger) 20%, transparent);
+
+    --color-warning-soft: color-mix(in oklab, var(--warning) 15%, transparent);
+    --color-warning-soft-foreground: var(--warning);
+    --color-warning-soft-hover: color-mix(in oklab, var(--warning) 20%, transparent);
+
+    --color-success-soft: color-mix(in oklab, var(--success) 15%, transparent);
+    --color-success-soft-foreground: var(--success);
+    --color-success-soft-hover: color-mix(in oklab, var(--success) 20%, transparent);
+
+    /* Separator Colors - Levels */
+    --color-separator-secondary: color-mix(
+      in oklab,
+      var(--surface) 85%,
+      var(--surface-foreground) 15%
+    );
+    --color-separator-tertiary: color-mix(
+      in oklab,
+      var(--surface) 81%,
+      var(--surface-foreground) 19%
+    );
+
+    /* Border Colors - Levels (progressive contrast: default → secondary → tertiary) */
+    /* Light mode: lighter → darker | Dark mode: darker → lighter */
+    --color-border-secondary: color-mix(in oklab, var(--surface) 78%, var(--surface-foreground) 22%);
+    --color-border-tertiary: color-mix(in oklab, var(--surface) 66%, var(--surface-foreground) 34%);
+
+    /* Radius and default sizes - defaults can change by just changing the --radius */
+    --radius-xs: calc(var(--radius) * 0.25); /* 0.125rem (2px) */
+    --radius-sm: calc(var(--radius) * 0.5); /* 0.25rem (4px) */
+    --radius-md: calc(var(--radius) * 0.75); /* 0.375rem (6px) */
+    --radius-lg: calc(var(--radius) * 1); /* 0.5rem (8px) */
+    --radius-xl: calc(var(--radius) * 1.5); /* 0.75rem (12px) */
+    --radius-2xl: calc(var(--radius) * 2); /* 1rem (16px) */
+    --radius-3xl: calc(var(--radius) * 3); /* 1.5rem (24px) */
+    --radius-4xl: calc(var(--radius) * 4); /* 2rem (32px) */
+
+    /* Transition Timing Functions  */
+    --ease-smooth: ease; /* same as transition: ease; */
+    /* These custom curves are made by https://twitter.com/bdc */
+
+    /* From smoother to faster */
+    --ease-in-quad: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+    --ease-in-cubic: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    --ease-in-quart: cubic-bezier(0.895, 0.03, 0.685, 0.22);
+    --ease-in-quint: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+    --ease-in-expo: cubic-bezier(0.95, 0.05, 0.795, 0.035);
+    --ease-in-circ: cubic-bezier(0.6, 0.04, 0.98, 0.335);
+    /* From slower to faster */
+    --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+    --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+    --ease-out-quint: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+    --ease-out-circ: cubic-bezier(0.075, 0.82, 0.165, 1);
+    /* Custom smooth-out curve: fast start, smooth stop - Apple style */
+    --ease-out-fluid: cubic-bezier(0.32, 0.72, 0, 1);
+    /* From slower to faster */
+    --ease-in-out-quad: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+    --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
+    --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-in-out-quint: cubic-bezier(0.86, 0, 0.07, 1);
+    --ease-in-out-expo: cubic-bezier(1, 0, 0, 1);
+    --ease-in-out-circ: cubic-bezier(0.785, 0.135, 0.15, 0.86);
+
+    /* Linear */
+    --ease-linear: linear;
+
+    /* Animations */
+    --animate-spin-fast: spin 0.75s linear infinite;
+    --animate-skeleton: skeleton 2s linear infinite;
+    --animate-caret-blink: caret-blink 1.2s ease-out infinite;
+
+    @keyframes skeleton {
+      100% {
+        transform: translateX(200%);
+      }
+    }
+
+    @keyframes caret-blink {
+      0%,
+      70%,
+      100% {
+        opacity: 1;
+      }
+      20%,
+      50% {
+        opacity: 0;
+      }
+    }
+  }
+
+```
+
+Form controls now rely on the `--field-*` variables and their calculated hover/focus variants. Update them in your theme to restyle inputs, checkboxes, radios, and OTP slots without impacting surfaces like buttons or cards.
+
+## Resources
+
+* [Colors Documentation](/docs/handbook/colors)
+* [Styling Guide](/docs/handbook/styling)
+* [Tailwind CSS v4 Theming](https://tailwindcss.com/docs/theme)
+* [BEM Methodology](https://getbem.com/)
+* [OKLCH Color Tool](https://oklch.com)
+
+</page>
+
+<page url="/docs/react/getting-started/design-principles">
+# Design Principles
+
+**Category**: react
+**URL**: https://www.heroui.com/docs/react/getting-started/design-principles
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/react/getting-started/(overview)/design-principles.mdx
+> Core principles that guide HeroUI v3's design and development
+
+
+HeroUI v3 follows 10 core principles that prioritize clarity, accessibility, customization, and developer experience.
+
+## Core Principles
+
+### 1. Semantic Intent Over Visual Style
+
+Use semantic naming (primary, secondary, tertiary) instead of visual descriptions (solid, flat, bordered). Inspired by [Uber's Base design system](https://base.uber.com/6d2425e9f/p/756216-button), variants follow a clear hierarchy:
+
+
+
+```tsx
+// ✅ Semantic variants communicate hierarchy
+<Button variant="primary">Save</Button>
+<Button variant="secondary">Edit</Button>
+<Button variant="tertiary">Cancel</Button>
+
+```
+
+| Variant       | Purpose                           | Usage            |
+| ------------- | --------------------------------- | ---------------- |
+| **Primary**   | Main action to move forward       | 1 per context    |
+| **Secondary** | Alternative actions               | Multiple allowed |
+| **Tertiary**  | Dismissive actions (cancel, skip) | Sparingly        |
+| **Danger**    | Destructive actions               | When needed      |
+
+### 2. Accessibility as Foundation
+
+Built on [React Aria Components](https://react-spectrum.adobe.com/react-aria/) for WCAG 2.1 AA compliance. Automatic ARIA attributes, keyboard navigation, and screen reader support included.
+
+```tsx
+import { Tabs, TabList, Tab, TabPanel } from '@heroui/react';
+
+<Tabs defaultSelectedKey="profile">
+  <TabList aria-label="Settings">
+    <Tab id="profile">Profile</Tab>
+    <Tab id="security">Security</Tab>
+  </TabList>
+  <TabPanel id="profile">Content</TabPanel>
+  <TabPanel id="security">Content</TabPanel>
+</Tabs>
+
+```
+
+### 3. Composition Over Configuration
+
+Compound components let you rearrange, customize, or omit parts as needed. Use dot notation, named exports, or mix both.
+
+```tsx
+// Compose parts to build exactly what you need
+import {
+  Accordion,
+  AccordionItem,
+  AccordionHeading,
+  AccordionTrigger,
+  AccordionIndicator,
+  AccordionPanel,
+  AccordionBody
+} from '@heroui/react';
+
+<Accordion>
+  <AccordionItem id="1">
+    <AccordionHeading>
+      <AccordionTrigger>
+        Question Text
+        <AccordionIndicator />
+      </AccordionTrigger>
+    </AccordionHeading>
+    <AccordionPanel>
+      <AccordionBody>Answer content</AccordionBody>
+    </AccordionPanel>
+  </AccordionItem>
+</Accordion>
+
+```
+
+### 4. Progressive Disclosure
+
+Start simple, add complexity only when needed. Components work with minimal props and scale up as requirements grow.
+
+```tsx
+// Level 1: Minimal
+<Button>Click me</Button>
+
+// Level 2: Enhanced
+<Button variant="primary" size="lg">
+  <Icon icon="gravity-ui:check" className="mr-2" />
+  Submit
+</Button>
+
+// Level 3: Advanced
+<Button variant="primary" isDisabled={isLoading}>
+  {isLoading ? <><Spinner size="sm" className="mr-2" /> Loading...</> : 'Submit'}
+</Button>
+
+```
+
+### 5. Predictable Behavior
+
+Consistent patterns across all components: sizes (`sm`, `md`, `lg`), variants, className support, and data attributes. Same API, same behavior.
+
+```tsx
+// All components follow the same patterns
+<Button size="lg" variant="primary" className="custom" data-pressed="true" />
+<Chip size="lg" variant="success" className="custom" />
+<Avatar size="lg" className="custom" />
+
+// Compound components support both named exports and dot notation
+import { Alert, AlertIcon, CardHeader, AccordionTrigger } from '@heroui/react';
+
+// Named exports
+<Alert>
+  <AlertIcon />
+</Alert>
+
+// Dot notation
+<Alert>
+  <Alert.Icon />
+</Alert>
+
+```
+
+### 6. Type Safety First
+
+Full TypeScript support with IntelliSense, auto-completion, and compile-time error detection. Extend types for custom components.
+
+```tsx
+import type { ButtonProps } from '@heroui/react';
+
+// Type-safe props and event handlers
+<Button
+  variant="primary"  // Autocomplete: primary | secondary | tertiary | danger | ghost
+  size="md"          // Type checked: sm | md | lg
+  onPress={(e) => {  // e is properly typed as PressEvent
+    console.log(e.target);
+  }}
+/>
+
+// Extend types for custom components
+interface CustomButtonProps extends Omit<ButtonProps, 'variant'> {
+  intent: 'save' | 'cancel' | 'delete';
+}
+
+```
+
+### 7. Separation of Styles and Logic
+
+Styles (`@heroui/styles`) are separate from logic (`@heroui/react`), enabling use with any framework or vanilla HTML. See [Tailwind Play example](https://play.tailwindcss.com/vMYXzKPyUx).
+
+```html
+<!-- Use with plain HTML -->
+<button class="button button--primary">Click me</button>
+
+```
+
+or with React:
+
+```tsx
+// Apply styles to any component
+import { buttonVariants } from '@heroui/styles';
+
+<Link className={buttonVariants({ variant: "primary" })} href="/home">
+  Home
+</Link>
+
+```
+
+### 8. Developer Experience Excellence
+
+Clear APIs, descriptive errors, IntelliSense, AI-friendly markdown docs, and Storybook for visual testing.
+
+### 9. Complete Customization
+
+Beautiful defaults out-of-the-box. Transform the entire look with CSS variables or [BEM](https://getbem.com/) classes. Every slot is customizable.
+
+```css
+/* Theme-wide changes with variables */
+:root {
+  --accent: oklch(0.7 0.25 260);
+  --radius: 0.375rem;
+  --spacing: 0.5rem;
+}
+
+/* Component-specific customization */
+@layer components {
+  .button {
+    @apply uppercase tracking-wider;
+  }
+  .button--primary {
+    @apply bg-gradient-to-r from-purple-500 to-pink-500;
+  }
+}
+
+```
+
+### 10. Open and Extensible
+
+Wrap, extend, and customize components to match your needs. Use variant functions, direct BEM class application, or create custom wrappers.
+
+**Apply styles with variant functions:**
+
+```tsx
+import { Link } from '@heroui/react';
+import { linkVariants } from '@heroui/styles';
+import NextLink from 'next/link';
+
+// Use variant functions to style framework-specific components
+const slots = linkVariants({ underline: "hover" });
+
+<NextLink className={slots.base()} href="/about">
+  About Page
+  <Link.Icon className={slots.icon()} />
+</NextLink>
+
+```
+
+**Apply BEM classes directly:**
+
+```tsx
+import Link from 'next/link';
+
+// Apply HeroUI's BEM classes directly to any element
+<Link className="button button--primary" href="/dashboard">
+  Dashboard
+</Link>
+
+```
+
+**Create custom wrapper components:**
+
+```tsx
+// Custom wrapper component
+const CTAButton = ({
+  intent = 'primary-cta',
+  children,
+  ref,
+  ...props
+}: CTAButtonProps) => {
+  const variantMap = {
+    'primary-cta': 'primary',
+    'secondary-cta': 'secondary',
+    'minimal': 'ghost'
+  };
+
+  return (
+    <Button ref={ref} variant={variantMap[intent]} {...props}>
+      {children}
+    </Button>
+  );
+};
+
+```
+
+**Extend with Tailwind Variants:**
+
+```tsx
+import { Button } from '@heroui/react';
+import { buttonVariants, tv } from '@heroui/styles';
+
+// Extend button styles with custom variants
+const myButtonVariants = tv({
+  extend: buttonVariants,
+  variants: {
+    variant: {
+      'primary-cta': 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg',
+      'secondary-cta': 'border-2 border-blue-500 text-blue-500 hover:bg-blue-50',
+    }
+  }
+});
+
+// Use the custom variants
+function CustomButton({ variant, className, ...props }) {
+  return <Button className={myButtonVariants({ variant, className })} {...props} />;
+}
+
+// Usage
+<CustomButton variant="primary-cta">Get Started</CustomButton>
+<CustomButton variant="secondary-cta">Learn More</CustomButton>
+
+```
+
+## Comparison with HeroUI v2
+
+| Aspect                       | HeroUI v2                            | HeroUI v3                                 |
+| ---------------------------- | ------------------------------------ | ----------------------------------------- |
+| **Animations**               | Framer Motion                        | CSS + GPU accelerated                     |
+| **Component Pattern**        | Single components with many props    | Compound components                       |
+| **Variants**                 | Visual-based (solid, bordered, flat) | Semantic (primary, secondary, tertiary)   |
+| **Styling**                  | Tailwind v4 partially supported      | Tailwind v4 fully supported               |
+| **Accessibility**            | Excellent (React Aria powered)       | Excellent (React Aria powered)            |
+| **Bundle Size**              | Larger (Bundle)                      | Smaller (tree-shakeable)                  |
+| **Customization Difficulty** | Medium (Props-based)                 | Simple (Compound components + Native CSS) |
+
+</page>
+
+<page url="/docs/react/getting-started/quick-start">
+# Quick Start
+
+**Category**: react
+**URL**: https://www.heroui.com/docs/react/getting-started/quick-start
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/react/getting-started/(overview)/quick-start.mdx
+> Get started with HeroUI v3 in minutes
+
+
+## Requirements
+
+* [React 19+](https://reactjs.org/)
+* [Tailwind CSS v4](https://tailwindcss.com/docs/installation/framework-guides)
+
+## Quick Install
+
+Install HeroUI and required dependencies:
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]}>
+  <Tab value="npm">
+    ```bash
+    npm i @heroui/styles @heroui/react
+    ```
+  </Tab>
+
+  <Tab value="pnpm">
+    ```bash
+    pnpm add @heroui/styles @heroui/react
+    ```
+  </Tab>
+
+  <Tab value="yarn">
+    ```bash
+    yarn add @heroui/styles @heroui/react
+    ```
+  </Tab>
+
+  <Tab value="bun">
+    ```bash
+    bun add @heroui/styles @heroui/react
+    ```
+  </Tab>
+</Tabs>
+
+## Import Styles
+
+Add to your main CSS file `globals.css`:
+
+```css
+@import "tailwindcss";
+@import "@heroui/styles"; /* [!code highlight]*/
+
+```
+
+<Callout type="warning">
+  Import order matters. Always import `tailwindcss` first.
+</Callout>
+
+## Use Components
+
+```tsx
+import { Button } from '@heroui/react';
+
+function App() {
+  return (
+    <Button>
+      My Button
+    </Button>
+  );
+}
+
+```
+
+## What's Next?
+
+* [Themes](/themes) - Create and share your own themes
+* [Browse Components](/docs/react/components) - See all available components
+* [Learn Styling](/docs/handbook/styling) - Customize with Tailwind CSS
+* [Explore Patterns](/docs/handbook/composition) - Master compound components
+
+</page>
+
+<page url="/docs/react/getting-started/agent-skills">
+# Agent Skills
+
+**Category**: react
+**URL**: https://www.heroui.com/docs/react/getting-started/agent-skills
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/react/getting-started/(ui-for-agents)/agent-skills.mdx
+> Enable AI assistants to build UIs with HeroUI v3 components
+
+
+HeroUI Skills give your AI assistant comprehensive knowledge of HeroUI v3 components, patterns, and best practices.
+
+
+
+### Installation
+
+```bash
+curl -fsSL https://heroui.com/install | bash -s heroui-react
+
+```
+
+Or using the skills package:
+
+```bash
+npx skills add heroui-inc/heroui
+
+```
+
+<span className="text-sm text-muted">
+  Support Claude Code, Cursor, OpenCode and more.
+</span>
+
+### Usage
+
+Skills are **automatically discovered** by your AI assistant, or call it directly using `/heroui-react` command.
+
+Simply ask your AI assistant to:
+
+* Build components using HeroUI v3
+* Create pages with HeroUI components
+* Customize themes and styles
+* Access component documentation
+
+<Callout>
+  For more complex use cases, use the [MCP Server](/docs/react/getting-started/mcp-server) which provides real-time access to component documentation and source code.
+</Callout>
+
+### What's Included
+
+* HeroUI v3 installation guide
+* All HeroUI v3 components with props, examples, and usage patterns
+* Theming and styling guidelines
+* Design principles and composition patterns
+
+### Structure
+
+```
+
+skills/heroui-react/
+├── SKILL.md              # Main skill documentation
+├── LICENSE.txt           # MIT license
+└── scripts/              # Utility scripts
+    ├── list_components.mjs
+    ├── get_component_docs.mjs
+    ├── get_source.mjs
+    ├── get_styles.mjs
+    ├── get_theme.mjs
+    └── get_docs.mjs
+
+```
+
+### Related Documentation
+
+* [Agent Skills Specification](https://agentskills.io/home) - Learn about the Agent Skills format
+* [Claude Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) - Claude's Skills documentation
+* [Cursor Skills](https://cursor.com/docs/context/skills) - Using Skills in Cursor
+* [OpenCode Skills](https://opencode.ai/docs/skills) - Using Skills in OpenCode
+
+</page>
+
+<page url="/docs/react/getting-started/agents-md">
+# AGENTS.md
+
+**Category**: react
+**URL**: https://www.heroui.com/docs/react/getting-started/agents-md
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/react/getting-started/(ui-for-agents)/agents-md.mdx
+> Download HeroUI v3 React documentation for AI coding agents
+
+
+Download HeroUI v3 React documentation directly into your project for AI assistants to reference.
+
+<Callout>
+  **Note:** The `agents-md` command is specifically for HeroUI React v3. Other CLI commands (like `add`, `init`, `upgrade`, etc.) are for HeroUI v2 (for now).
+</Callout>
+
+
+
+### Usage
+
+```bash
+npx heroui-cli@latest agents-md --react
+
+```
+
+Or specify output file:
+
+```bash
+npx heroui-cli@latest agents-md --react --output AGENTS.md
+
+```
+
+### What It Does
+
+* Downloads latest HeroUI v3 React docs to `.heroui-docs/react/`
+* Generates an index in `AGENTS.md` or `CLAUDE.md`
+* Includes demo files for code examples
+* Adds `.heroui-docs/` to `.gitignore` automatically
+
+### Options
+
+* `--react` - Download React docs only
+* `--output <files...>` - Target file(s) (e.g., `AGENTS.md` or `AGENTS.md CLAUDE.md`)
+* `--ssh` - Use SSH for git clone
+
+### Requirements
+
+* Tailwind CSS >= v4
+* React >= 19.0.0
+* `@heroui/react >= 3.0.0` or `@latest`
+
+### Related Documentation
+
+* [AGENTS.md](https://agents.md/) - Learn about the AGENTS.md format for coding agents
+* [CLAUDE.md](https://code.claude.com/docs/en/best-practices#write-an-effective-claude-md) - Claude equivalent of AGENTS.md
+* [AGENTS.md vs Skills](https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals) - AGENTS.md performance
+
+</page>
+
+<page url="/docs/react/getting-started/llms-txt">
+# LLMs.txt
+
+**Category**: react
+**URL**: https://www.heroui.com/docs/react/getting-started/llms-txt
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/react/getting-started/(ui-for-agents)/llms-txt.mdx
+> Enable AI assistants like Claude, Cursor, and Windsurf to understand HeroUI v3
+
+
+We provide [LLMs.txt](https://llmstxt.org/) files to make HeroUI v3 documentation accessible to AI coding assistants.
+
+## Available Files
+
+**Core documentation:**
+
+* [/react/llms.txt](/react/llms.txt) — Quick reference index for React documentation
+* [/react/llms-full.txt](/react/llms-full.txt) — Complete HeroUI React documentation
+
+**For limited context windows:**
+
+* [/react/llms-components.txt](/react/llms-components.txt) — Component documentation only
+* [/react/llms-patterns.txt](/react/llms-patterns.txt) — Common patterns and recipes
+
+**All platforms:**
+
+* [/llms.txt](/llms.txt) — Quick reference index (React + Native)
+* [/llms-full.txt](/llms-full.txt) — Complete documentation (React + Native)
+* [/llms-components.txt](/llms-components.txt) — All component documentation
+* [/llms-patterns.txt](/llms-patterns.txt) — All patterns and recipes
+
+## Integration
+
+**Claude Code:** Tell Claude to reference the documentation:
+
+```
+Use HeroUI React documentation from https://heroui.com/react/llms.txt
+
+```
+
+Or add to your project's `.claude` file for automatic loading.
+
+**Cursor:** Use the `@Docs` feature:
+
+```
+@Docs https://heroui.com/react/llms-full.txt
+
+```
+
+[Learn more](https://docs.cursor.com/context/@-symbols/@-docs)
+
+**Windsurf:** Add to your `.windsurfrules` file:
+
+```
+#docs https://heroui.com/react/llms-full.txt
+
+```
+
+[Learn more](https://docs.codeium.com/windsurf/memories#memories-and-rules)
+
+**Other AI tools:** Most AI assistants can reference documentation by URL. Simply provide:
+
+```
+https://heroui.com/react/llms.txt
+
+```
+
+**For component-specific documentation:**
+
+```
+
+https://heroui.com/react/llms-components.txt
+
+```
+
+**For patterns and best practices:**
+
+```
+
+https://heroui.com/react/llms-patterns.txt
+
+```
+
+## Contributing
+
+Found an issue with AI-generated code? Help us improve our LLMs.txt files on [GitHub](https://github.com/heroui-inc/heroui).
+
+</page>
+
+<page url="/docs/react/getting-started/mcp-server">
+# MCP Server
+
+**Category**: react
+**URL**: https://www.heroui.com/docs/react/getting-started/mcp-server
+**Source**: https://raw.githubusercontent.com/heroui-inc/heroui/refs/heads/v3/apps/docs/content/docs/react/getting-started/(ui-for-agents)/mcp-server.mdx
+> Access HeroUI v3 documentation directly in your AI assistant
+
+
+The HeroUI MCP Server gives AI assistants direct access to HeroUI v3 component documentation, making it easier to build with HeroUI in AI-powered development environments.
+
+
+
+The MCP server currently supports **@heroui/react v3** only and [stdio transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#stdio). Published at `@heroui/react-mcp` on npm. View the source code on [GitHub](https://github.com/heroui-inc/heroui-mcp).
+
+<Callout>
+  As we add more components to HeroUI v3, they'll be available in the MCP server too.
+</Callout>
+
+## Quick Setup
+
+### Cursor
+
+<div className="flex items-center gap-3 mb-4">
+  <a href="https://link.heroui.com/mcp-cursor-install" className="button button--tertiary button--sm no-underline">
+    <svg viewBox="0 0 466.73 532.09" className="w-5 h-5 fill-current">
+      <path d="M457.43,125.94L244.42,2.96c-6.84-3.95-15.28-3.95-22.12,0L9.3,125.94c-5.75,3.32-9.3,9.46-9.3,16.11v247.99c0,6.65,3.55,12.79,9.3,16.11l213.01,122.98c6.84,3.95,15.28,3.95,22.12,0l213.01-122.98c5.75-3.32,9.3-9.46,9.3-16.11v-247.99c0-6.65-3.55-12.79-9.3-16.11h-.01ZM444.05,151.99l-205.63,356.16c-1.39,2.4-5.06,1.42-5.06-1.36v-233.21c0-4.66-2.49-8.97-6.53-11.31L24.87,145.67c-2.4-1.39-1.42-5.06,1.36-5.06h411.26c5.84,0,9.49,6.33,6.57,11.39h-.01Z" />
+    </svg>
+
+    <span>Install in Cursor</span>
+  </a>
+</div>
+
+Or manually add to **Cursor Settings** → **Tools** → **MCP Servers**:
+
+```json title=".cursor/mcp.json"
+{
+  "mcpServers": {
+    "heroui-react": {
+      "command": "npx",
+      "args": ["-y", "@heroui/react-mcp@latest"]
+    }
+  }
+}
+
+```
+
+Alternatively, add the following to your `~/.cursor/mcp.json` file. To learn more, see the [Cursor documentation](https://cursor.com/docs/context/mcp).
+
+### Claude Code
+
+Run this command in your terminal:
+
+```bash
+claude mcp add heroui-react -- npx -y @heroui/react-mcp@latest
+
+```
+
+Or manually add to your project's `.mcp.json` file:
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "heroui-react": {
+      "command": "npx",
+      "args": ["-y", "@heroui/react-mcp@latest"]
+    }
+  }
+}
+
+```
+
+After adding the configuration, restart Claude Code and run `/mcp` to see the HeroUI MCP server in the list. If you see **Connected**, you're ready to use it.
+
+See the [Claude Code MCP documentation](https://docs.claude.com/en/docs/claude-code/mcp) for more details.
+
+### Windsurf
+
+Add the HeroUI server to your project's `.windsurf/mcp.json` configuration file:
+
+```json title=".windsurf/mcp.json"
+{
+  "mcpServers": {
+    "heroui-react": {
+      "command": "npx",
+      "args": ["-y", "@heroui/react-mcp@latest"]
+    }
+  }
+}
+
+```
+
+After adding the configuration, restart Windsurf to activate the MCP server.
+
+See the [Windsurf MCP documentation](https://docs.windsurf.com/windsurf/cascade/mcp) for more details.
+
+### Zed
+
+Add the HeroUI server to your `settings.json` configuration file. Open settings via Command Palette (`zed: open settings`) or use `Cmd-,` (Mac) / `Ctrl-,` (Linux):
+
+```json title="settings.json"
+{
+  "context_servers": {
+    "heroui-react": {
+      "command": "npx",
+      "args": ["-y", "@heroui/react-mcp@latest"],
+      "env": {}
+    }
+  }
+}
+
+```
+
+After adding the configuration, restart Zed and open the Agent Panel settings view. Check that the indicator dot next to the heroui server is green with "Server is active" tooltip.
+
+See the [Zed MCP documentation](https://zed.dev/docs/ai/mcp) for more details.
+
+### VS Code
+
+To configure MCP in VS Code with GitHub Copilot, add the HeroUI server to your project's `.vscode/mcp.json` configuration file:
+
+```json title=".vscode/mcp.json"
+{
+  "servers": {
+    "heroui-react": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@heroui/react-mcp@latest"]
+    }
+  }
+}
+
+```
+
+After adding the configuration, open `.vscode/mcp.json` and click **Start** next to the heroui-react server.
+
+See the [VS Code MCP documentation](https://code.visualstudio.com/docs/copilot/customization/mcp-servers) for more details.
+
+### Codex
+
+Add the HeroUI server to your `~/.codex/config.toml` (or a project-scoped `.codex/config.toml`):
+
+```toml title="config.toml"
+[mcp_servers.heroui-react]
+command = "npx"
+args = ["-y", "@heroui/react-mcp@latest"]
+
+```
+
+After adding the configuration, restart Codex and run `/mcp` in the TUI to verify the server is active.
+
+See the [Codex MCP documentation](https://developers.openai.com/codex/mcp) for more details.
+
+### OpenCode
+
+Add the HeroUI server to your project's `opencode.json` configuration file:
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "heroui-react": {
+      "type": "local",
+      "command": ["npx", "-y", "@heroui/react-mcp@latest"]
+    }
+  }
+}
+
+```
+
+After adding the configuration, restart OpenCode to activate the MCP server.
+
+See the [OpenCode MCP documentation](https://open-code.ai/docs/en/mcp-servers) for more details.
+
+## Usage
+
+Once configured, ask your AI assistant questions like:
+
+* "Help me install HeroUI v3 in my Next.js/Vite/Astro app"
+* "Show me all HeroUI components"
+* "What props does the Button component have?"
+* "Give me an example of using the Card component"
+* "Get the source code for the Button component"
+* "Show me the CSS styles for Card"
+* "What are the theme variables for dark mode?"
+
+### Automatic Updates
+
+The MCP server can help you upgrade to the latest HeroUI version:
+
+```bash
+"Hey Cursor, update HeroUI to the latest version"
+
+```
+
+Your AI assistant will automatically:
+
+* Compare your current version with the latest release
+* Review the changelog for breaking changes
+* Apply the necessary code updates to your project
+
+This works for any version upgrade, whether you're updating to the latest stable or pre-release version.
+
+## Available Tools
+
+The MCP server provides these tools to AI assistants:
+
+| Tool                          | Description                                                                                                                                                |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `list_components`             | List all available HeroUI v3 components                                                                                                                    |
+| `get_component_docs`          | Get complete component documentation including anatomy, props, examples, and usage patterns for one or more components                                     |
+| `get_component_source_code`   | Access the React/TypeScript source code (.tsx files) for components                                                                                        |
+| `get_component_source_styles` | View the CSS styles (.css files) for components                                                                                                            |
+| `get_theme_variables`         | Access theme variables for colors, typography, spacing with light/dark mode support                                                                        |
+| `get_docs`                    | Browse the full HeroUI v3 documentation including guides and principles (use path `/docs/react/getting-started/quick-start` for installation instructions) |
+
+## Troubleshooting
+
+**Requirements:** Node.js 22 or higher. The package will be automatically downloaded when using `npx`.
+
+**Need help?** [GitHub Issues](https://github.com/heroui-inc/heroui-mcp/issues) | [Discord Community](https://discord.gg/heroui)
+
+## Links
+
+* [npm Package](https://www.npmjs.com/package/@heroui/react-mcp)
+* [GitHub Repository](https://github.com/heroui-inc/heroui-mcp)
+* [Contributing Guide](https://github.com/heroui-inc/heroui-mcp/blob/main/CONTRIBUTING.md)
+
+</page>

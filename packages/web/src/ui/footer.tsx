@@ -6,7 +6,7 @@ import { ThemeSwitcher } from './theme'
 
 export function Footer() {
     return (
-        <footer className='w-full border-t dark:bg-[#0a0a0a]'>
+        <footer className='w-full border-t'>
             <div className='mx-auto flex w-full max-w-7xl items-center justify-between p-4'>
                 <Link
                     className='font-mono font-bold tracking-tighter no-underline select-none'

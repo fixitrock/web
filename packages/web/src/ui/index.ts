@@ -1,5 +1,6 @@
+export { mergeClassName } from './hero'
+export type { SharedClassNameProps } from './hero'
 export * from './footer'
 export * from './provider'
 export * from './theme'
-export { mergeClassName } from './hero'
-export type { SharedClassNameProps } from './hero'
+export * from './bar'

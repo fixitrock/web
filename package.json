@@ -13,6 +13,7 @@
         "android:mobile": "pnpm --filter ./apps/mobile android",
         "ios:mobile": "pnpm --filter ./apps/mobile ios",
         "lint": "turbo run lint",
+        "sync:heroui-context": "node ./scripts/sync-heroui-ai-context.mjs",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "check-types": "turbo run check-types"
     },
