@@ -1,0 +1,76 @@
+---
+title: Introduction
+description: The central guide for customers, repair users, and sellers working inside Fix iT Rock.
+---
+
+<div className='not-prose mb-10 rounded-[2rem] border bg-white/70 p-6 shadow-sm backdrop-blur dark:bg-white/5'>
+    <div className='grid gap-6 lg:grid-cols-[1.15fr_0.85fr]'>
+        <div>
+            <p className='text-sm font-medium tracking-[0.18em] text-black/45 uppercase dark:text-white/45'>
+                Fix iT Rock
+            </p>
+            <h2 className='mt-3 text-3xl font-semibold tracking-tight sm:text-4xl'>
+                One documentation layer for downloads, storefronts, and operations.
+            </h2>
+            <p className='mt-4 max-w-2xl text-sm leading-6 text-black/62 dark:text-white/70'>
+                Use this space to understand how public tool routes, seller storefronts, products,
+                POS, orders, and receipts connect across the platform.
+            </p>
+        </div>
+        <div className='rounded-[1.5rem] border bg-black/[0.02] p-5 dark:bg-white/5'>
+            <div className='space-y-3 text-sm'>
+                <div className='flex items-center justify-between'>
+                    <span className='text-black/45 dark:text-white/45'>Public routes</span>
+                    <span className='font-medium'>/space /frp /space/Drivers</span>
+                </div>
+                <div className='flex items-center justify-between'>
+                    <span className='text-black/45 dark:text-white/45'>Seller routes</span>
+                    <span className='font-medium'>/@username /products /pos</span>
+                </div>
+                <div className='flex items-center justify-between'>
+                    <span className='text-black/45 dark:text-white/45'>Audience</span>
+                    <span className='font-medium'>Users and sellers</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+Fix iT Rock combines two big jobs in one product:
+
+1. Give repair users fast access to Space downloads, drivers, FRP files, iCloud resources, and tools.
+2. Give sellers a live storefront with products, categories, brands, POS, orders, stock, and settings.
+
+This docs app is written around the routes and features that already exist in the project.
+
+## Start Here
+
+<Cards>
+    <Card title='Getting Started' href='/docs/getting-started'>
+        Learn the route structure, account flow, support links, and the basic navigation model.
+    </Card>
+    <Card title='User Guides' href='/docs/user'>
+        Use Space, browse files, open FRP and tools, and understand receipts and seller pages.
+    </Card>
+    <Card title='Seller Guides' href='/docs/seller'>
+        Set up your profile, add products, run POS, and manage daily store operations.
+    </Card>
+</Cards>
+
+## Main Product Areas
+
+| Area              | Route                                                 | What it is for                                                   |
+| ----------------- | ----------------------------------------------------- | ---------------------------------------------------------------- |
+| Space             | `/space`                                              | Firmware, apps, games, drivers, flashing tools, and repair files |
+| FRP               | `/frp`                                                | Factory Reset Protection help and related unlock resources       |
+| iCloud            | `/space/iCloud`                                       | Apple and iCloud-specific content                                |
+| Drivers           | `/space/Drivers`                                      | USB driver downloads                                             |
+| Flash Tools       | `/space/Flash-Tool`                                   | Flashing and unlock utilities                                    |
+| Seller storefront | `/@username`                                          | Public store page with tabs and profile                          |
+| Seller workspace  | `/@username/products`, `/pos`, `/orders`, `/settings` | Private operating area for the seller                            |
+
+## Who These Docs Are For
+
+- Use the [User section](./user/index.mdx) if you mainly download tools, browse sellers, or open receipts.
+- Use the [Seller section](./seller/index.mdx) if you manage products, orders, and your shop profile.
+- Use the [Demo workspace guide](./getting-started/demo-workspace.mdx) if you need sample staging data for walkthroughs or screenshots.
