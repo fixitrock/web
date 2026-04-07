@@ -1,5 +1,0 @@
-export { getData } from './getData'
-export { getQuotes } from './getQuotes'
-export { getSlug } from './getSlug'
-export { getNavigation } from './navigation'
-export { getCommand } from './command'

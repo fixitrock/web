@@ -1,7 +1,0 @@
-export * from './brands'
-export * from './settings'
-export * from './pos'
-export * from './categories'
-export * from './orders'
-export * from './stocks'
-export * from './pay'
