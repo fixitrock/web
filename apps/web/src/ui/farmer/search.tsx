@@ -70,7 +70,9 @@ function ModalContentWrapper({ children }: AnimatedSearchProps) {
                         },
                     },
                 }}
-                onClose={onClose}
+                onOpenChange={(open) => {
+                    if (!open) onClose()
+                }}
             >
                 <ModalContent>{children}</ModalContent>
             </Modal>
