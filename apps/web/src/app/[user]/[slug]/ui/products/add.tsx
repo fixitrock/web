@@ -3,7 +3,6 @@
 import { useBrands, useCategories, useColors } from '@/hooks/tanstack/query'
 import { useProductStore } from '@/zustand/store/product'
 import { useAddProduct, useUpdateProduct } from '@/hooks/tanstack/mutation'
-import Image from 'next/image'
 import {
     Autocomplete,
     AutocompleteItem,

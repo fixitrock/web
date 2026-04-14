@@ -76,7 +76,7 @@ export function PosProduct({ className }: Props): React.ReactNode {
                 </Autocomplete>
             </div>
 
-            <ScrollShadow hideScrollBar className='p-0.5'>
+            <ScrollShadow hideScrollBar className='p-0.5 h-full'>
                 {showEmptyState && <PosEmptyState type='product' />}
                 {showSearchEmpty && <PosEmptyState type='search' value={query} />}
                 {showCategoryEmpty && <PosEmptyState type='category' value={category} />}

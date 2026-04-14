@@ -258,9 +258,10 @@ export const useProductStore = create<ProductState>((set, get) => {
                 const item = variants[index]
                 if (!item) return { form: { ...state.form } }
 
-                // shallow clone the variant, clone image array if present
-                const cloned = {
+                // Clear the row id so the duplicate is inserted as a new variant.
+                const cloned: ProductVariant = {
                     ...item,
+                    id: '',
                     image: item.image ? [...item.image] : [],
                 }
 

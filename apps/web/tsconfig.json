@@ -22,8 +22,7 @@
         "paths": {
             "@/*": ["./src/*"],
             "@tanstack/*": ["./src/hooks/tanstack/*"]
-        },
-        "baseUrl": "."
+        }
     },
     "include": [
         "next-env.d.ts",

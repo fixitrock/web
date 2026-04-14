@@ -111,10 +111,6 @@ const productErrorRules: ErrorRule[] = [
         message: appMessages.product.brandRequired,
     },
     {
-        match: ['variant storage is required'],
-        message: appMessages.product.storageRequired,
-    },
-    {
         match: ['variant purchase price is required'],
         message: appMessages.product.purchasePriceRequired,
     },
