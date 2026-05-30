@@ -33,6 +33,7 @@ function stopSearchBarKeyHandling(event: ReactKeyboardEvent<HTMLElement>) {
 export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
     const { isOpen, onOpenChange, onClose } = useDisclosure()
     const isDesktop = useMediaQuery('(min-width: 786px)')
+    const searchIsOpen = useSearchStore((s) => s.isOpen)
     const {
         transactions,
         setTransactionAmount,
@@ -42,7 +43,9 @@ export function AddTransaction({ type }: { type: 'debit' | 'credit' }) {
     } = useCartStore()
     const { selectedTransaction } = useSearchStore()
     const { addTransaction } = useTransactions()
-
+    if (!selectedTransaction || !searchIsOpen) {
+        return null
+    }
     const transaction = transactions[type]
     const amountValue = transaction.amount ? String(transaction.amount) : ''
 

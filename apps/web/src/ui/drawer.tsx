@@ -70,7 +70,7 @@ function DrawerContent({
                 data-slot='drawer-content'
                 {...props}
             >
-                {showbar && <div className='bg-default mx-auto my-2 h-1 w-20 rounded-full' />}
+                {showbar && <div className='bg-default mx-auto h-[5px] w-16 rounded-full absolute inset-x-0 -top-3' />}
                 {hideCloseButton && (
                     <DrawerPrimitive.Close
                         asChild

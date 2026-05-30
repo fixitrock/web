@@ -42,7 +42,7 @@ function ModalContentWrapper({ children }: AnimatedSearchProps) {
                 backdrop='opaque'
                 classNames={{
                     base: [
-                        'flex h-[70dvh] max-h-[calc(100%_-_10px)] max-w-160 flex-col md:h-[60dvh]',
+                        'flex h-[70%] max-h-[calc(100%_-_10px)] max-w-160 flex-col md:h-[60dvh]',
                         'p-0.5',
                         `rounded-[18px] border bg-white md:w-160 ${SHELL_CLASSES}`,
                     ],
@@ -81,7 +81,7 @@ function ModalContentWrapper({ children }: AnimatedSearchProps) {
 
     return (
         <Drawer open={isOpen} onClose={onClose}>
-            <DrawerContent className={`h-[70dvh] ${SHELL_CLASSES}`} ref={ref}>
+            <DrawerContent className={`h-[70%] ${SHELL_CLASSES}`} ref={ref}>
                 <DrawerHeader className='sr-only'>
                     <DrawerTitle />
                     <DrawerDescription />
